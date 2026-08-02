@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { CqrsResponseInterceptor } from './common/interceptors/result.interceptor';
 
 @Module({
   imports: [
@@ -9,6 +11,7 @@ import { UserModule } from './user/user.module';
       isGlobal: true,
       envFilePath: '.env',
     }),
+    
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -25,6 +28,12 @@ import { UserModule } from './user/user.module';
       }),
     }),
     UserModule
+  ],
+   providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CqrsResponseInterceptor,
+    },
   ],
 })
 export class AppModule {}
