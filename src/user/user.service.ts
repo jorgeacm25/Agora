@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { UpdatePasswordDto } from './dto/update-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -36,7 +37,6 @@ export class UsersService {
     return await this.usersRepository.find();
   }
 
-  // 🔽 Cambio clave: id ahora es string
   async findOne(id: string): Promise<User> {
     const user = await this.usersRepository.findOne({ where: { id } });
     if (!user) {
@@ -49,30 +49,24 @@ export class UsersService {
     return await this.usersRepository.findOne({ where: { username } });
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findOne(id);
-
-    if (updateUserDto.username && updateUserDto.username !== user.username) {
-      const existingUser = await this.usersRepository.findOne({
-        where: { username: updateUserDto.username },
-      });
-      if (existingUser) {
-        throw new ConflictException('El nombre de usuario ya está en uso');
-      }
-    }
-
-    if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, this.saltRounds);
-    }
-
-    Object.assign(user, updateUserDto);
-    return await this.usersRepository.save(user);
-  }
-
   async remove(id: string): Promise<void> {
     const result = await this.usersRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
     }
+  }
+  async updatePassword(id: string, updatePasswordDto: UpdatePasswordDto): Promise<User> {
+    const user = await this.findOne(id);
+
+    if (updatePasswordDto.password !== undefined) {
+      if (updatePasswordDto.password === null) {
+        user.password = null;
+      } else {
+        user.password = await bcrypt.hash(updatePasswordDto.password, this.saltRounds);
+      }
+    }
+
+
+    return await this.usersRepository.save(user);
   }
 }
