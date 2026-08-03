@@ -1,9 +1,10 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CqrsResponseInterceptor } from './common/interceptors/result.interceptor';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { CqrsResponseInterceptor } from './common/interceptors/result.intercepto
         database: configService.get('DB_DATABASE', 'delivery_db'),
         entities: ['dist/**/*.entity{.ts,.js}'],
         synchronize: false,
-        logging: true,
+        logging: false,
       }),
     }),
     UserModule
@@ -36,4 +37,10 @@ import { CqrsResponseInterceptor } from './common/interceptors/result.intercepto
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes('*');
+  }
+}
