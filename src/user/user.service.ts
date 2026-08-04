@@ -19,7 +19,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   // ========== OPERACIONES DE ESCRITURA (usan la entidad) ==========
 
@@ -104,7 +104,12 @@ export class UsersService {
       return Result.error(new BaseError('Error al obtener usuarios', 500));
     }
   }
-
+  async findEntityByUsername(username: string): Promise<User | null> {
+    return await this.usersRepository.findOne({ where: { username } });
+  }
+  async findEntityById(id: string): Promise<User | null> {
+    return await this.usersRepository.findOne({ where: { id } });
+  }
   async findOne(id: string): Promise<Result<UserResponseDto>> {
     try {
       const user = await this.usersRepository.findOne({ where: { id } });
