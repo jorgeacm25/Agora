@@ -5,6 +5,11 @@ export abstract class Permissions {
   static readonly USER_DELETE = 'user:delete';
   static readonly USER_VIEW = 'user:view';
 
+  static readonly PRODUCT_CREATE = 'product:create';
+  static readonly PRODUCT_UPDATE = 'product:update';
+  static readonly PRODUCT_DELETE = 'product:delete';
+  static readonly PRODUCT_VIEW = 'product:view';
+
   // Permisos por defecto para cualquier usuario nuevo
   static getDefaultUserPermissions(): string[] {
     return [

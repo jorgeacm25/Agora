@@ -8,7 +8,6 @@ export class LoggerMiddleware implements NestMiddleware {
   use(req: Request, res: Response, next: NextFunction): void {
     const start = Date.now();
 
-    // Escuchar cuando la respuesta se haya enviado completamente
     res.on('finish', () => {
       const elapsed = Date.now() - start;
       const method = req.method;
