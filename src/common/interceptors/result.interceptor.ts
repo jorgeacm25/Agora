@@ -37,7 +37,7 @@ export class CqrsResponseInterceptor implements NestInterceptor {
 
           // Escritura (POST, PATCH, DELETE): solo status 200, sin cuerpo
           response.status(HttpStatus.OK);
-          return null; // Sin cuerpo
+          return result.data || null; // Sin cuerpo
         }
 
         // Si no es Result, lo dejamos pasar
