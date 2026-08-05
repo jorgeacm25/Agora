@@ -5,6 +5,7 @@ import { UserModule } from './user/user.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { CqrsResponseInterceptor } from './common/interceptors/result.interceptor';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
+import { UserEnterpriseModule } from './user-enterprise/user-enterprise.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
         logging: false,
       }),
     }),
-    UserModule
+    UserModule,
+    UserEnterpriseModule
   ],
    providers: [
     {
