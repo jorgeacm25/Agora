@@ -7,6 +7,7 @@ import { CqrsResponseInterceptor } from './common/interceptors/result.intercepto
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { UserEnterpriseModule } from './user-enterprise/user-enterprise.module';
 import { AuthModule } from './auth/auth.module';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
@@ -31,8 +32,9 @@ import { AuthModule } from './auth/auth.module';
       }),
     }),
     UserModule,
-    UserEnterpriseModule
-    AuthModule
+    UserEnterpriseModule,
+    AuthModule,
+    SubscriptionModule
   ],
    providers: [
     {
