@@ -1,12 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { Product } from '../../product/entities/product.entity';
 
 @Entity('user_enterprises')
 export class UserEnterprise {
   @PrimaryGeneratedColumn('uuid')
   idUserEnterprise: string;
 
-  @Column({ type: 'uuid', nullable: true, name: 'userId' }) 
+  @Column({ type: 'uuid', nullable: true, name: 'userId' })
   userId: string;
 
   @OneToOne(() => User, { eager: true })
@@ -37,4 +38,7 @@ export class UserEnterprise {
 
   @Column({ type: 'bigint', nullable: true })
   code: number;
+
+  @OneToMany(() => Product, (product) => product.userEnterprise)
+  products: Product[];
 }

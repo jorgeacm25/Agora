@@ -105,8 +105,12 @@ export class UsersService {
     }
   }
   async findEntityByUsername(username: string): Promise<User | null> {
-    return await this.usersRepository.findOne({ where: { username } });
-  }
+  return await this.usersRepository
+    .createQueryBuilder('user')
+    .addSelect('user.password') // 👈 Necesario para autenticación
+    .where('user.username = :username', { username })
+    .getOne();
+}
   async findEntityById(id: string): Promise<User | null> {
     return await this.usersRepository.findOne({ where: { id } });
   }

@@ -8,6 +8,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { UserEnterpriseModule } from './user-enterprise/user-enterprise.module';
 import { AuthModule } from './auth/auth.module';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SubscriptionModule } from './subscription/subscription.module';
     UserEnterpriseModule,
     AuthModule,
     SubscriptionModule
+    ProductModule
   ],
    providers: [
     {
