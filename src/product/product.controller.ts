@@ -11,6 +11,7 @@ import {
   UploadedFile,
   Res,
   NotFoundException,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
@@ -58,19 +59,19 @@ export class ProductController {
   create(
     @UploadedFile() file: Express.Multer.File,
     @Body() createProductDto: CreateProductDto,
-  ) {
+  ): Promise<Result<Product>> {
     return this.productService.create(createProductDto, file);
   }
 
   @Get()
   @RequirePermissions(Permissions.PRODUCT_VIEW)
-  findAll() {
+  findAll(): Promise<Result<Product[]>> {
     return this.productService.findAll();
   }
 
   @Get(':id')
   @RequirePermissions(Permissions.PRODUCT_VIEW)
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<Result<Product>> {
     return this.productService.findOne(id);
   }
 
@@ -79,17 +80,22 @@ export class ProductController {
   update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-  ) {
-    return this.productService.update(id, updateProductDto);
+    @Req() req: any,
+  ): Promise<Result<void>> {
+    const userId = req.user.id;
+    return this.productService.update(id, updateProductDto, userId);
   }
 
   @Delete(':id')
   @RequirePermissions(Permissions.PRODUCT_DELETE)
-  remove(@Param('id') id: string) {
-    return this.productService.remove(id);
+  remove(
+    @Param('id') id: string,
+    @Req() req: any,
+  ): Promise<Result<void>> {
+    const userId = req.user.id;
+    return this.productService.remove(id, userId);
   }
 
-  // Endpoint para servir imágenes (con autenticación)
   @Get('image/:filename')
   @RequirePermissions(Permissions.PRODUCT_VIEW)
   async getImage(@Param('filename') filename: string, @Res() res: Response) {

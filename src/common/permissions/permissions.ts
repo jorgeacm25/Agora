@@ -17,6 +17,7 @@ export abstract class Permissions {
       this.USER_UPDATE_PASSWORD,
       this.USER_DELETE,
       this.USER_VIEW,
+      this.PRODUCT_VIEW, // 👈 Agregar
     ];
   }
 }
