@@ -35,7 +35,7 @@ import { ProductModule } from './product/product.module';
     UserModule,
     UserEnterpriseModule,
     AuthModule,
-    SubscriptionModule
+    SubscriptionModule,
     ProductModule
   ],
    providers: [
