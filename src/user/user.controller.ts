@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, ForbiddenException } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
@@ -12,13 +11,12 @@ import { Result } from '../common/classes/result.class';
 import { UserResponseDto } from './dto/user-response.dto';
 
 @Controller('user')
-@ApiBearerAuth('access-token')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
 export class UserController {
   constructor(private readonly userService: UsersService) {}
 
   @Post()
-  @Public() // Registro público
+  @Public()
   create(@Body() createUserDto: CreateUserDto): Promise<Result<void>> {
     return this.userService.create(createUserDto);
   }
@@ -37,16 +35,25 @@ export class UserController {
 
   @Patch(':id')
   @RequirePermissions(Permissions.USER_UPDATE_PASSWORD)
-  updatePassword(
+  async updatePassword(
     @Param('id') id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
+    @Req() req: any,
   ): Promise<Result<void>> {
+    // ✅ Verificar pertenencia
+    if (id !== req.user.id) {
+      throw new ForbiddenException('No puedes modificar la contraseña de otro usuario');
+    }
     return this.userService.updatePassword(id, updatePasswordDto);
   }
 
   @Delete(':id')
   @RequirePermissions(Permissions.USER_DELETE)
-  remove(@Param('id') id: string): Promise<Result<void>> {
+  async remove(@Param('id') id: string, @Req() req: any): Promise<Result<void>> {
+    // ✅ Verificar pertenencia
+    if (id !== req.user.id) {
+      throw new ForbiddenException('No puedes eliminar la cuenta de otro usuario');
+    }
     return this.userService.remove(id);
   }
 }
