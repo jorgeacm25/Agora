@@ -39,10 +39,7 @@ class ContactDto {
 }
 
 export class CreateUserEnterpriseDto {
-  @ApiProperty({ description: 'ID del usuario padre' })
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
+  // ❌ ELIMINAR userId – se toma del token
 
   @ApiProperty({ description: 'Nombre de la empresa' })
   @IsString()

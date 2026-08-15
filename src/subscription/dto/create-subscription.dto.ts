@@ -2,10 +2,7 @@ import { IsString, IsNotEmpty, IsOptional, IsNumber, Min, Max } from 'class-vali
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSubscriptionDto {
-  @ApiProperty({ description: 'ID del usuario' })
-  @IsString()
-  @IsNotEmpty()
-  userId: string;
+  // ❌ ELIMINAR userId
 
   @ApiProperty({ description: 'Nombre de la suscripción' })
   @IsString()

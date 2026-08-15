@@ -8,8 +8,7 @@ export class User {
   @Column({ type: 'varchar', length: 100, unique: true })
   username: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true, select: false }) // 👈 Oculta la contraseña
-  password: string | null;
+  // ❌ Eliminar password
 
   @Column({ type: 'json', nullable: true, default: [] })
   permissions: string[];
