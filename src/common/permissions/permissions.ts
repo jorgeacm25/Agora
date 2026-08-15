@@ -10,6 +10,12 @@ export abstract class Permissions {
   static readonly PRODUCT_DELETE = 'product:delete';
   static readonly PRODUCT_VIEW = 'product:view';
 
+  // Permisos para servicios
+  static readonly SERVICE_CREATE = 'service:create';
+  static readonly SERVICE_UPDATE = 'service:update';
+  static readonly SERVICE_DELETE = 'service:delete';
+  static readonly SERVICE_VIEW = 'service:view';
+
   // Permisos por defecto para cualquier usuario nuevo
   static getDefaultUserPermissions(): string[] {
     return [
@@ -17,7 +23,8 @@ export abstract class Permissions {
       this.USER_UPDATE_PASSWORD,
       this.USER_DELETE,
       this.USER_VIEW,
-      this.PRODUCT_VIEW, // 👈 Agregar
+      this.PRODUCT_VIEW,
+      this.SERVICE_VIEW,
     ];
   }
 }

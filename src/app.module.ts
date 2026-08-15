@@ -9,6 +9,7 @@ import { UserEnterpriseModule } from './user-enterprise/user-enterprise.module';
 import { AuthModule } from './auth/auth.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { ProductModule } from './product/product.module';
+import { ServiceModule } from './services/service.module';
 
 @Module({
   imports: [
@@ -36,7 +37,8 @@ import { ProductModule } from './product/product.module';
     UserEnterpriseModule,
     AuthModule,
     SubscriptionModule,
-    ProductModule
+    ProductModule,
+    ServiceModule
   ],
    providers: [
     {

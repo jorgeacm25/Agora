@@ -105,44 +105,60 @@ export class SubscriptionService implements OnModuleInit {
     }
   }
 
-  // ================================================
-  // CREAR SUSCRIPCIÓN
-  // ================================================
-  async create(createSubscriptionDto: CreateSubscriptionDto, userId: string): Promise<Result<Subscription>> {
-    try {
-      const user = await this.userRepository.findOne({ where: { id: userId } });
-      if (!user) {
-        return Result.error(new UserNotFoundForSubscriptionError(userId));
-      }
-      const existingActive = await this.subscriptionRepository.findOne({
-        where: {
-          user: { id: userId },
-          status: true,
-          deletedAt: IsNull(),
-        },
-      });
-      if (existingActive) {
-        return Result.error(new SubscriptionAlreadyExistsError(userId));
-      }
-      const now = new Date();
-      const expiresAt = new Date(now.getTime() + createSubscriptionDto.durationDays * 24 * 60 * 60 * 1000);
-      const newSubscription = this.subscriptionRepository.create({
-        user: user,
-        name: createSubscriptionDto.name,
-        cost: createSubscriptionDto.cost,
-        description: createSubscriptionDto.description || '',
-        status: true,
-        quantityAccounts: createSubscriptionDto.quantityAccounts,
-        durationDays: createSubscriptionDto.durationDays,
-        createdAt: now,
-        expiresAt: expiresAt,
-      });
-      const saved = await this.subscriptionRepository.save(newSubscription);
-      return Result.success(saved);
-    } catch (error) {
-      return Result.error(new BaseError('Error interno al crear la suscripción', 500));
+async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subscription>> {
+  try {
+    // 1. Verificar que el usuario existe
+    const user = await this.userRepository.findOne({
+      where: { id: createSubscriptionDto.userId },
+    });
+
+    if (!user) {
+      return Result.error(
+        new UserNotFoundForSubscriptionError(createSubscriptionDto.userId),
+      );
     }
+
+    // 2. Verificar si tiene UNA O MÁS suscripciones activas (no eliminadas)
+    const existingActiveSubscriptions = await this.subscriptionRepository.find({
+      where: {
+        user: { id: createSubscriptionDto.userId },
+        status: true,
+        deletedAt: IsNull(),
+      },
+      relations: { user: true },
+    });
+
+    // Si tiene AL MENOS UNA suscripción activa, error
+    if (existingActiveSubscriptions.length > 0) {
+      return Result.error(
+        new SubscriptionAlreadyExistsError(createSubscriptionDto.userId),
+      );
+    }
+
+    // 3. Crear la nueva suscripción
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + createSubscriptionDto.durationDays * 24 * 60 * 60 * 1000);
+
+    const newSubscription = this.subscriptionRepository.create({
+      user: user,
+      name: createSubscriptionDto.name,
+      cost: createSubscriptionDto.cost,
+      description: createSubscriptionDto.description || '',
+      status: true,
+      quantityAccounts: createSubscriptionDto.quantityAccounts,
+      durationDays: createSubscriptionDto.durationDays,
+      createdAt: now,
+      expiresAt: expiresAt,
+    });
+
+    const saved = await this.subscriptionRepository.save(newSubscription);
+    return Result.success(saved);
+  } catch (error) {
+    return Result.error(
+      new BaseError('Error interno al crear la suscripción', 500),
+    );
   }
+}
 
   // ================================================
   // OBTENER SUSCRIPCIÓN ACTIVA DEL USUARIO AUTENTICADO
