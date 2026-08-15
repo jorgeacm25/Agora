@@ -14,14 +14,13 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class SubscriptionController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Crear una suscripción para el usuario autenticado' })
-  @ApiResponse({ status: 201, description: 'Suscripción creada exitosamente' })
+    @Post()
   create(
     @Body() createSubscriptionDto: CreateSubscriptionDto,
     @Req() req: any,
   ): Promise<Result<Subscription>> {
-    return this.subscriptionService.create(createSubscriptionDto, req.user.id);
+    const userId = req.user.id;
+    return this.subscriptionService.create(createSubscriptionDto, userId);
   }
 
   @Get()

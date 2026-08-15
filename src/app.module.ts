@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { ProductModule } from './product/product.module';
 import { ServiceModule } from './services/service.module';
+import { RatingModule } from './rating/rating.module';
 
 @Module({
   imports: [
@@ -38,7 +39,8 @@ import { ServiceModule } from './services/service.module';
     AuthModule,
     SubscriptionModule,
     ProductModule,
-    ServiceModule
+    ServiceModule,
+    RatingModule
   ],
    providers: [
     {

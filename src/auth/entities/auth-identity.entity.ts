@@ -24,10 +24,10 @@ export class AuthIdentity {
   provider: AuthProvider;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  providerUserId: string | null; // solo para OAuth
+  providerUserId: string | null; 
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  passwordHash: string | null; // solo para provider = 'password'
+  passwordHash: string | null;
 
   @Column({ type: 'boolean', default: false })
   emailVerified: boolean;

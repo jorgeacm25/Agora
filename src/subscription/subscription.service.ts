@@ -105,39 +105,41 @@ export class SubscriptionService implements OnModuleInit {
     }
   }
 
-async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subscription>> {
+async create(
+  createSubscriptionDto: CreateSubscriptionDto,
+  userId: string, // 👈 Recibir userId del token
+): Promise<Result<Subscription>> {
   try {
-    // 1. Verificar que el usuario existe
+    // Buscar usuario por el userId recibido
     const user = await this.userRepository.findOne({
-      where: { id: createSubscriptionDto.userId },
+      where: { id: userId },
     });
-
     if (!user) {
       return Result.error(
-        new UserNotFoundForSubscriptionError(createSubscriptionDto.userId),
+        new UserNotFoundForSubscriptionError(userId),
       );
     }
 
-    // 2. Verificar si tiene UNA O MÁS suscripciones activas (no eliminadas)
+    // Verificar si tiene alguna suscripción activa
     const existingActiveSubscriptions = await this.subscriptionRepository.find({
       where: {
-        user: { id: createSubscriptionDto.userId },
+        user: { id: userId },
         status: true,
         deletedAt: IsNull(),
       },
       relations: { user: true },
     });
 
-    // Si tiene AL MENOS UNA suscripción activa, error
     if (existingActiveSubscriptions.length > 0) {
       return Result.error(
-        new SubscriptionAlreadyExistsError(createSubscriptionDto.userId),
+        new SubscriptionAlreadyExistsError(userId),
       );
     }
 
-    // 3. Crear la nueva suscripción
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + createSubscriptionDto.durationDays * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(
+      now.getTime() + createSubscriptionDto.durationDays * 24 * 60 * 60 * 1000,
+    );
 
     const newSubscription = this.subscriptionRepository.create({
       user: user,
