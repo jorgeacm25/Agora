@@ -39,6 +39,13 @@ export class UserEnterprise {
   @Column({ type: 'bigint', nullable: true })
   code: number;
 
+
+  @Column({ type: 'float8', nullable: true })
+  latitude: number;
+
+  @Column({ type: 'float8', nullable: true })
+  longitude: number;
+
   @OneToMany(() => Product, (product) => product.userEnterprise)
   products: Product[];
 }
