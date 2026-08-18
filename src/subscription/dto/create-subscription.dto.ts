@@ -1,8 +1,12 @@
-import { IsString, IsNotEmpty, IsOptional, IsNumber, Min, Max } from 'class-validator';
+// src/subscription/dto/create-subscription.dto.ts
+import { IsString, IsNotEmpty, IsOptional, IsNumber, Min, Max, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSubscriptionDto {
-  // ❌ ELIMINAR userId
+  @ApiProperty({ description: 'ID del usuario' })
+  @IsUUID()
+  @IsNotEmpty()
+  userId: string; // ✅ Cambiar a userId
 
   @ApiProperty({ description: 'Nombre de la suscripción' })
   @IsString()

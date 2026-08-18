@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class CreateAuthIdentities1786467458263 implements MigrationInterface {
-    name = 'CreateAuthIdentities1786467458263'
+export class NombreDeTuMigracion1787064022828 implements MigrationInterface {
+    name = 'NombreDeTuMigracion1787064022828'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TYPE "public"."auth_identities_provider_enum" AS ENUM('password', 'google', 'facebook')`);
