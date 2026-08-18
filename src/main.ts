@@ -91,9 +91,9 @@ async function bootstrap() {
   await app.listen(port, '0.0.0.0');
   
   const logger = new Logger('Bootstrap');
-  logger.log(`🚀 Aplicación corriendo en: ${appUrl}`);
-  logger.log(`📊 Administración disponible en: ${adminUrl}`);
-  logger.log(`📚 Documentación Swagger: ${appUrl}/api/docs`);
-  logger.log(`🌍 Entorno: ${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`);
+  logger.log(` Aplicación corriendo en: ${appUrl}`);
+  logger.log(` Administración disponible en: ${adminUrl}`);
+  logger.log(` Documentación Swagger: ${appUrl}/api/docs`);
+  logger.log(` Entorno: ${isProduction ? 'PRODUCCIÓN' : 'DESARROLLO'}`);
 }
 bootstrap();

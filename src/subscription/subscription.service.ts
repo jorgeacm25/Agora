@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, LessThan, IsNull } from 'typeorm';
 import { Subscription } from './entities/subscription.entity';
@@ -13,6 +13,8 @@ import { BaseError } from '../common/errors/base.error';
 
 @Injectable()
 export class SubscriptionService implements OnModuleInit {
+  private readonly logger = new Logger(SubscriptionService.name);
+
   constructor(
     @InjectRepository(Subscription)
     private subscriptionRepository: Repository<Subscription>,
@@ -44,7 +46,7 @@ export class SubscriptionService implements OnModuleInit {
         subscription.status = false;
         subscription.lastCheckedAt = now;
         await this.subscriptionRepository.save(subscription);
-        console.log(`[Watcher] Suscripción ${subscription.idSubscription} expirada y desactivada`);
+        this.logger.log(`Suscripcion ${subscription.idSubscription} expirada y desactivada`);
       }
 
       const subscriptionsWithoutExpiry = await this.subscriptionRepository.find({
@@ -63,16 +65,16 @@ export class SubscriptionService implements OnModuleInit {
           subscription.expiresAt = new Date(subscription.createdAt.getTime() + subscription.durationDays * 24 * 60 * 60 * 1000);
           subscription.lastCheckedAt = now;
           await this.subscriptionRepository.save(subscription);
-          console.log(`[Watcher] Suscripción ${subscription.idSubscription} expirada por tiempo calculado`);
+          this.logger.log(`Suscripcion ${subscription.idSubscription} expirada por tiempo calculado`);
         }
       }
     } catch (error) {
-      console.error('[Watcher] Error al verificar suscripciones:', error);
+      this.logger.error('Error al verificar suscripciones:', error);
     }
   }
 
   // ================================================
-  // VERIFICACIÓN DE UNA SUSCRIPCIÓN
+  // VERIFICACION DE UNA SUSCRIPCION
   // ================================================
   async checkSingleSubscription(id: string): Promise<Result<Subscription>> {
     try {
@@ -101,67 +103,72 @@ export class SubscriptionService implements OnModuleInit {
       }
       return Result.success(subscription);
     } catch (error) {
-      return Result.error(new BaseError('Error al verificar la suscripción', 500));
+      this.logger.error('Error al verificar suscripcion:', error);
+      return Result.error(new BaseError('Error al verificar la suscripcion', 500));
     }
   }
-
-async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subscription>> {
-  try {
-    // 1. Verificar que el usuario existe
-    const user = await this.userRepository.findOne({
-      where: { id: createSubscriptionDto.userId },
-    });
-
-    if (!user) {
-      return Result.error(
-        new UserNotFoundForSubscriptionError(createSubscriptionDto.userId),
-      );
-    }
-
-    // 2. Verificar si tiene UNA O MÁS suscripciones activas (no eliminadas)
-    const existingActiveSubscriptions = await this.subscriptionRepository.find({
-      where: {
-        user: { id: createSubscriptionDto.userId },
-        status: true,
-        deletedAt: IsNull(),
-      },
-      relations: { user: true },
-    });
-
-    // Si tiene AL MENOS UNA suscripción activa, error
-    if (existingActiveSubscriptions.length > 0) {
-      return Result.error(
-        new SubscriptionAlreadyExistsError(createSubscriptionDto.userId),
-      );
-    }
-
-    // 3. Crear la nueva suscripción
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + createSubscriptionDto.durationDays * 24 * 60 * 60 * 1000);
-
-    const newSubscription = this.subscriptionRepository.create({
-      user: user,
-      name: createSubscriptionDto.name,
-      cost: createSubscriptionDto.cost,
-      description: createSubscriptionDto.description || '',
-      status: true,
-      quantityAccounts: createSubscriptionDto.quantityAccounts,
-      durationDays: createSubscriptionDto.durationDays,
-      createdAt: now,
-      expiresAt: expiresAt,
-    });
-
-    const saved = await this.subscriptionRepository.save(newSubscription);
-    return Result.success(saved);
-  } catch (error) {
-    return Result.error(
-      new BaseError('Error interno al crear la suscripción', 500),
-    );
-  }
-}
 
   // ================================================
-  // OBTENER SUSCRIPCIÓN ACTIVA DEL USUARIO AUTENTICADO
+  // CREAR SUSCRIPCION
+  // ================================================
+  async create(
+    createSubscriptionDto: CreateSubscriptionDto,
+    userId: string,
+  ): Promise<Result<Subscription>> {
+    try {
+      this.logger.log('Creando suscripcion para usuario:', userId);
+
+      // 1. Verificar que el usuario existe
+      const user = await this.userRepository.findOne({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        this.logger.warn('Usuario no encontrado:', userId);
+        return Result.error(new UserNotFoundForSubscriptionError(userId));
+      }
+
+      // 2. Verificar si tiene suscripcion activa
+      const existingSubscription = await this.subscriptionRepository.findOne({
+        where: {
+          user: { id: userId },
+          status: true,
+          deletedAt: IsNull(),
+        },
+      });
+
+      if (existingSubscription) {
+        this.logger.warn('Usuario ya tiene suscripcion activa:', userId);
+        return Result.error(new SubscriptionAlreadyExistsError(userId));
+      }
+
+      // 3. Crear la nueva suscripcion
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + createSubscriptionDto.durationDays * 24 * 60 * 60 * 1000);
+
+      const newSubscription = this.subscriptionRepository.create({
+        user: user,
+        name: createSubscriptionDto.name,
+        cost: createSubscriptionDto.cost,
+        description: createSubscriptionDto.description || '',
+        status: true,
+        quantityAccounts: createSubscriptionDto.quantityAccounts,
+        durationDays: createSubscriptionDto.durationDays,
+        expiresAt: expiresAt,
+        lastCheckedAt: now,
+      });
+
+      const saved = await this.subscriptionRepository.save(newSubscription);
+      this.logger.log('Suscripcion creada:', saved.idSubscription);
+      return Result.success(saved);
+    } catch (error) {
+      this.logger.error('Error al crear suscripcion:', error);
+      return Result.error(new BaseError('Error interno al crear la suscripcion', 500));
+    }
+  }
+
+  // ================================================
+  // OBTENER SUSCRIPCION ACTIVA DEL USUARIO AUTENTICADO
   // ================================================
   async findActiveByUserId(userId: string): Promise<Result<Subscription>> {
     try {
@@ -183,13 +190,14 @@ async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subsc
         }
       }
       return Result.success(subscription);
-    } catch {
-      return Result.error(new BaseError('Error al buscar la suscripción activa', 500));
+    } catch (error) {
+      this.logger.error('Error al buscar suscripcion activa:', error);
+      return Result.error(new BaseError('Error al buscar la suscripcion activa', 500));
     }
   }
 
   // ================================================
-  // OBTENER SUSCRIPCIÓN POR ID (con verificación de pertenencia)
+  // OBTENER SUSCRIPCION POR ID (con verificacion de pertenencia)
   // ================================================
   async findOne(id: string, userId: string): Promise<Result<Subscription>> {
     try {
@@ -200,8 +208,8 @@ async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subsc
       if (!subscription) {
         return Result.error(new SubscriptionNotFoundError());
       }
-      if (subscription.userId !== userId) {
-        return Result.error(new BaseError('No tienes permiso para acceder a esta suscripción', 403));
+      if (subscription.user.id !== userId) {
+        return Result.error(new BaseError('No tienes permiso para acceder a esta suscripcion', 403));
       }
       if (subscription.status) {
         const checkResult = await this.checkSingleSubscription(id);
@@ -210,13 +218,14 @@ async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subsc
         }
       }
       return Result.success(subscription);
-    } catch {
-      return Result.error(new BaseError('Error al buscar la suscripción', 500));
+    } catch (error) {
+      this.logger.error('Error al buscar suscripcion:', error);
+      return Result.error(new BaseError('Error al buscar la suscripcion', 500));
     }
   }
 
   // ================================================
-  // OBTENER SUSCRIPCIÓN POR ID DE USUARIO (usado internamente)
+  // OBTENER SUSCRIPCION POR ID DE USUARIO (usado internamente)
   // ================================================
   async findByUserId(userId: string): Promise<Result<Subscription>> {
     try {
@@ -237,8 +246,9 @@ async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subsc
         }
       }
       return Result.success(subscription);
-    } catch {
-      return Result.error(new BaseError('Error al buscar la suscripción por usuario', 500));
+    } catch (error) {
+      this.logger.error('Error al buscar suscripcion por usuario:', error);
+      return Result.error(new BaseError('Error al buscar la suscripcion por usuario', 500));
     }
   }
 
@@ -253,13 +263,14 @@ async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subsc
         order: { createdAt: 'DESC' },
       });
       return Result.success(subscriptions);
-    } catch {
+    } catch (error) {
+      this.logger.error('Error al obtener historial de suscripciones:', error);
       return Result.error(new BaseError('Error al obtener historial de suscripciones', 500));
     }
   }
 
   // ================================================
-  // ACTUALIZAR SUSCRIPCIÓN (con verificación de pertenencia)
+  // ACTUALIZAR SUSCRIPCION (con verificacion de pertenencia)
   // ================================================
   async update(
     id: string,
@@ -295,12 +306,13 @@ async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subsc
       const updated = await this.subscriptionRepository.save(subscription);
       return Result.success(updated);
     } catch (error) {
-      return Result.error(new BaseError('Error al actualizar la suscripción', 500));
+      this.logger.error('Error al actualizar suscripcion:', error);
+      return Result.error(new BaseError('Error al actualizar la suscripcion', 500));
     }
   }
 
   // ================================================
-  // ELIMINAR SUSCRIPCIÓN (soft delete, con verificación de pertenencia)
+  // ELIMINAR SUSCRIPCION (soft delete, con verificacion de pertenencia)
   // ================================================
   async remove(id: string, userId: string): Promise<Result<void>> {
     try {
@@ -314,7 +326,8 @@ async create(createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subsc
       await this.subscriptionRepository.save(subscription);
       return Result.successNoData();
     } catch (error) {
-      return Result.error(new BaseError('Error al eliminar la suscripción', 500));
+      this.logger.error('Error al eliminar suscripcion:', error);
+      return Result.error(new BaseError('Error al eliminar la suscripcion', 500));
     }
   }
 }
