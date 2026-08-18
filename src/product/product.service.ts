@@ -9,6 +9,7 @@ import { Result } from 'src/common/classes/result.class';
 import { BaseError } from 'src/common/errors/base.error';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { FilterProductsDto } from './dto/filter-products.dto';
 
 @Injectable()
 export class ProductService {
@@ -63,13 +64,67 @@ return Result.success(savedProduct);
     }
   }
 
-  async findAll(): Promise<Result<Product[]>> {
+  async findAll(filters: FilterProductsDto): Promise<Result<{ products: Product[]; total: number }>> {
     try {
-      const products = await this.productRepository.find({
-        relations: { userEnterprise: { user: true } },
-      });
-      return Result.success(products);
-    } catch {
+      const query = this.productRepository
+        .createQueryBuilder('product')
+        .leftJoinAndSelect('product.userEnterprise', 'userEnterprise');
+
+      // 1. Filtro por precio (usamos priceCup como referencia principal)
+      if (filters.minPrice !== undefined) {
+        query.andWhere('product.priceCup >= :minPrice', { minPrice: filters.minPrice });
+      }
+      if (filters.maxPrice !== undefined) {
+        query.andWhere('product.priceCup <= :maxPrice', { maxPrice: filters.maxPrice });
+      }
+
+      // 2. Filtro por rating promedio (subconsulta)
+      if (filters.minRating !== undefined) {
+        const ratingSubQuery = this.productRepository
+          .createQueryBuilder('subProduct')
+          .select('AVG(rating.quantity)', 'avgRating')
+          .leftJoin('subProduct.ratings', 'rating')
+          .where('subProduct.idProduct = product.idProduct')
+          .groupBy('subProduct.idProduct');
+
+        query.andWhere(`(${ratingSubQuery.getQuery()}) >= :minRating`, {
+          minRating: filters.minRating,
+        }).setParameters(ratingSubQuery.getParameters());
+      }
+
+      // 3. Filtro por ubicación (distancia desde coordenadas)
+      if (filters.latitude !== undefined && filters.longitude !== undefined) {
+        // Haversine formula (en km)
+        const distanceFormula = `
+          (6371 * acos(
+            cos(radians(:lat)) * cos(radians(userEnterprise.latitude)) *
+            cos(radians(userEnterprise.longitude) - radians(:lng)) +
+            sin(radians(:lat)) * sin(radians(userEnterprise.latitude))
+          ))
+        `;
+        query.andWhere(`${distanceFormula} <= :radius`, {
+          lat: filters.latitude,
+          lng: filters.longitude,
+          radius: filters.radius || 10,
+        });
+      }
+
+      // 4. Paginación
+      const page = filters.page || 1;
+      const limit = filters.limit || 10;
+      const skip = (page - 1) * limit;
+
+      // 5. Orden (por precio ascendente como ejemplo)
+      query.orderBy('product.priceCup', 'ASC');
+
+      // 6. Obtener total (sin paginación) y luego los resultados
+      const total = await query.getCount();
+      query.skip(skip).take(limit);
+
+      const products = await query.getMany();
+
+      return Result.success({ products, total });
+    } catch (error) {
       return Result.error(new BaseError('Error al obtener productos', 500));
     }
   }

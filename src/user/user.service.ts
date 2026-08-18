@@ -65,34 +65,58 @@ export class UsersService {
 
   // ========== ACTUALIZAR CONTRASEÑA ==========
 
-  async updatePassword(id: string, dto: UpdatePasswordDto): Promise<Result<void>> {
+ async updatePassword(
+    userId: string,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<Result<void>> {
     try {
-      // Buscar identidad de tipo 'password' para este usuario
+      // 1. Verificar que el usuario existe
+      const user = await this.userRepository.findOne({ where: { id: userId } });
+      if (!user) {
+        return Result.error(new UserNotFoundError());
+      }
+
+      // 2. Buscar identidad de tipo 'password' usando el enum
       const identity = await this.authIdentityRepository.findOne({
-        where: { userId: id, provider: AuthProvider.PASSWORD },
+        where: {
+          userId: userId,
+          provider: AuthProvider.PASSWORD, // 👈 Usar el enum, no un string
+        },
       });
 
+      // 3. Si no existe identidad con contraseña, error
       if (!identity) {
-        return Result.error(new BaseError('Este usuario no tiene contraseña configurada', 404));
+        return Result.error(
+          new BaseError('Este usuario no tiene contraseña configurada', 400),
+        );
       }
 
-      if (dto.password === undefined) {
-        return Result.successNoData();
+      // 4. Verificar que la identidad tenga passwordHash (no null)
+      if (!identity.passwordHash) {
+        return Result.error(
+          new BaseError('Este usuario no tiene contraseña configurada', 400),
+        );
       }
 
-      if (dto.password === null) {
-        identity.passwordHash = null;
-      } else {
-        if (dto.password.length < 6) {
-          return Result.error(new InvalidPasswordError());
-        }
-        identity.passwordHash = await bcrypt.hash(dto.password, 10);
+      // 5. Verificar la contraseña actual (ahora passwordHash es string seguro)
+      const isPasswordValid = await bcrypt.compare(
+        updatePasswordDto.currentPassword,
+        identity.passwordHash, // ✅ Ahora TypeScript sabe que es string
+      );
+      if (!isPasswordValid) {
+        return Result.error(new BaseError('Contraseña actual incorrecta', 401));
       }
 
+      // 6. Hashear la nueva contraseña
+      const newHashedPassword = await bcrypt.hash(updatePasswordDto.newPassword, 10);
+      identity.passwordHash = newHashedPassword;
+
+      // 7. Guardar la identidad actualizada
       await this.authIdentityRepository.save(identity);
+
       return Result.successNoData();
-    } catch {
-      return Result.error(new BaseError('Error al actualizar contraseña', 500));
+    } catch (error) {
+      return Result.error(new BaseError('Error al actualizar la contraseña', 500));
     }
   }
 

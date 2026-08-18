@@ -16,6 +16,10 @@ export abstract class Permissions {
   static readonly SERVICE_DELETE = 'service:delete';
   static readonly SERVICE_VIEW = 'service:view';
 
+  static readonly RATING_CREATE = 'rating:create';
+  static readonly RATING_VIEW = 'rating:view';
+  static readonly RATING_UPDATE = 'rating:update';
+  static readonly RATING_DELETE = 'rating:delete';
   // Permisos por defecto para cualquier usuario nuevo
   static getDefaultUserPermissions(): string[] {
     return [

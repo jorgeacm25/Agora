@@ -15,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { ProductModule } from './product/product.module';
 import { ServiceModule } from './services/service.module';
+import { RatingModule } from './rating/rating.module';
 
 // Módulo de administración
 import { AdministrationModule } from './subdomains/administration/administration.module';
@@ -58,6 +59,7 @@ import { SubdomainRoutingModule } from './subdomain-routing.module';
     
     // 5. Routing de subdominios - AL FINAL
     SubdomainRoutingModule,
+    RatingModule
   ],
   providers: [
     {

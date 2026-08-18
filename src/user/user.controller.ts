@@ -33,19 +33,15 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
-  @Patch(':id')
-  @RequirePermissions(Permissions.USER_UPDATE_PASSWORD)
-  async updatePassword(
-    @Param('id') id: string,
-    @Body() updatePasswordDto: UpdatePasswordDto,
-    @Req() req: any,
-  ): Promise<Result<void>> {
-    // ✅ Verificar pertenencia
-    if (id !== req.user.id) {
-      throw new ForbiddenException('No puedes modificar la contraseña de otro usuario');
-    }
-    return this.userService.updatePassword(id, updatePasswordDto);
-  }
+  @Patch('password')
+@RequirePermissions(Permissions.USER_UPDATE_PASSWORD)
+async updatePassword(
+  @Body() updatePasswordDto: UpdatePasswordDto,
+  @Req() req: any,
+): Promise<Result<void>> {
+  const userId = req.user.id;
+  return this.userService.updatePassword(userId, updatePasswordDto);
+}
 
   @Delete(':id')
   @RequirePermissions(Permissions.USER_DELETE)

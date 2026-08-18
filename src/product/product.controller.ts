@@ -12,10 +12,11 @@ import {
   Res,
   NotFoundException,
   Req,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
-import { ApiBearerAuth, ApiTags, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiConsumes, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -28,6 +29,7 @@ import { Product } from './entities/product.entity';
 import { multerConfig } from 'src/config/multer.config';
 import * as path from 'path';
 import * as fs from 'fs';
+import { FilterProductsDto } from './dto/filter-products.dto';
 
 @ApiTags('products')
 @ApiBearerAuth('access-token')
@@ -63,10 +65,11 @@ export class ProductController {
     return this.productService.create(createProductDto, file);
   }
 
-  @Get()
+   @Get()
   @RequirePermissions(Permissions.PRODUCT_VIEW)
-  findAll(): Promise<Result<Product[]>> {
-    return this.productService.findAll();
+  @ApiQuery({ type: FilterProductsDto })
+  findAll(@Query() filters: FilterProductsDto): Promise<Result<{ products: Product[]; total: number }>> {
+    return this.productService.findAll(filters);
   }
 
   @Get(':id')
