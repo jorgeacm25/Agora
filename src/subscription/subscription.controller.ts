@@ -1,88 +1,85 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
 import { SubscriptionService } from './subscription.service';
 import { CreateSubscriptionDto } from './dto/create-subscription.dto';
 import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 import { Result } from '../common/classes/result.class';
 import { Subscription } from './entities/subscription.entity';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('subscription')
+@ApiBearerAuth()
 @Controller('subscription')
+@UseGuards(JwtAuthGuard)
 export class SubscriptionController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear una suscripción para un usuario' })
+  @ApiOperation({ summary: 'Crear una suscripción para el usuario autenticado' })
   @ApiResponse({ status: 201, description: 'Suscripción creada exitosamente' })
-  create(@Body() createSubscriptionDto: CreateSubscriptionDto): Promise<Result<Subscription>> {
-    return this.subscriptionService.create(createSubscriptionDto);
+  create(
+    @Body() createSubscriptionDto: CreateSubscriptionDto,
+    @Req() req: any,
+  ): Promise<Result<Subscription>> {
+    return this.subscriptionService.create(createSubscriptionDto, req.user.id);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Obtener todas las suscripciones activas' })
-  @ApiResponse({ status: 200, description: 'Lista de suscripciones activas obtenida exitosamente' })
-  findAll(): Promise<Result<Subscription[]>> {
-    return this.subscriptionService.findAll();
+  @ApiOperation({ summary: 'Obtener la suscripción activa del usuario autenticado' })
+  @ApiResponse({ status: 200, description: 'Suscripción obtenida exitosamente' })
+  @ApiResponse({ status: 404, description: 'No tiene suscripción activa' })
+  findMyActiveSubscription(@Req() req: any): Promise<Result<Subscription>> {
+    return this.subscriptionService.findActiveByUserId(req.user.id);
   }
 
-  @Get('active')
-  @ApiOperation({ summary: 'Obtener solo suscripciones activas (status: true)' })
-  @ApiResponse({ status: 200, description: 'Lista de suscripciones activas obtenida exitosamente' })
-  findActive(): Promise<Result<Subscription[]>> {
-    return this.subscriptionService.findActive();
-  }
-
-  @Get('inactive')
-  @ApiOperation({ summary: 'Obtener suscripciones inactivas (status: false)' })
-  @ApiResponse({ status: 200, description: 'Lista de suscripciones inactivas obtenida exitosamente' })
-  findInactive(): Promise<Result<Subscription[]>> {
-    return this.subscriptionService.findInactive();
+  @Get('history')
+  @ApiOperation({ summary: 'Obtener historial de suscripciones del usuario autenticado' })
+  @ApiResponse({ status: 200, description: 'Historial obtenido exitosamente' })
+  findMyHistory(@Req() req: any): Promise<Result<Subscription[]>> {
+    return this.subscriptionService.findHistoryByUserId(req.user.id);
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obtener una suscripción por ID' })
+  @ApiOperation({ summary: 'Obtener una suscripción por ID (solo si es del usuario)' })
   @ApiResponse({ status: 200, description: 'Suscripción encontrada' })
+  @ApiResponse({ status: 403, description: 'No tienes permiso para acceder a esta suscripción' })
   @ApiResponse({ status: 404, description: 'Suscripción no encontrada' })
-  findOne(@Param('id') id: string): Promise<Result<Subscription>> {
-    return this.subscriptionService.findOne(id);
-  }
-
-  @Get('user/:userId')
-  @ApiOperation({ summary: 'Obtener suscripción activa por ID de usuario' })
-  @ApiResponse({ status: 200, description: 'Suscripción encontrada por usuario' })
-  @ApiResponse({ status: 404, description: 'Suscripción no encontrada para este usuario' })
-  findByUserId(@Param('userId') userId: string): Promise<Result<Subscription>> {
-    return this.subscriptionService.findByUserId(userId);
-  }
-
-  @Get('user/:userId/history')
-  @ApiOperation({ summary: 'Obtener historial completo de suscripciones por usuario' })
-  @ApiResponse({ status: 200, description: 'Historial de suscripciones obtenido exitosamente' })
-  findHistoryByUserId(@Param('userId') userId: string): Promise<Result<Subscription[]>> {
-    return this.subscriptionService.findHistoryByUserId(userId);
+  findOne(@Param('id') id: string, @Req() req: any): Promise<Result<Subscription>> {
+    return this.subscriptionService.findOne(id, req.user.id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Actualizar una suscripción' })
+  @ApiOperation({ summary: 'Actualizar suscripción (solo si es del usuario)' })
   @ApiResponse({ status: 200, description: 'Suscripción actualizada exitosamente' })
+  @ApiResponse({ status: 403, description: 'No tienes permiso para modificar esta suscripción' })
   update(
     @Param('id') id: string,
     @Body() updateSubscriptionDto: UpdateSubscriptionDto,
+    @Req() req: any,
   ): Promise<Result<Subscription>> {
-    return this.subscriptionService.update(id, updateSubscriptionDto);
-  }
-
-  @Patch(':id/check')
-  @ApiOperation({ summary: 'Verificar estado de una suscripción' })
-  @ApiResponse({ status: 200, description: 'Suscripción verificada exitosamente' })
-  checkSubscription(@Param('id') id: string): Promise<Result<Subscription>> {
-    return this.subscriptionService.checkSingleSubscription(id);
+    return this.subscriptionService.update(id, updateSubscriptionDto, req.user.id);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Eliminar una suscripción (soft delete - cambia status a false)' })
+  @ApiOperation({ summary: 'Eliminar suscripción (solo si es del usuario)' })
   @ApiResponse({ status: 200, description: 'Suscripción eliminada exitosamente' })
-  remove(@Param('id') id: string): Promise<Result<void>> {
-    return this.subscriptionService.remove(id);
+  @ApiResponse({ status: 403, description: 'No tienes permiso para eliminar esta suscripción' })
+  remove(@Param('id') id: string, @Req() req: any): Promise<Result<void>> {
+    return this.subscriptionService.remove(id, req.user.id);
+  }
+
+  @Patch(':id/check')
+  @ApiOperation({ summary: 'Verificar estado de una suscripción (solo si es del usuario)' })
+  @ApiResponse({ status: 200, description: 'Suscripción verificada exitosamente' })
+  @ApiResponse({ status: 403, description: 'No tienes permiso para verificar esta suscripción' })
+  checkSubscription(@Param('id') id: string, @Req() req: any): Promise<Result<Subscription>> {
+    // Primero verificamos pertenencia
+    return this.subscriptionService.findOne(id, req.user.id).then(result => {
+      if (!result.isSuccess) {
+        return result;
+      }
+      // Luego ejecutamos el check
+      return this.subscriptionService.checkSingleSubscription(id);
+    });
   }
 }

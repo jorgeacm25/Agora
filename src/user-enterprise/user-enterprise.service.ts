@@ -20,23 +20,18 @@ export class UserEnterpriseService {
     private userRepository: Repository<User>,
   ) {}
 
-  async create(createUserEnterpriseDto: CreateUserEnterpriseDto): Promise<Result<UserEnterprise>> {
+  async create(createUserEnterpriseDto: CreateUserEnterpriseDto, userId: string): Promise<Result<UserEnterprise>> {
     try {
-      const user = await this.userRepository.findOne({
-        where: { id: createUserEnterpriseDto.userId },
-      });
-      
+      const user = await this.userRepository.findOne({ where: { id: userId } });
       if (!user) {
-        return Result.error(new UserNotFoundForEnterpriseError(createUserEnterpriseDto.userId));
+        return Result.error(new UserNotFoundForEnterpriseError(userId));
       }
 
       const existing = await this.userEnterpriseRepository.findOne({
-        where: { user: { id: createUserEnterpriseDto.userId } },
-        relations: { user: true },
+        where: { user: { id: userId } },
       });
-
       if (existing) {
-        return Result.error(new UserEnterpriseAlreadyExistsError(createUserEnterpriseDto.userId));
+        return Result.error(new UserEnterpriseAlreadyExistsError(userId));
       }
 
       const newUserEnterprise = this.userEnterpriseRepository.create({
@@ -55,28 +50,18 @@ export class UserEnterpriseService {
     }
   }
 
-  async findAll(): Promise<Result<UserEnterprise[]>> {
-    try {
-      const enterprises = await this.userEnterpriseRepository.find({
-        relations: { user: true },
-      });
-      return Result.success(enterprises);
-    } catch {
-      return Result.error(new BaseError('Error al obtener las empresas', 500));
-    }
-  }
-
-  async findOne(id: string): Promise<Result<UserEnterprise>> {
+  async findOne(id: string, userId: string): Promise<Result<UserEnterprise>> {
     try {
       const enterprise = await this.userEnterpriseRepository.findOne({
         where: { idUserEnterprise: id },
         relations: { user: true },
       });
-      
       if (!enterprise) {
         return Result.error(new UserEnterpriseNotFoundError());
       }
-      
+      if (enterprise.userId !== userId) {
+        return Result.error(new BaseError('No tienes permiso para acceder a esta empresa', 403));
+      }
       return Result.success(enterprise);
     } catch {
       return Result.error(new BaseError('Error al buscar la empresa', 500));
@@ -89,33 +74,32 @@ export class UserEnterpriseService {
         where: { user: { id: userId } },
         relations: { user: true },
       });
-      
       if (!enterprise) {
         return Result.error(new UserEnterpriseNotFoundError());
       }
-      
       return Result.success(enterprise);
     } catch {
       return Result.error(new BaseError('Error al buscar la empresa por usuario', 500));
     }
   }
 
-  async update(id: string, updateUserEnterpriseDto: UpdateUserEnterpriseDto): Promise<Result<UserEnterprise>> {
+  async update(
+    id: string,
+    updateUserEnterpriseDto: UpdateUserEnterpriseDto,
+    userId: string,
+  ): Promise<Result<UserEnterprise>> {
     try {
-      const enterpriseResult = await this.findOne(id);
-      
+      const enterpriseResult = await this.findOne(id, userId);
       if (!enterpriseResult.isSuccess) {
         return Result.error(enterpriseResult.error!);
       }
-
       const enterprise = enterpriseResult.data!;
 
-      // Actualizar campos simples
+      // Si llegamos aquí, ya pertenece al usuario (findOne lo verifica)
+
       if (updateUserEnterpriseDto.companyName !== undefined) {
         enterprise.companyName = updateUserEnterpriseDto.companyName;
       }
-      
-      // Actualizar address - propiedad por propiedad
       if (updateUserEnterpriseDto.address !== undefined) {
         const addressDto = updateUserEnterpriseDto.address;
         enterprise.address = {
@@ -126,8 +110,6 @@ export class UserEnterpriseService {
           country: addressDto.country ?? enterprise.address.country,
         };
       }
-      
-      // Actualizar contact - propiedad por propiedad
       if (updateUserEnterpriseDto.contact !== undefined) {
         const contactDto = updateUserEnterpriseDto.contact;
         enterprise.contact = {
@@ -136,11 +118,9 @@ export class UserEnterpriseService {
           website: contactDto.website ?? enterprise.contact.website,
         };
       }
-      
       if (updateUserEnterpriseDto.officeHours !== undefined) {
         enterprise.officeHours = updateUserEnterpriseDto.officeHours;
       }
-      
       if (updateUserEnterpriseDto.code !== undefined) {
         enterprise.code = updateUserEnterpriseDto.code;
       }
@@ -152,16 +132,16 @@ export class UserEnterpriseService {
     }
   }
 
-  async remove(id: string): Promise<Result<void>> {
+  async remove(id: string, userId: string): Promise<Result<void>> {
     try {
-      const result = await this.userEnterpriseRepository.delete(id);
-      
-      if (result.affected === 0) {
-        return Result.error(new UserEnterpriseNotFoundError());
+      const enterpriseResult = await this.findOne(id, userId);
+      if (!enterpriseResult.isSuccess) {
+        return Result.error(enterpriseResult.error!);
       }
-      
+      // Si llegamos aquí, ya pertenece al usuario
+      await this.userEnterpriseRepository.delete(id);
       return Result.successNoData();
-    } catch {
+    } catch (error) {
       return Result.error(new BaseError('Error al eliminar la empresa', 500));
     }
   }
