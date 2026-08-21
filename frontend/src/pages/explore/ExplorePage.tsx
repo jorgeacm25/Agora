@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch, Store, ArrowRight } from 'lucide-react';
 import { listProducts } from '@/api/product';
 import type { Product } from '@/types';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -10,6 +11,7 @@ import { Pagination } from '@/components/ui/Pagination';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/context/ToastContext';
+import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 24;
@@ -18,6 +20,7 @@ type SortOrder = 'asc' | 'desc';
 
 export function ExplorePage() {
   const { notify } = useToast();
+  const { isSeller } = useAuth();
   const [rawProducts, setRawProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -119,29 +122,36 @@ export function ExplorePage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-ink-900">Explorar productos</h1>
-          <p className="mt-1 text-sm text-ink-500">
-            {total} producto{total === 1 ? '' : 's'} publicados por vendedores en Agora
+    <div>
+      <div className="border-b border-ink-200/70 bg-gradient-to-b from-ink-100/70 to-ink-50 bg-grid">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
+          <h1 className="max-w-xl text-3xl sm:text-4xl font-semibold leading-tight text-ink-900">
+            Todo lo que necesitas, para tu casa o tu negocio
+          </h1>
+          <p className="mt-3 max-w-lg text-ink-500">
+            Compra directo a mypimes y mercados de tu ciudad: compara precios, revisa reseñas y encuentra lo que buscas cerca de ti.
           </p>
-        </div>
-        <div className="flex gap-2">
-          <div className="relative flex-1 sm:w-72">
-            <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-400" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar productos o tiendas…"
-              className="w-full rounded-xl border border-ink-200 bg-white py-2.5 pl-10 pr-3.5 text-sm outline-none transition-colors focus:border-ink-500 focus:ring-4 focus:ring-ink-900/5"
-            />
+          <div className="mt-7 flex max-w-xl gap-2">
+            <div className="relative flex-1">
+              <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Busca productos, categorías o tiendas…"
+                className="h-12 w-full rounded-xl border border-ink-200 bg-white pl-11 pr-4 text-sm shadow-soft outline-none transition-colors focus:border-ink-500 focus:ring-4 focus:ring-ink-900/5"
+              />
+            </div>
+            <Button variant="outline" className="sm:hidden h-12" onClick={() => setFiltersOpen((v) => !v)} icon={<SlidersHorizontal size={15} />}>
+              Filtros
+            </Button>
           </div>
-          <Button variant="outline" className="sm:hidden" onClick={() => setFiltersOpen((v) => !v)} icon={<SlidersHorizontal size={15} />}>
-            Filtros
-          </Button>
         </div>
       </div>
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+      <p className="mb-6 text-sm text-ink-500">
+        {total} producto{total === 1 ? '' : 's'} publicados por vendedores en Agora
+      </p>
 
       <div className="flex flex-col lg:flex-row gap-8">
         <aside className={cn('lg:w-64 shrink-0 space-y-6', !filtersOpen && 'hidden lg:block')}>
@@ -216,6 +226,22 @@ export function ExplorePage() {
               </div>
             )}
           </div>
+
+          {!isSeller && (
+            <Link
+              to="/vender"
+              className="group flex items-center gap-3 rounded-2xl border border-ink-200 bg-white p-4 transition-colors hover:border-ink-400"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink-100 text-ink-700">
+                <Store size={16} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-ink-900">¿Tienes un negocio?</p>
+                <p className="text-xs text-ink-500">Publica tu catálogo en Agora</p>
+              </div>
+              <ArrowRight size={15} className="shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          )}
         </aside>
 
         <div className="flex-1 min-w-0">
@@ -241,6 +267,7 @@ export function ExplorePage() {
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

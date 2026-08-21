@@ -41,7 +41,7 @@ export function Navbar() {
         <div className="flex items-center gap-8">
           <Logo />
           <nav className="hidden md:flex items-center gap-1">
-            <NavLink to="/explorar" className={navLinkClass}>
+            <NavLink to="/" end className={navLinkClass}>
               Explorar
             </NavLink>
             {isSeller && (
@@ -72,7 +72,7 @@ export function Navbar() {
                     <p className="text-xs text-ink-500">{isSeller ? 'Cuenta de vendedor' : 'Cuenta de comprador'}</p>
                   </div>
                   <Link
-                    to="/explorar"
+                    to="/"
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-700 hover:bg-ink-50"
                   >
@@ -131,7 +131,7 @@ export function Navbar() {
       {mobileOpen && (
         <div className="md:hidden border-t border-ink-200 bg-white px-4 py-3 animate-fade-in">
           <div className="flex flex-col gap-1">
-            <Link to="/explorar" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50">
+            <Link to="/" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50">
               Explorar
             </Link>
             {isAuthenticated ? (

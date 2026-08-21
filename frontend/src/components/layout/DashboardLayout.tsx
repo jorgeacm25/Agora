@@ -17,7 +17,7 @@ export function DashboardLayout() {
     <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <NavLink to="/explorar" className="mb-2 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
+          <NavLink to="/" className="mb-2 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
             <ArrowLeft size={14} /> Volver a Agora
           </NavLink>
           <h1 className="text-2xl font-semibold text-ink-900">{enterprise?.companyName ?? 'Mi tienda'}</h1>

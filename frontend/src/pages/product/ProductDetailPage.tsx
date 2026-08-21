@@ -57,7 +57,7 @@ export function ProductDetailPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <p className="text-ink-500">No encontramos este producto.</p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate('/explorar')}>
+        <Button variant="outline" className="mt-4" onClick={() => navigate('/')}>
           Volver a explorar
         </Button>
       </div>
@@ -76,7 +76,7 @@ export function ProductDetailPage() {
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
-      <Link to="/explorar" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
+      <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
         <ArrowLeft size={14} /> Volver a explorar
       </Link>
 

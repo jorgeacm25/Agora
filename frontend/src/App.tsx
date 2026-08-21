@@ -1,11 +1,10 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProtectedRoute, RequireSeller } from '@/components/layout/ProtectedRoute';
 
-import { LandingPage } from '@/pages/LandingPage';
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { ExplorePage } from '@/pages/explore/ExplorePage';
@@ -28,8 +27,8 @@ export default function App() {
         <ToastProvider>
           <Routes>
             <Route element={<AppLayout />}>
-              <Route index element={<LandingPage />} />
-              <Route path="explorar" element={<ExplorePage />} />
+              <Route index element={<ExplorePage />} />
+              <Route path="explorar" element={<Navigate to="/" replace />} />
               <Route path="productos/:id" element={<ProductDetailPage />} />
               <Route path="tiendas/:id" element={<EnterprisePage />} />
               <Route path="vender" element={<BecomeSellerPage />} />

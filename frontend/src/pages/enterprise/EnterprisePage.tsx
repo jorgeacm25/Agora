@@ -43,7 +43,7 @@ export function EnterprisePage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center">
         <p className="text-ink-500">No encontramos esta tienda.</p>
-        <Link to="/explorar" className="mt-4 inline-block text-sm text-ink-700 hover:underline">
+        <Link to="/" className="mt-4 inline-block text-sm text-ink-700 hover:underline">
           Volver a explorar
         </Link>
       </div>
@@ -59,7 +59,7 @@ export function EnterprisePage() {
     <div>
       <div className="surface-gradient bg-grid">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
-          <Link to="/explorar" className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white">
+          <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white">
             <ArrowLeft size={14} /> Volver a explorar
           </Link>
           <div className="flex items-center gap-4">

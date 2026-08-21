@@ -22,7 +22,7 @@ export function LoginPage() {
     setLoading(true);
     try {
       await login(username, password);
-      const redirectTo = (location.state as { from?: string } | null)?.from ?? '/explorar';
+      const redirectTo = (location.state as { from?: string } | null)?.from ?? '/';
       navigate(redirectTo, { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo iniciar sesión');
