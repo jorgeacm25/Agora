@@ -11,13 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { cn } from '@/lib/utils';
-
-const SELLER_PLAN = {
-  name: 'Plan Vendedor Mensual',
-  cost: 10,
-  durationDays: 30,
-  quantityAccounts: 1,
-};
+import { SELLER_PLAN } from '@/lib/sellerPlan';
 
 export function BecomeSellerPage() {
   const { user, isAuthenticated, isLoading, enterprise, subscription, refreshSellerStatus } = useAuth();
@@ -150,9 +144,11 @@ export function BecomeSellerPage() {
             </div>
           </div>
           <ul className="mb-6 space-y-2 text-sm text-ink-600">
-            <li className="flex items-center gap-2"><Check size={14} className="text-ink-900" /> Publica productos y servicios ilimitados</li>
-            <li className="flex items-center gap-2"><Check size={14} className="text-ink-900" /> Aparece en las búsquedas por ubicación</li>
-            <li className="flex items-center gap-2"><Check size={14} className="text-ink-900" /> Recibe calificaciones de tus clientes</li>
+            {SELLER_PLAN.features.map((feature) => (
+              <li key={feature} className="flex items-center gap-2">
+                <Check size={14} className="text-ink-900" /> {feature}
+              </li>
+            ))}
           </ul>
           <Button className="w-full" size="lg" loading={submitting} onClick={handleActivatePlan} icon={<ShieldCheck size={16} />}>
             Activar plan de vendedor

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch, Store, ArrowRight } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch, Store, ArrowRight, ShoppingBag, Star } from 'lucide-react';
 import { listProducts } from '@/api/product';
 import type { Product } from '@/types';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -10,9 +10,48 @@ import { Badge } from '@/components/ui/Card';
 import { Pagination } from '@/components/ui/Pagination';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Carousel } from '@/components/home/Carousel';
+import type { CarouselSlide } from '@/components/home/Carousel';
+import { HowItWorks } from '@/components/home/HowItWorks';
+import { Membership } from '@/components/home/Membership';
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+
+const CAROUSEL_SLIDES: CarouselSlide[] = [
+  {
+    icon: <MapPin size={20} />,
+    eyebrow: 'Compra local',
+    title: 'Productos de tu ciudad, cerca de ti',
+    description: 'Filtra por ubicación y descubre lo que venden las mypimes y mercados de tu zona.',
+    cta: { label: 'Buscar cerca de mí', to: '/' },
+    gradient: 'bg-gradient-to-br from-ink-900 via-ink-800 to-ink-950',
+  },
+  {
+    icon: <Store size={20} />,
+    eyebrow: 'Para negocios',
+    title: 'Publica tu catálogo y vende más',
+    description: 'Regístrate como vendedor, agrega tus productos y llega a más compradores cada día.',
+    cta: { label: 'Empezar a vender', to: '/vender' },
+    gradient: 'bg-gradient-to-br from-ink-950 via-ink-700 to-ink-900',
+  },
+  {
+    icon: <Star size={20} />,
+    eyebrow: 'Con confianza',
+    title: 'Compra respaldada por reseñas reales',
+    description: 'Revisa las calificaciones de otros compradores antes de decidir dónde comprar.',
+    cta: { label: 'Ver productos mejor calificados', to: '/' },
+    gradient: 'bg-gradient-to-br from-ink-800 via-ink-950 to-ink-700',
+  },
+  {
+    icon: <ShoppingBag size={20} />,
+    eyebrow: 'Para tu casa o tu negocio',
+    title: 'Todo lo que necesitas, en un solo lugar',
+    description: 'Desde el mercado hasta la mypime de tu barrio: compara precios y compra directo.',
+    cta: { label: 'Explorar productos', to: '/' },
+    gradient: 'bg-gradient-to-br from-ink-700 via-ink-900 to-ink-950',
+  },
+];
 
 const PAGE_SIZE = 24;
 
@@ -123,6 +162,8 @@ export function ExplorePage() {
 
   return (
     <div>
+      <Carousel slides={CAROUSEL_SLIDES} />
+
       <div className="border-b border-ink-200/70 bg-gradient-to-b from-ink-100/70 to-ink-50 bg-grid">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
           <h1 className="max-w-xl text-3xl sm:text-4xl font-semibold leading-tight text-ink-900">
@@ -269,6 +310,9 @@ export function ExplorePage() {
         </div>
       </div>
       </div>
+
+      <HowItWorks />
+      <Membership />
     </div>
   );
 }
