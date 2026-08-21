@@ -16,10 +16,10 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
         <Logo dark />
         <div className="max-w-sm">
           <h2 className="bg-gradient-to-br from-white to-white/40 bg-clip-text text-3xl font-semibold leading-tight text-transparent">
-            Compra y vende cerca de ti
+            Todo lo que buscas, en un solo lugar
           </h2>
           <p className="mt-4 text-sm leading-relaxed text-white/50">
-            Agora conecta compradores con mypimes y mercados locales. Publica tu catálogo o encuentra lo que buscas, sin complicaciones.
+            Agora es el buscador de tu ciudad: encuentra en segundos lo que venden las mypimes y mercados locales, sin recorrerlos uno a uno.
           </p>
         </div>
         <p className="text-xs text-white/30">© {new Date().getFullYear()} Agora</p>

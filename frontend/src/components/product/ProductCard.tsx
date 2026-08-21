@@ -1,13 +1,16 @@
 import { Link } from 'react-router-dom';
-import { ImageOff, MapPin, Store } from 'lucide-react';
+import { Heart, ImageOff, MapPin, Store } from 'lucide-react';
 import type { Product } from '@/types';
 import { Badge } from '@/components/ui/Card';
 import { productImageUrl } from '@/api/product';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, cn } from '@/lib/utils';
+import { useFavorites } from '@/context/FavoritesContext';
 
 export function ProductCard({ product }: { product: Product }) {
   const imageUrl = productImageUrl(product.image);
   const price = formatPrice(product.priceUsd, 'USD') ?? formatPrice(product.priceCup, 'CUP');
+  const { isFavorite, toggleFavorite } = useFavorites();
+  const favorite = isFavorite(product.idProduct);
 
   return (
     <Link
@@ -32,6 +35,17 @@ export function ProductCard({ product }: { product: Product }) {
             Agotado
           </span>
         )}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            toggleFavorite(product.idProduct);
+          }}
+          aria-label={favorite ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+          aria-pressed={favorite}
+          className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-ink-500 backdrop-blur-sm transition-colors hover:text-ink-900"
+        >
+          <Heart size={15} className={cn(favorite && 'fill-ink-900 text-ink-900')} />
+        </button>
       </div>
 
       <div className="flex flex-1 flex-col gap-2 p-4">

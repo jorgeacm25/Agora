@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, ImageOff, MapPin, Store, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Heart, ImageOff, MapPin, Store, ExternalLink } from 'lucide-react';
 import { getProduct, productImageUrl } from '@/api/product';
 import { averageRating, createRating, listRatingsByProduct } from '@/api/rating';
 import type { Product, Rating } from '@/types';
@@ -8,16 +8,19 @@ import { Badge } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RatingStars } from '@/components/ui/RatingStars';
 import { PageSpinner } from '@/components/ui/Spinner';
-import { formatPrice } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import { hasPermission, Permissions } from '@/lib/permissions';
+import { addRecentlyViewed } from '@/lib/recentlyViewed';
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const { notify } = useToast();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [ratings, setRatings] = useState<Rating[]>([]);
@@ -29,7 +32,10 @@ export function ProductDetailPage() {
     if (!id) return;
     setIsLoading(true);
     getProduct(id)
-      .then(setProduct)
+      .then((data) => {
+        setProduct(data);
+        addRecentlyViewed(id);
+      })
       .catch(() => notify('No se pudo cargar el producto', 'error'))
       .finally(() => setIsLoading(false));
 
@@ -95,9 +101,19 @@ export function ProductDetailPage() {
 
         <div className="lg:col-span-2 flex flex-col gap-5">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge>{product.category}</Badge>
-              {!product.stock && <Badge variant="dark">Agotado</Badge>}
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Badge>{product.category}</Badge>
+                {!product.stock && <Badge variant="dark">Agotado</Badge>}
+              </div>
+              <button
+                onClick={() => toggleFavorite(product.idProduct)}
+                aria-pressed={isFavorite(product.idProduct)}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-200 text-ink-500 transition-colors hover:text-ink-900"
+                aria-label={isFavorite(product.idProduct) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
+              >
+                <Heart size={16} className={cn(isFavorite(product.idProduct) && 'fill-ink-900 text-ink-900')} />
+              </button>
             </div>
             <h1 className="text-2xl font-semibold text-ink-900">{product.name}</h1>
             {ratingsAvailable && ratings.length > 0 && (

@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
+import { FavoritesProvider } from '@/context/FavoritesContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProtectedRoute, RequireSeller } from '@/components/layout/ProtectedRoute';
@@ -8,6 +9,7 @@ import { ProtectedRoute, RequireSeller } from '@/components/layout/ProtectedRout
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { ExplorePage } from '@/pages/explore/ExplorePage';
+import { FavoritesPage } from '@/pages/favorites/FavoritesPage';
 import { ProductDetailPage } from '@/pages/product/ProductDetailPage';
 import { EnterprisePage } from '@/pages/enterprise/EnterprisePage';
 import { BecomeSellerPage } from '@/pages/seller/BecomeSellerPage';
@@ -25,10 +27,12 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <ToastProvider>
+          <FavoritesProvider>
           <Routes>
             <Route element={<AppLayout />}>
               <Route index element={<ExplorePage />} />
               <Route path="explorar" element={<Navigate to="/" replace />} />
+              <Route path="favoritos" element={<FavoritesPage />} />
               <Route path="productos/:id" element={<ProductDetailPage />} />
               <Route path="tiendas/:id" element={<EnterprisePage />} />
               <Route path="vender" element={<BecomeSellerPage />} />
@@ -55,6 +59,7 @@ export default function App() {
             <Route path="iniciar-sesion" element={<LoginPage />} />
             <Route path="registrarse" element={<RegisterPage />} />
           </Routes>
+          </FavoritesProvider>
         </ToastProvider>
       </AuthProvider>
     </BrowserRouter>

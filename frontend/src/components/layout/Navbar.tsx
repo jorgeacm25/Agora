@@ -1,13 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutGrid, LogOut, Store, User as UserIcon, ChevronDown, Menu, X } from 'lucide-react';
+import { Heart, LayoutGrid, LogOut, Store, User as UserIcon, ChevronDown, Menu, X } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import { cn, initials } from '@/lib/utils';
 
 export function Navbar() {
   const { user, isAuthenticated, isSeller, logout } = useAuth();
+  const { favorites } = useFavorites();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -53,6 +55,18 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <Link
+            to="/favoritos"
+            aria-label="Favoritos"
+            className="relative flex h-9 w-9 items-center justify-center rounded-full text-ink-500 hover:bg-ink-100 hover:text-ink-900"
+          >
+            <Heart size={18} />
+            {favorites.length > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink-900 px-1 text-[10px] font-semibold text-white">
+                {favorites.length}
+              </span>
+            )}
+          </Link>
           {isAuthenticated && user ? (
             <div className="relative" ref={menuRef}>
               <button
@@ -77,6 +91,13 @@ export function Navbar() {
                     className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-700 hover:bg-ink-50"
                   >
                     <LayoutGrid size={15} /> Explorar
+                  </Link>
+                  <Link
+                    to="/favoritos"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-700 hover:bg-ink-50"
+                  >
+                    <Heart size={15} /> Favoritos
                   </Link>
                   {isSeller ? (
                     <Link
@@ -133,6 +154,14 @@ export function Navbar() {
           <div className="flex flex-col gap-1">
             <Link to="/" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50">
               Explorar
+            </Link>
+            <Link
+              to="/favoritos"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50"
+            >
+              Favoritos
+              {favorites.length > 0 && <span className="text-xs text-ink-400">{favorites.length}</span>}
             </Link>
             {isAuthenticated ? (
               <>

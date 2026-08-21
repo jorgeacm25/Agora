@@ -1,27 +1,31 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch, Store, ArrowRight, ShoppingBag, Star } from 'lucide-react';
-import { listProducts } from '@/api/product';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch, Store, ArrowRight, ShoppingBag, Star, Clock3 } from 'lucide-react';
+import { getProduct, listProducts } from '@/api/product';
 import type { Product } from '@/types';
 import { ProductCard } from '@/components/product/ProductCard';
+import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton';
 import { Input } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Card';
 import { Pagination } from '@/components/ui/Pagination';
-import { PageSpinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Carousel } from '@/components/home/Carousel';
 import type { CarouselSlide } from '@/components/home/Carousel';
+import { CategoryTiles } from '@/components/home/CategoryTiles';
+import { DiscoveryRow } from '@/components/home/DiscoveryRow';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { Membership } from '@/components/home/Membership';
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
+import { useCategories } from '@/hooks/useCategories';
+import { getRecentlyViewed } from '@/lib/recentlyViewed';
 import { cn } from '@/lib/utils';
 
 const CAROUSEL_SLIDES: CarouselSlide[] = [
   {
     icon: <MapPin size={20} />,
-    eyebrow: 'Compra local',
+    eyebrow: 'Búsqueda local',
     title: 'Productos de tu ciudad, cerca de ti',
     description: 'Filtra por ubicación y descubre lo que venden las mypimes y mercados de tu zona.',
     cta: { label: 'Buscar cerca de mí', to: '/' },
@@ -30,24 +34,24 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
   {
     icon: <Store size={20} />,
     eyebrow: 'Para negocios',
-    title: 'Publica tu catálogo y vende más',
-    description: 'Regístrate como vendedor, agrega tus productos y llega a más compradores cada día.',
+    title: 'Publica tu catálogo y que te encuentren',
+    description: 'Regístrate como vendedor y aparece cuando alguien busque lo que ofreces en tu ciudad.',
     cta: { label: 'Empezar a vender', to: '/vender' },
     gradient: 'bg-gradient-to-br from-ink-950 via-ink-700 to-ink-900',
   },
   {
     icon: <Star size={20} />,
     eyebrow: 'Con confianza',
-    title: 'Compra respaldada por reseñas reales',
-    description: 'Revisa las calificaciones de otros compradores antes de decidir dónde comprar.',
-    cta: { label: 'Ver productos mejor calificados', to: '/' },
+    title: 'Decide con reseñas reales',
+    description: 'Revisa las calificaciones de otros usuarios antes de decidir dónde ir.',
+    cta: { label: 'Ver mejor calificados', to: '/' },
     gradient: 'bg-gradient-to-br from-ink-800 via-ink-950 to-ink-700',
   },
   {
     icon: <ShoppingBag size={20} />,
     eyebrow: 'Para tu casa o tu negocio',
-    title: 'Todo lo que necesitas, en un solo lugar',
-    description: 'Desde el mercado hasta la mypime de tu barrio: compara precios y compra directo.',
+    title: 'Todo lo disponible en tu ciudad, en un solo lugar',
+    description: 'Desde el mercado hasta la mypime de tu barrio: un solo buscador, sin perder tiempo paseando de tienda en tienda.',
     cta: { label: 'Explorar productos', to: '/' },
     gradient: 'bg-gradient-to-br from-ink-700 via-ink-900 to-ink-950',
   },
@@ -60,21 +64,43 @@ type SortOrder = 'asc' | 'desc';
 export function ExplorePage() {
   const { notify } = useToast();
   const { isSeller } = useAuth();
+  const { categories, isLoading: categoriesLoading } = useCategories();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [rawProducts, setRawProducts] = useState<Product[]>([]);
   const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [search, setSearch] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [popularOnly, setPopularOnly] = useState(false);
-  const [inStockOnly, setInStockOnly] = useState(false);
-  const [category, setCategory] = useState<string | null>(null);
-  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+  const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
+  const [minPrice, setMinPrice] = useState(() => searchParams.get('min') ?? '');
+  const [maxPrice, setMaxPrice] = useState(() => searchParams.get('max') ?? '');
+  const [popularOnly, setPopularOnly] = useState(() => searchParams.get('pop') === '1');
+  const [inStockOnly, setInStockOnly] = useState(() => searchParams.get('stock') === '1');
+  const [category, setCategory] = useState<string | null>(() => searchParams.get('cat'));
+  const [sortOrder, setSortOrder] = useState<SortOrder>(() => (searchParams.get('sort') === 'desc' ? 'desc' : 'asc'));
+  const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
+
   const [nearMe, setNearMe] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  const [recentProducts, setRecentProducts] = useState<Product[] | null>(null);
+  const [popularProducts, setPopularProducts] = useState<Product[] | null>(null);
+
+  // Keep the URL in sync so filters survive back/forward navigation and can be shared.
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (search) params.q = search;
+    if (minPrice) params.min = minPrice;
+    if (maxPrice) params.max = maxPrice;
+    if (popularOnly) params.pop = '1';
+    if (inStockOnly) params.stock = '1';
+    if (category) params.cat = category;
+    if (sortOrder === 'desc') params.sort = 'desc';
+    if (page > 1) params.page = String(page);
+    setSearchParams(params, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, minPrice, maxPrice, popularOnly, inStockOnly, category, sortOrder, page]);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,10 +133,29 @@ export function ExplorePage() {
     setPage(1);
   }, [minPrice, maxPrice, popularOnly, nearMe]);
 
-  const categories = useMemo(() => {
-    const set = new Set(rawProducts.map((p) => p.category).filter(Boolean));
-    return Array.from(set).sort();
-  }, [rawProducts]);
+  // "Vistos recientemente": read once, then resolve each id against the API.
+  useEffect(() => {
+    const ids = getRecentlyViewed();
+    if (ids.length === 0) {
+      setRecentProducts([]);
+      return;
+    }
+    Promise.allSettled(ids.slice(0, 8).map((id) => getProduct(id)))
+      .then((results) => {
+        const found = results
+          .filter((r): r is PromiseFulfilledResult<Product> => r.status === 'fulfilled')
+          .map((r) => r.value);
+        setRecentProducts(found);
+      })
+      .catch(() => setRecentProducts([]));
+  }, []);
+
+  // "Productos populares": real signal, backed by the backend's average-rating filter.
+  useEffect(() => {
+    listProducts({ minRating: 4, limit: 8 })
+      .then((data) => setPopularProducts(data.products))
+      .catch(() => setPopularProducts([]));
+  }, []);
 
   const visibleProducts = useMemo(() => {
     let list = rawProducts;
@@ -148,6 +193,11 @@ export function ExplorePage() {
     );
   }
 
+  function selectCategory(c: string) {
+    setCategory((current) => (current === c ? null : c));
+    setPage(1);
+  }
+
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const hasActiveFilters = Boolean(minPrice || maxPrice || popularOnly || nearMe || category || inStockOnly);
 
@@ -170,7 +220,7 @@ export function ExplorePage() {
             Todo lo que necesitas, para tu casa o tu negocio
           </h1>
           <p className="mt-3 max-w-lg text-ink-500">
-            Compra directo a mypimes y mercados de tu ciudad: compara precios, revisa reseñas y encuentra lo que buscas cerca de ti.
+            Busca en todos los mercados y mypimes de tu ciudad desde un solo lugar: compara precios y ubicaciones sin perder tiempo recorriendo tienda por tienda.
           </p>
           <div className="mt-7 flex max-w-xl gap-2">
             <div className="relative flex-1">
@@ -188,6 +238,14 @@ export function ExplorePage() {
           </div>
         </div>
       </div>
+
+      <CategoryTiles categories={categories} isLoading={categoriesLoading} activeCategory={category} onSelect={selectCategory} />
+
+      {recentProducts !== null && recentProducts.length > 0 && (
+        <DiscoveryRow icon={<Clock3 size={16} />} title="Vistos recientemente" products={recentProducts} />
+      )}
+
+      <DiscoveryRow icon={<TrendingUp size={16} />} title="Populares en Agora" subtitle="Los mejor calificados por otros usuarios" products={popularProducts} />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
       <p className="mb-6 text-sm text-ink-500">
@@ -256,8 +314,8 @@ export function ExplorePage() {
               <div>
                 <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-400">Categoría</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {categories.map((c) => (
-                    <button key={c} onClick={() => setCategory(category === c ? null : c)}>
+                  {categories.map(({ category: c }) => (
+                    <button key={c} onClick={() => selectCategory(c)}>
                       <Badge variant={category === c ? 'dark' : 'neutral'} className="cursor-pointer">
                         {c}
                       </Badge>
@@ -287,7 +345,11 @@ export function ExplorePage() {
 
         <div className="flex-1 min-w-0">
           {isLoading ? (
-            <PageSpinner />
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ProductCardSkeleton key={i} />
+              ))}
+            </div>
           ) : visibleProducts.length === 0 ? (
             <EmptyState
               icon={<PackageSearch size={22} />}
