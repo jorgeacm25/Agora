@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { RatingStars } from '@/components/ui/RatingStars';
 import { PageSpinner } from '@/components/ui/Spinner';
+import { MapEmbed } from '@/components/ui/MapEmbed';
 import { cn, formatPrice } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -144,8 +145,18 @@ export function ProductDetailPage() {
               )}
               {mapUrl && (
                 <a href={mapUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm text-ink-700 hover:text-ink-900">
-                  Ver ubicación en el mapa <ExternalLink size={12} />
+                  Abrir en Google Maps <ExternalLink size={12} />
                 </a>
+              )}
+              {enterprise.latitude && enterprise.longitude && (
+                <div className="overflow-hidden rounded-xl border border-ink-200">
+                  <MapEmbed
+                    latitude={enterprise.latitude}
+                    longitude={enterprise.longitude}
+                    label={enterprise.companyName}
+                    className="h-40 w-full border-0"
+                  />
+                </div>
               )}
             </div>
           )}

@@ -13,6 +13,7 @@ import { FavoritesPage } from '@/pages/favorites/FavoritesPage';
 import { ProductDetailPage } from '@/pages/product/ProductDetailPage';
 import { EnterprisePage } from '@/pages/enterprise/EnterprisePage';
 import { BecomeSellerPage } from '@/pages/seller/BecomeSellerPage';
+import { PlansPage } from '@/pages/plans/PlansPage';
 import { AccountPage } from '@/pages/account/AccountPage';
 import { DashboardHome } from '@/pages/dashboard/DashboardHome';
 import { DashboardProducts } from '@/pages/dashboard/DashboardProducts';
@@ -39,6 +40,7 @@ export default function App() {
 
               <Route element={<ProtectedRoute />}>
                 <Route path="cuenta" element={<AccountPage />} />
+                <Route path="planes" element={<PlansPage />} />
                 <Route element={<RequireSeller />}>
                   <Route path="panel" element={<DashboardLayout />}>
                     <Route index element={<DashboardHome />} />

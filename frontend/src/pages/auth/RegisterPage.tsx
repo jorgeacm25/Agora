@@ -32,7 +32,7 @@ export function RegisterPage() {
     try {
       await register(username, password);
       await login(username, password);
-      navigate(role === 'vendedor' ? '/vender' : '/', { replace: true });
+      navigate(role === 'vendedor' ? '/vender' : '/planes', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo crear la cuenta');
     } finally {

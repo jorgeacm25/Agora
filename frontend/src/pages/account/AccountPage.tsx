@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Trash2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { CalendarClock, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { updatePassword, deleteAccount } from '@/api/user';
@@ -12,7 +12,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { initials } from '@/lib/utils';
 
 export function AccountPage() {
-  const { user, isSeller, logout } = useAuth();
+  const { user, isSeller, subscription, logout } = useAuth();
   const { notify } = useToast();
   const navigate = useNavigate();
 
@@ -67,6 +67,32 @@ export function AccountPage() {
           </Badge>
         </div>
       </div>
+
+      <Card className="p-6">
+        <h2 className="mb-4 font-semibold text-ink-900">Membresía</h2>
+        {subscription ? (
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-100 text-ink-700">
+              <CalendarClock size={18} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-ink-900">{subscription.name}</p>
+              {subscription.expiresAt && (
+                <p className="text-xs text-ink-500">
+                  Vence el {new Date(subscription.expiresAt).toLocaleDateString('es-ES')}
+                </p>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm text-ink-500">No tienes una membresía activa.</p>
+            <Link to={isSeller ? '/vender' : '/planes'}>
+              <Button size="sm">Elegir plan</Button>
+            </Link>
+          </div>
+        )}
+      </Card>
 
       <Card className="p-6">
         <h2 className="mb-4 font-semibold text-ink-900">Cambiar contraseña</h2>

@@ -8,6 +8,7 @@ import type { Product, Service, UserEnterprise } from '@/types';
 import { ProductCard } from '@/components/product/ProductCard';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { MapEmbed } from '@/components/ui/MapEmbed';
 import { formatPrice, initials } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 
@@ -100,10 +101,21 @@ export function EnterprisePage() {
             )}
             {mapUrl && (
               <a href={mapUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm text-ink-700 hover:text-ink-900">
-                Ver en el mapa <ExternalLink size={12} />
+                Abrir en Google Maps <ExternalLink size={12} />
               </a>
             )}
           </div>
+
+          {enterprise.latitude && enterprise.longitude && (
+            <div className="overflow-hidden rounded-2xl border border-ink-200">
+              <MapEmbed
+                latitude={enterprise.latitude}
+                longitude={enterprise.longitude}
+                label={enterprise.companyName}
+                className="h-48 w-full border-0"
+              />
+            </div>
+          )}
 
           {services.length > 0 && (
             <div className="rounded-2xl border border-ink-200 p-4 space-y-3">

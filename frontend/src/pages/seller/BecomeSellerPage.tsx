@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Check, Store, CreditCard, ShieldCheck } from 'lucide-react';
+import { Check, Store } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { createEnterprise } from '@/api/userEnterprise';
@@ -10,8 +10,10 @@ import { Input } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PageSpinner } from '@/components/ui/Spinner';
+import { PlanPicker } from '@/components/plans/PlanPicker';
 import { cn } from '@/lib/utils';
-import { SELLER_PLAN } from '@/lib/sellerPlan';
+import { SELLER_PLAN, getTier } from '@/lib/plans';
+import type { BillingCycle } from '@/lib/plans';
 
 export function BecomeSellerPage() {
   const { user, isAuthenticated, isLoading, enterprise, subscription, refreshSellerStatus } = useAuth();
@@ -75,16 +77,17 @@ export function BecomeSellerPage() {
     }
   }
 
-  async function handleActivatePlan() {
+  async function handleActivatePlan(cycle: BillingCycle) {
     if (!user) return;
+    const tier = getTier(SELLER_PLAN, cycle);
     setSubmitting(true);
     try {
       await createSubscription({
         userId: user.id,
-        name: SELLER_PLAN.name,
-        cost: SELLER_PLAN.cost,
-        quantityAccounts: SELLER_PLAN.quantityAccounts,
-        durationDays: SELLER_PLAN.durationDays,
+        name: `${SELLER_PLAN.name} ${tier.label}`,
+        cost: tier.cost,
+        quantityAccounts: 1,
+        durationDays: tier.durationDays,
       });
       await refreshSellerStatus();
       notify('¡Plan de vendedor activado!');
@@ -134,25 +137,9 @@ export function BecomeSellerPage() {
 
       {step === 2 && (
         <Card className="p-6">
-          <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-ink-100">
-              <CreditCard size={18} className="text-ink-700" />
-            </div>
-            <div>
-              <p className="font-medium text-ink-900">{SELLER_PLAN.name}</p>
-              <p className="text-sm text-ink-500">${SELLER_PLAN.cost} USD / {SELLER_PLAN.durationDays} días</p>
-            </div>
-          </div>
-          <ul className="mb-6 space-y-2 text-sm text-ink-600">
-            {SELLER_PLAN.features.map((feature) => (
-              <li key={feature} className="flex items-center gap-2">
-                <Check size={14} className="text-ink-900" /> {feature}
-              </li>
-            ))}
-          </ul>
-          <Button className="w-full" size="lg" loading={submitting} onClick={handleActivatePlan} icon={<ShieldCheck size={16} />}>
-            Activar plan de vendedor
-          </Button>
+          <h2 className="mb-1 font-medium text-ink-900">Elige tu plan de vendedor</h2>
+          <p className="mb-5 text-sm text-ink-500">Puedes cambiar de ciclo más adelante desde tu cuenta.</p>
+          <PlanPicker plan={SELLER_PLAN} onSubscribe={handleActivatePlan} submitting={submitting} ctaLabel="Activar plan de vendedor" />
           <p className="mt-3 text-center text-xs text-ink-400">Se registrará tu suscripción; el cobro se gestiona fuera de la plataforma por ahora.</p>
         </Card>
       )}

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch, Store, ArrowRight, ShoppingBag, Star, Clock3 } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch, Store, ArrowRight, ShoppingBag, Star, Clock3, Users, Target } from 'lucide-react';
 import { getProduct, listProducts } from '@/api/product';
 import type { Product } from '@/types';
 import { ProductCard } from '@/components/product/ProductCard';
@@ -214,8 +215,10 @@ export function ExplorePage() {
     <div>
       <Carousel slides={CAROUSEL_SLIDES} />
 
-      <div className="border-b border-ink-200/70 bg-gradient-to-b from-ink-100/70 to-ink-50 bg-grid">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
+      <div className="relative overflow-hidden border-b border-ink-200/70 bg-gradient-to-b from-ink-100/70 to-ink-50 bg-grid">
+        <div className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-ink-300/25 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-ink-300/15 blur-3xl" />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
           <h1 className="max-w-xl text-3xl sm:text-4xl font-semibold leading-tight text-ink-900">
             Todo lo que necesitas, para tu casa o tu negocio
           </h1>
@@ -235,6 +238,12 @@ export function ExplorePage() {
             <Button variant="outline" className="sm:hidden h-12" onClick={() => setFiltersOpen((v) => !v)} icon={<SlidersHorizontal size={15} />}>
               Filtros
             </Button>
+          </div>
+
+          <div className="mt-10 grid grid-cols-1 gap-6 border-t border-ink-200/70 pt-6 sm:grid-cols-3">
+            <AboutItem icon={<Users size={15} />} title="Quiénes somos" description="Una plataforma que reúne lo que ofrecen las mypimes y mercados de tu ciudad." />
+            <AboutItem icon={<Target size={15} />} title="Nuestro objetivo" description="Ahorrarte tiempo: que encuentres lo que buscas sin recorrer tienda por tienda." />
+            <AboutItem icon={<Search size={15} />} title="Para qué sirve" description="Para buscar, comparar y localizar productos disponibles en tu ciudad, hoy." />
           </div>
         </div>
       </div>
@@ -375,6 +384,18 @@ export function ExplorePage() {
 
       <HowItWorks />
       <Membership />
+    </div>
+  );
+}
+
+function AboutItem({ icon, title, description }: { icon: ReactNode; title: string; description: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-ink-900 text-white">{icon}</div>
+      <div>
+        <p className="text-sm font-medium text-ink-900">{title}</p>
+        <p className="mt-0.5 text-xs leading-relaxed text-ink-500">{description}</p>
+      </div>
     </div>
   );
 }
