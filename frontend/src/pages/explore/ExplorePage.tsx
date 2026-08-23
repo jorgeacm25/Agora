@@ -1,27 +1,47 @@
-import { useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, MapPin, TrendingUp, X, PackageSearch, Store, ArrowRight, ShoppingBag, Star, Clock3, Users, Target } from 'lucide-react';
+import {
+  Search,
+  SlidersHorizontal,
+  MapPin,
+  TrendingUp,
+  PackageSearch,
+  Store,
+  ArrowRight,
+  ShoppingBag,
+  Star,
+  Clock3,
+  Users,
+  Target,
+  List as ListIcon,
+  Map as MapIcon,
+} from 'lucide-react';
 import { getProduct, listProducts } from '@/api/product';
+import { productImageUrl } from '@/api/product';
 import type { Product } from '@/types';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton';
-import { Input } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Card';
 import { Pagination } from '@/components/ui/Pagination';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { SegmentedToggle } from '@/components/ui/SegmentedToggle';
+import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Carousel } from '@/components/home/Carousel';
 import type { CarouselSlide } from '@/components/home/Carousel';
 import { CategoryTiles } from '@/components/home/CategoryTiles';
 import { DiscoveryRow } from '@/components/home/DiscoveryRow';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { Membership } from '@/components/home/Membership';
+import { FiltersPanel } from '@/components/explore/FiltersPanel';
+import type { SortOrder } from '@/components/explore/FiltersPanel';
+const ResultsMap = lazy(() => import('@/components/explore/ResultsMap').then((m) => ({ default: m.ResultsMap })));
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
 import { getRecentlyViewed } from '@/lib/recentlyViewed';
-import { cn } from '@/lib/utils';
+import { cn, formatPrice } from '@/lib/utils';
 
 const CAROUSEL_SLIDES: CarouselSlide[] = [
   {
@@ -30,7 +50,7 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
     title: 'Productos de tu ciudad, cerca de ti',
     description: 'Filtra por ubicación y descubre lo que venden las mypimes y mercados de tu zona.',
     cta: { label: 'Buscar cerca de mí', to: '/' },
-    gradient: 'bg-gradient-to-br from-ink-900 via-ink-800 to-ink-950',
+    gradient: 'bg-gradient-to-br from-primary to-primary-dark',
   },
   {
     icon: <Store size={20} />,
@@ -38,7 +58,7 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
     title: 'Publica tu catálogo y que te encuentren',
     description: 'Regístrate como vendedor y aparece cuando alguien busque lo que ofreces en tu ciudad.',
     cta: { label: 'Empezar a vender', to: '/vender' },
-    gradient: 'bg-gradient-to-br from-ink-950 via-ink-700 to-ink-900',
+    gradient: 'bg-gradient-to-br from-secondary to-secondary-dark',
   },
   {
     icon: <Star size={20} />,
@@ -46,7 +66,7 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
     title: 'Decide con reseñas reales',
     description: 'Revisa las calificaciones de otros usuarios antes de decidir dónde ir.',
     cta: { label: 'Ver mejor calificados', to: '/' },
-    gradient: 'bg-gradient-to-br from-ink-800 via-ink-950 to-ink-700',
+    gradient: 'bg-gradient-to-br from-primary-dark to-primary',
   },
   {
     icon: <ShoppingBag size={20} />,
@@ -54,13 +74,13 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
     title: 'Todo lo disponible en tu ciudad, en un solo lugar',
     description: 'Desde el mercado hasta la mypime de tu barrio: un solo buscador, sin perder tiempo paseando de tienda en tienda.',
     cta: { label: 'Explorar productos', to: '/' },
-    gradient: 'bg-gradient-to-br from-ink-700 via-ink-900 to-ink-950',
+    gradient: 'bg-gradient-to-br from-primary to-secondary',
   },
 ];
 
 const PAGE_SIZE = 24;
 
-type SortOrder = 'asc' | 'desc';
+type View = 'list' | 'map';
 
 export function ExplorePage() {
   const { notify } = useToast();
@@ -73,6 +93,7 @@ export function ExplorePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
+  const [searchFocused, setSearchFocused] = useState(false);
   const [minPrice, setMinPrice] = useState(() => searchParams.get('min') ?? '');
   const [maxPrice, setMaxPrice] = useState(() => searchParams.get('max') ?? '');
   const [popularOnly, setPopularOnly] = useState(() => searchParams.get('pop') === '1');
@@ -80,8 +101,10 @@ export function ExplorePage() {
   const [category, setCategory] = useState<string | null>(() => searchParams.get('cat'));
   const [sortOrder, setSortOrder] = useState<SortOrder>(() => (searchParams.get('sort') === 'desc' ? 'desc' : 'asc'));
   const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
+  const [view, setView] = useState<View>('list');
 
   const [nearMe, setNearMe] = useState<{ lat: number; lng: number } | null>(null);
+  const [radiusKm, setRadiusKm] = useState(15);
   const [locating, setLocating] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
@@ -114,7 +137,7 @@ export function ExplorePage() {
       minRating: popularOnly ? 4 : undefined,
       latitude: nearMe?.lat,
       longitude: nearMe?.lng,
-      radius: nearMe ? 15 : undefined,
+      radius: nearMe ? radiusKm : undefined,
     })
       .then((data) => {
         if (cancelled) return;
@@ -128,11 +151,11 @@ export function ExplorePage() {
     return () => {
       cancelled = true;
     };
-  }, [page, minPrice, maxPrice, popularOnly, nearMe, notify]);
+  }, [page, minPrice, maxPrice, popularOnly, nearMe, radiusKm, notify]);
 
   useEffect(() => {
     setPage(1);
-  }, [minPrice, maxPrice, popularOnly, nearMe]);
+  }, [minPrice, maxPrice, popularOnly, nearMe, radiusKm]);
 
   // "Vistos recientemente": read once, then resolve each id against the API.
   useEffect(() => {
@@ -211,13 +234,38 @@ export function ExplorePage() {
     setNearMe(null);
   }
 
+  const filtersProps = {
+    minPrice,
+    maxPrice,
+    onMinPrice: setMinPrice,
+    onMaxPrice: setMaxPrice,
+    sortOrder,
+    onSortOrder: setSortOrder,
+    popularOnly,
+    onPopularOnly: setPopularOnly,
+    inStockOnly,
+    onInStockOnly: setInStockOnly,
+    nearMe: Boolean(nearMe),
+    onLocateMe: locateMe,
+    locating,
+    radiusKm,
+    onRadiusKm: setRadiusKm,
+    categories,
+    activeCategory: category,
+    onSelectCategory: selectCategory,
+    hasActiveFilters,
+    onClear: clearFilters,
+  };
+
+  const mapResults = visibleProducts.filter((p) => p.userEnterprise?.latitude && p.userEnterprise?.longitude);
+
   return (
     <div>
       <Carousel slides={CAROUSEL_SLIDES} />
 
-      <div className="relative overflow-hidden border-b border-ink-200/70 bg-gradient-to-b from-ink-100/70 to-ink-50 bg-grid">
-        <div className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-ink-300/25 blur-3xl" />
-        <div className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-ink-300/15 blur-3xl" />
+      <div className="relative overflow-hidden border-b border-ink-200/70 bg-gradient-to-b from-primary-light/60 to-ink-100 bg-grid">
+        <div className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-secondary/10 blur-3xl" />
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
           <h1 className="max-w-xl text-3xl sm:text-4xl font-semibold leading-tight text-ink-900">
             Todo lo que necesitas, para tu casa o tu negocio
@@ -226,16 +274,26 @@ export function ExplorePage() {
             Busca en todos los mercados y mypimes de tu ciudad desde un solo lugar: compara precios y ubicaciones sin perder tiempo recorriendo tienda por tienda.
           </p>
           <div className="mt-7 flex max-w-xl gap-2">
-            <div className="relative flex-1">
+            <div
+              className={cn(
+                'relative flex-1 origin-left transition-transform duration-200 ease-out',
+                searchFocused && 'scale-[1.02]',
+              )}
+            >
               <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                onBlur={() => setSearchFocused(false)}
                 placeholder="Busca productos, categorías o tiendas…"
-                className="h-12 w-full rounded-xl border border-ink-200 bg-white pl-11 pr-4 text-sm shadow-soft outline-none transition-colors focus:border-ink-500 focus:ring-4 focus:ring-ink-900/5"
+                className={cn(
+                  'h-12 w-full rounded-xl border bg-white pl-11 pr-4 text-sm outline-none transition-all duration-200',
+                  searchFocused ? 'border-primary shadow-lift ring-4 ring-primary/10' : 'border-ink-200 shadow-soft',
+                )}
               />
             </div>
-            <Button variant="outline" className="sm:hidden h-12" onClick={() => setFiltersOpen((v) => !v)} icon={<SlidersHorizontal size={15} />}>
+            <Button variant="outline" className="sm:hidden h-12" onClick={() => setFiltersOpen(true)} icon={<SlidersHorizontal size={15} />}>
               Filtros
             </Button>
           </div>
@@ -257,141 +315,141 @@ export function ExplorePage() {
       <DiscoveryRow icon={<TrendingUp size={16} />} title="Populares en Agora" subtitle="Los mejor calificados por otros usuarios" products={popularProducts} />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-      <p className="mb-6 text-sm text-ink-500">
-        {total} producto{total === 1 ? '' : 's'} publicados por vendedores en Agora
-      </p>
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-ink-500">
+            {total} producto{total === 1 ? '' : 's'} publicados por vendedores en Agora
+          </p>
+          <SegmentedToggle
+            value={view}
+            onChange={setView}
+            options={[
+              { value: 'list', label: 'Lista', icon: <ListIcon size={15} /> },
+              { value: 'map', label: 'Mapa', icon: <MapIcon size={15} /> },
+            ]}
+          />
+        </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        <aside className={cn('lg:w-64 shrink-0 space-y-6', !filtersOpen && 'hidden lg:block')}>
-          <div className="rounded-2xl border border-ink-200 bg-white p-4 space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-ink-900">Filtros</h2>
-              {hasActiveFilters && (
-                <button onClick={clearFilters} className="text-xs text-ink-500 hover:text-ink-900 inline-flex items-center gap-1">
-                  <X size={12} /> Limpiar
-                </button>
+        <div className="flex flex-col lg:flex-row gap-8">
+          <aside className="hidden lg:block lg:w-64 shrink-0 space-y-6">
+            <div className="rounded-2xl border border-ink-200 bg-white p-4">
+              <FiltersPanel {...filtersProps} />
+            </div>
+
+            {!isSeller && (
+              <Link
+                to="/vender"
+                className="group flex items-center gap-3 rounded-2xl border border-ink-200 bg-white p-4 transition-colors hover:border-primary"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
+                  <Store size={16} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-ink-900">¿Tienes un negocio?</p>
+                  <p className="text-xs text-ink-500">Publica tu catálogo en Agora</p>
+                </div>
+                <ArrowRight size={15} className="shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            )}
+          </aside>
+
+          <div className="flex-1 min-w-0">
+            <div key={view} className="animate-fade-in [animation-duration:300ms]">
+              {view === 'list' ? (
+                isLoading ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <ProductCardSkeleton key={i} />
+                    ))}
+                  </div>
+                ) : visibleProducts.length === 0 ? (
+                  <EmptyState
+                    icon={<PackageSearch size={22} />}
+                    title="No encontramos productos"
+                    description="Prueba ajustando los filtros o busca con otras palabras."
+                    action={hasActiveFilters ? <Button variant="outline" onClick={clearFilters}>Limpiar filtros</Button> : undefined}
+                  />
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                      {visibleProducts.map((product) => (
+                        <ProductCard key={product.idProduct} product={product} />
+                      ))}
+                    </div>
+                    <div className="mt-8">
+                      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+                    </div>
+                  </>
+                )
+              ) : (
+                <div className="relative h-[70vh] min-h-[420px] overflow-hidden rounded-2xl border border-ink-200">
+                  {mapResults.length === 0 ? (
+                    <EmptyState icon={<MapIcon size={22} />} title="Ningún resultado tiene ubicación" description="Prueba con otros filtros." />
+                  ) : (
+                    <>
+                      <Suspense fallback={<div className="flex h-full items-center justify-center bg-ink-100 text-sm text-ink-400">Cargando mapa…</div>}>
+                        <ResultsMap products={mapResults} />
+                      </Suspense>
+                      <BottomSheet open dismissible={false} onClose={() => {}} peekHeight={0.32} fullHeight={0.9}>
+                        <p className="mb-3 text-center text-xs text-ink-400">Desliza hacia arriba para ver toda la lista</p>
+                        <div className="space-y-1">
+                          {mapResults.map((product) => (
+                            <MapResultRow key={product.idProduct} product={product} />
+                          ))}
+                        </div>
+                      </BottomSheet>
+                    </>
+                  )}
+                </div>
               )}
             </div>
-
-            <div>
-              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-400">Precio (CUP)</p>
-              <div className="flex items-center gap-2">
-                <Input placeholder="Mín" inputMode="numeric" value={minPrice} onChange={(e) => setMinPrice(e.target.value.replace(/\D/g, ''))} />
-                <span className="text-ink-300">–</span>
-                <Input placeholder="Máx" inputMode="numeric" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value.replace(/\D/g, ''))} />
-              </div>
-            </div>
-
-            <div>
-              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-400">Ordenar por precio</p>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setSortOrder('asc')}
-                  className={cn('flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium', sortOrder === 'asc' ? 'border-ink-900 bg-ink-900 text-white' : 'border-ink-200 text-ink-600')}
-                >
-                  Menor a mayor
-                </button>
-                <button
-                  onClick={() => setSortOrder('desc')}
-                  className={cn('flex-1 rounded-lg border px-3 py-1.5 text-xs font-medium', sortOrder === 'desc' ? 'border-ink-900 bg-ink-900 text-white' : 'border-ink-200 text-ink-600')}
-                >
-                  Mayor a menor
-                </button>
-              </div>
-            </div>
-
-            <label className="flex items-center justify-between cursor-pointer">
-              <span className="inline-flex items-center gap-1.5 text-sm text-ink-700">
-                <TrendingUp size={14} /> Más populares
-              </span>
-              <input type="checkbox" checked={popularOnly} onChange={(e) => setPopularOnly(e.target.checked)} className="h-4 w-4 accent-ink-900" />
-            </label>
-
-            <label className="flex items-center justify-between cursor-pointer">
-              <span className="text-sm text-ink-700">Solo disponibles</span>
-              <input type="checkbox" checked={inStockOnly} onChange={(e) => setInStockOnly(e.target.checked)} className="h-4 w-4 accent-ink-900" />
-            </label>
-
-            <div>
-              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-400">Ubicación</p>
-              <Button variant="outline" size="sm" className="w-full" onClick={locateMe} loading={locating} icon={<MapPin size={14} />}>
-                {nearMe ? 'Cerca de mí ✓' : 'Buscar cerca de mí'}
-              </Button>
-            </div>
-
-            {categories.length > 0 && (
-              <div>
-                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-400">Categoría</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {categories.map(({ category: c }) => (
-                    <button key={c} onClick={() => selectCategory(c)}>
-                      <Badge variant={category === c ? 'dark' : 'neutral'} className="cursor-pointer">
-                        {c}
-                      </Badge>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
-
-          {!isSeller && (
-            <Link
-              to="/vender"
-              className="group flex items-center gap-3 rounded-2xl border border-ink-200 bg-white p-4 transition-colors hover:border-ink-400"
-            >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink-100 text-ink-700">
-                <Store size={16} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-ink-900">¿Tienes un negocio?</p>
-                <p className="text-xs text-ink-500">Publica tu catálogo en Agora</p>
-              </div>
-              <ArrowRight size={15} className="shrink-0 text-ink-400 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          )}
-        </aside>
-
-        <div className="flex-1 min-w-0">
-          {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <ProductCardSkeleton key={i} />
-              ))}
-            </div>
-          ) : visibleProducts.length === 0 ? (
-            <EmptyState
-              icon={<PackageSearch size={22} />}
-              title="No encontramos productos"
-              description="Prueba ajustando los filtros o busca con otras palabras."
-              action={hasActiveFilters ? <Button variant="outline" onClick={clearFilters}>Limpiar filtros</Button> : undefined}
-            />
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                {visibleProducts.map((product) => (
-                  <ProductCard key={product.idProduct} product={product} />
-                ))}
-              </div>
-              <div className="mt-8">
-                <Pagination page={page} totalPages={totalPages} onChange={setPage} />
-              </div>
-            </>
-          )}
         </div>
-      </div>
       </div>
 
       <HowItWorks />
       <Membership />
+
+      {filtersOpen && (
+        <BottomSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filtrar resultados" fullHeight={0.85} peekHeight={0.85}
+          footer={
+            <Button className="w-full" size="lg" onClick={() => setFiltersOpen(false)}>
+              Aplicar filtros ({visibleProducts.length} resultados)
+            </Button>
+          }
+        >
+          <div className="pb-4">
+            <FiltersPanel {...filtersProps} />
+          </div>
+        </BottomSheet>
+      )}
+
+      <ScrollToTop />
     </div>
+  );
+}
+
+function MapResultRow({ product }: { product: Product }) {
+  const imageUrl = productImageUrl(product.image);
+  return (
+    <Link to={`/productos/${product.idProduct}`} className="flex items-center gap-3 border-t border-ink-100 py-2.5 first:border-t-0">
+      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-ink-100">
+        {imageUrl && <img src={imageUrl} alt="" className="h-full w-full object-cover" />}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="truncate text-[13px] font-semibold text-ink-900">{product.name}</p>
+        <p className="truncate text-[11px] text-ink-500">{product.userEnterprise?.companyName}</p>
+      </div>
+      <span className="shrink-0 text-sm font-bold text-secondary">
+        {formatPrice(product.priceUsd, 'USD') ?? formatPrice(product.priceCup, 'CUP')}
+      </span>
+    </Link>
   );
 }
 
 function AboutItem({ icon, title, description }: { icon: ReactNode; title: string; description: string }) {
   return (
     <div className="flex items-start gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-ink-900 text-white">{icon}</div>
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white">{icon}</div>
       <div>
         <p className="text-sm font-medium text-ink-900">{title}</p>
         <p className="mt-0.5 text-xs leading-relaxed text-ink-500">{description}</p>

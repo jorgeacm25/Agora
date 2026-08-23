@@ -58,19 +58,20 @@ export function EnterprisePage() {
 
   return (
     <div>
-      <div className="surface-gradient bg-grid">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 py-12">
-          <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/60 hover:text-white">
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary-light via-white to-primary-light bg-grid">
+        <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-12">
+          <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
             <ArrowLeft size={14} /> Volver a explorar
           </Link>
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-xl font-bold text-ink-950">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-xl font-bold text-white">
               {initials(enterprise.companyName)}
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-white">{enterprise.companyName}</h1>
+              <h1 className="text-2xl font-semibold text-ink-900">{enterprise.companyName}</h1>
               {enterprise.address && (
-                <p className="mt-1 flex items-center gap-1.5 text-sm text-white/60">
+                <p className="mt-1 flex items-center gap-1.5 text-sm text-ink-500">
                   <MapPin size={13} /> {enterprise.address.city}, {enterprise.address.state}
                 </p>
               )}

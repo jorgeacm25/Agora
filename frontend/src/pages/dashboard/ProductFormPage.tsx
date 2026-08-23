@@ -135,7 +135,7 @@ export function ProductFormPage() {
           <TextArea label="Descripción" required rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
 
           <label className="flex items-center gap-2.5 cursor-pointer">
-            <input type="checkbox" checked={stock} onChange={(e) => setStock(e.target.checked)} className="h-4 w-4 accent-ink-900" />
+            <input type="checkbox" checked={stock} onChange={(e) => setStock(e.target.checked)} className="h-4 w-4 accent-primary" />
             <span className="text-sm text-ink-700">Disponible en stock</span>
           </label>
 

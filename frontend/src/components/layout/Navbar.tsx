@@ -28,7 +28,7 @@ export function Navbar() {
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
       'text-sm font-medium transition-colors px-3 py-2 rounded-lg',
-      isActive ? 'text-ink-900 bg-ink-100' : 'text-ink-500 hover:text-ink-900',
+      isActive ? 'text-primary bg-primary-light' : 'text-ink-500 hover:text-ink-900',
     );
 
   function handleLogout() {
@@ -62,7 +62,7 @@ export function Navbar() {
           >
             <Heart size={18} />
             {favorites.length > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-ink-900 px-1 text-[10px] font-semibold text-white">
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-secondary px-1 text-[10px] font-semibold text-white">
                 {favorites.length}
               </span>
             )}
@@ -73,7 +73,7 @@ export function Navbar() {
                 onClick={() => setMenuOpen((v) => !v)}
                 className="flex items-center gap-2 rounded-full border border-ink-200 py-1 pl-1 pr-3 hover:border-ink-300 transition-colors"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-ink-900 text-xs font-semibold text-white">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
                   {initials(user.username)}
                 </span>
                 <span className="text-sm font-medium text-ink-800 max-w-[8rem] truncate">{user.username}</span>

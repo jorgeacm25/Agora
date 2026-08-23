@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
+import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { ProtectedRoute, RequireSeller } from '@/components/layout/ProtectedRoute';
@@ -29,6 +30,7 @@ export default function App() {
       <AuthProvider>
         <ToastProvider>
           <FavoritesProvider>
+          <OnboardingGate>
           <Routes>
             <Route element={<AppLayout />}>
               <Route index element={<ExplorePage />} />
@@ -61,6 +63,7 @@ export default function App() {
             <Route path="iniciar-sesion" element={<LoginPage />} />
             <Route path="registrarse" element={<RegisterPage />} />
           </Routes>
+          </OnboardingGate>
           </FavoritesProvider>
         </ToastProvider>
       </AuthProvider>

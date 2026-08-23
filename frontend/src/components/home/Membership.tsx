@@ -40,7 +40,7 @@ export function Membership() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="rounded-2xl border border-ink-200/80 bg-white p-7">
-          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-ink-100 text-ink-700">
+          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-ink-100 text-ink-600">
             <ShoppingBag size={19} />
           </div>
           <h3 className="text-lg font-semibold text-ink-900">Comprador</h3>
@@ -49,13 +49,13 @@ export function Membership() {
             <span className="text-3xl font-semibold text-ink-900">${buyerTier.cost}</span>
             <span className="text-sm text-ink-400">/ {buyerTier.durationDays} días</span>
             {buyerTier.savingsLabel && (
-              <span className="ml-auto rounded-full bg-ink-100 px-2.5 py-1 text-xs font-medium text-ink-700">{buyerTier.savingsLabel}</span>
+              <span className="ml-auto rounded-full bg-primary-light px-2.5 py-1 text-xs font-medium text-primary-dark">{buyerTier.savingsLabel}</span>
             )}
           </div>
           <ul className="mt-6 space-y-2.5 text-sm text-ink-600">
             {BUYER_PLAN.features.map((feature) => (
               <li key={feature} className="flex items-center gap-2">
-                <Check size={14} className="text-ink-900" /> {feature}
+                <Check size={14} className="text-primary" /> {feature}
               </li>
             ))}
           </ul>
@@ -66,39 +66,39 @@ export function Membership() {
           ) : (
             <Link
               to={isAuthenticated ? '/planes' : '/registrarse'}
-              className="mt-7 inline-flex w-full items-center justify-center rounded-xl border border-ink-300 py-2.5 text-sm font-medium text-ink-900 transition-colors hover:border-ink-500"
+              className="mt-7 inline-flex w-full items-center justify-center rounded-xl border-2 border-primary py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-primary-light"
             >
               {isAuthenticated ? 'Elegir membresía' : 'Crear cuenta de comprador'}
             </Link>
           )}
         </div>
 
-        <div className="relative rounded-2xl border border-ink-900 bg-ink-950 p-7 text-white">
-          <span className="absolute -top-3 right-6 rounded-full bg-white px-3 py-1 text-xs font-semibold text-ink-950">
+        <div className="relative rounded-2xl border-2 border-primary bg-primary-light/40 p-7">
+          <span className="absolute -top-3 right-6 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
             Para negocios
           </span>
-          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
+          <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
             <Store size={19} />
           </div>
-          <h3 className="text-lg font-semibold">Vendedor</h3>
-          <p className="mt-1 text-sm text-white/50">Publica tu catálogo y que te encuentren.</p>
+          <h3 className="text-lg font-semibold text-ink-900">Vendedor</h3>
+          <p className="mt-1 text-sm text-ink-500">Publica tu catálogo y que te encuentren.</p>
           <div className="mt-5 flex items-baseline gap-2">
-            <span className="text-3xl font-semibold">${sellerTier.cost}</span>
-            <span className="text-sm text-white/40">/ {sellerTier.durationDays} días</span>
+            <span className="text-3xl font-semibold text-ink-900">${sellerTier.cost}</span>
+            <span className="text-sm text-ink-400">/ {sellerTier.durationDays} días</span>
             {sellerTier.savingsLabel && (
-              <span className="ml-auto rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-white/80">{sellerTier.savingsLabel}</span>
+              <span className="ml-auto rounded-full bg-white px-2.5 py-1 text-xs font-medium text-primary-dark">{sellerTier.savingsLabel}</span>
             )}
           </div>
-          <ul className="mt-6 space-y-2.5 text-sm text-white/70">
+          <ul className="mt-6 space-y-2.5 text-sm text-ink-600">
             {SELLER_PLAN.features.map((feature) => (
               <li key={feature} className="flex items-center gap-2">
-                <Check size={14} className="text-white" /> {feature}
+                <Check size={14} className="text-primary" /> {feature}
               </li>
             ))}
           </ul>
           <Link
             to={isSeller ? '/panel' : '/vender'}
-            className="mt-7 inline-flex w-full items-center justify-center rounded-xl bg-white py-2.5 text-sm font-medium text-ink-950 transition-transform hover:scale-[1.01]"
+            className="mt-7 inline-flex w-full items-center justify-center rounded-xl bg-primary py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
           >
             {isSeller ? 'Ir a mi tienda' : 'Empezar a vender'}
           </Link>

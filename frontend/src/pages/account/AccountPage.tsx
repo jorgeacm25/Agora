@@ -57,7 +57,7 @@ export function AccountPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 sm:px-6 py-10 space-y-6">
       <div className="flex items-center gap-4">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-ink-900 text-lg font-semibold text-white">
+        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-semibold text-white">
           {initials(user.username)}
         </span>
         <div>

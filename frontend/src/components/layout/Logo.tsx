@@ -7,7 +7,7 @@ export function Logo({ className, dark = false }: { className?: string; dark?: b
       <span
         className={cn(
           'flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold',
-          dark ? 'bg-white text-ink-950' : 'bg-gradient-to-br from-ink-800 to-ink-950 text-white',
+          dark ? 'bg-white text-primary' : 'bg-primary text-white',
         )}
       >
         A

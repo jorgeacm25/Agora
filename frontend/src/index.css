@@ -1,20 +1,28 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "SF Pro Display", sans-serif;
 
-  /* Deep-blue monochrome scale — the entire UI lives on this ramp */
-  --color-ink-50: #f4f8fc;
-  --color-ink-100: #e6f0fa;
-  --color-ink-200: #c7dff2;
-  --color-ink-300: #98c0e2;
-  --color-ink-400: #6699cc;
-  --color-ink-500: #3d6ea3;
-  --color-ink-600: #2c5484;
-  --color-ink-700: #234368;
-  --color-ink-800: #1b3450;
-  --color-ink-900: #142639;
-  --color-ink-950: #0b1726;
+  /* Neutral scale */
+  --color-ink-50: #fafafb;
+  --color-ink-100: #f3f4f6;
+  --color-ink-200: #e5e7eb;
+  --color-ink-300: #d1d5db;
+  --color-ink-400: #9ca3af;
+  --color-ink-500: #6b7280;
+  --color-ink-600: #4b5563;
+  --color-ink-700: #374151;
+  --color-ink-800: #27303f;
+  --color-ink-900: #1f2937;
+  --color-ink-950: #111827;
+
+  /* Brand: primary (actions) + secondary (prices/deals) */
+  --color-primary-light: #e0f2fe;
+  --color-primary: #0ea5e9;
+  --color-primary-dark: #0284c7;
+  --color-secondary-light: #fff7ed;
+  --color-secondary: #f97316;
+  --color-secondary-dark: #ea580c;
 
   --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.06);
   --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.03), 0 8px 24px -8px rgb(0 0 0 / 0.10);
@@ -22,6 +30,8 @@
 
   --animate-fade-in: fade-in 0.4s ease-out both;
   --animate-fade-up: fade-up 0.5s ease-out both;
+  --animate-shimmer: shimmer 1.4s linear infinite;
+  --animate-sheet-up: sheet-up 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
 
   @keyframes fade-in {
     from { opacity: 0; }
@@ -31,6 +41,14 @@
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  @keyframes shimmer {
+    0% { background-position: -300px 0; }
+    100% { background-position: 300px 0; }
+  }
+  @keyframes sheet-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
 @layer base {
@@ -38,18 +56,21 @@
     -webkit-font-smoothing: antialiased;
   }
   body {
-    @apply bg-ink-50 text-ink-900 font-sans;
+    @apply bg-ink-100 text-ink-900 font-sans;
   }
   ::selection {
-    @apply bg-ink-900 text-white;
+    @apply bg-primary text-white;
+  }
+  button:active {
+    transform: scale(0.95);
   }
 }
 
 @layer utilities {
   .bg-grid {
     background-image:
-      linear-gradient(to right, rgb(20 38 57 / 0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, rgb(20 38 57 / 0.06) 1px, transparent 1px);
+      linear-gradient(to right, rgb(31 41 55 / 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(31 41 55 / 0.05) 1px, transparent 1px);
     background-size: 32px 32px;
   }
 
@@ -58,7 +79,13 @@
   }
 
   .surface-gradient {
-    background: linear-gradient(160deg, var(--color-ink-950) 0%, var(--color-ink-800) 55%, var(--color-ink-950) 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg, #eef0f2 25%, #f7f8f9 37%, #eef0f2 63%);
+    background-size: 700px 100%;
+    animation: var(--animate-shimmer);
   }
 
   .scrollbar-none {

@@ -1,8 +1,9 @@
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]): string {
-  return clsx(inputs);
+  return twMerge(clsx(inputs));
 }
 
 export function formatPrice(value: number | null | undefined, currency: 'CUP' | 'USD'): string | null {

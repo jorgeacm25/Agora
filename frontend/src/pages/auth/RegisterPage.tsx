@@ -122,7 +122,7 @@ function RoleOption({
       onClick={onClick}
       className={cn(
         'flex flex-col items-start gap-1.5 rounded-xl border px-4 py-3 text-left transition-colors',
-        active ? 'border-ink-900 bg-ink-900 text-white' : 'border-ink-200 text-ink-700 hover:border-ink-400',
+        active ? 'border-primary bg-primary text-white' : 'border-ink-200 text-ink-700 hover:border-ink-400',
       )}
     >
       {icon}

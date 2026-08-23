@@ -153,7 +153,7 @@ function StepIndicator({ number, label, active, done }: { number: number; label:
       <span
         className={cn(
           'flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold',
-          done ? 'bg-ink-900 text-white' : active ? 'border-2 border-ink-900 text-ink-900' : 'border border-ink-300 text-ink-400',
+          done ? 'bg-primary text-white' : active ? 'border-2 border-primary text-primary' : 'border border-ink-300 text-ink-400',
         )}
       >
         {done ? <Check size={13} /> : number}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Heart, ImageOff, MapPin, Store, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Clock, CreditCard, Heart, ImageOff, MapPin, Navigation, Phone, Store, ExternalLink } from 'lucide-react';
 import { getProduct, productImageUrl } from '@/api/product';
 import { averageRating, createRating, listRatingsByProduct } from '@/api/rating';
 import type { Product, Rating } from '@/types';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { RatingStars } from '@/components/ui/RatingStars';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { MapEmbed } from '@/components/ui/MapEmbed';
+import { AccordionItem } from '@/components/ui/Accordion';
 import { cn, formatPrice } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
@@ -113,7 +114,7 @@ export function ProductDetailPage() {
                 className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-200 text-ink-500 transition-colors hover:text-ink-900"
                 aria-label={isFavorite(product.idProduct) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
               >
-                <Heart size={16} className={cn(isFavorite(product.idProduct) && 'fill-ink-900 text-ink-900')} />
+                <Heart size={16} className={cn(isFavorite(product.idProduct) && 'fill-primary text-primary')} />
               </button>
             </div>
             <h1 className="text-2xl font-semibold text-ink-900">{product.name}</h1>
@@ -125,7 +126,7 @@ export function ProductDetailPage() {
           </div>
 
           <div className="flex items-baseline gap-3">
-            {product.priceUsd !== null && <span className="text-2xl font-semibold text-ink-900">{formatPrice(product.priceUsd, 'USD')}</span>}
+            {product.priceUsd !== null && <span className="text-3xl font-extrabold text-secondary">{formatPrice(product.priceUsd, 'USD')}</span>}
             {product.priceCup !== null && <span className="text-ink-500">{formatPrice(product.priceCup, 'CUP')}</span>}
           </div>
 
@@ -158,6 +159,38 @@ export function ProductDetailPage() {
                   />
                 </div>
               )}
+            </div>
+          )}
+
+          {enterprise && (mapUrl || enterprise.contact?.phone) && (
+            <div className="flex gap-2.5">
+              {mapUrl && (
+                <a href={mapUrl} target="_blank" rel="noreferrer" className="flex-1">
+                  <Button className="w-full" size="lg" icon={<Navigation size={16} />}>
+                    ¿Cómo llegar?
+                  </Button>
+                </a>
+              )}
+              {enterprise.contact?.phone && (
+                <a href={`tel:${enterprise.contact.phone}`}>
+                  <Button variant="outline" size="lg" className="h-12 w-12 px-0" aria-label="Llamar a la tienda">
+                    <Phone size={17} />
+                  </Button>
+                </a>
+              )}
+            </div>
+          )}
+
+          {enterprise && (
+            <div>
+              <AccordionItem icon={<Clock size={15} className="text-ink-500" />} title="Horario de apertura" defaultOpen>
+                {enterprise.officeHours
+                  ? new Date(enterprise.officeHours).toLocaleString('es-ES', { weekday: 'long', hour: '2-digit', minute: '2-digit' })
+                  : 'Esta tienda aún no publicó su horario. Contáctala directamente para confirmarlo.'}
+              </AccordionItem>
+              <AccordionItem icon={<CreditCard size={15} className="text-ink-500" />} title="Formas de pago">
+                Consulta con la tienda las formas de pago que acepta al momento de tu visita.
+              </AccordionItem>
             </div>
           )}
 

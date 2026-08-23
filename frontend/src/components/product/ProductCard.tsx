@@ -30,9 +30,13 @@ export function ProductCard({ product }: { product: Product }) {
             <ImageOff size={28} />
           </div>
         )}
-        {!product.stock && (
-          <span className="absolute left-2.5 top-2.5 rounded-full bg-ink-950/85 px-2.5 py-1 text-[11px] font-medium text-white backdrop-blur-sm">
-            Agotado
+        {product.stock ? (
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Disponible ahora
+          </span>
+        ) : (
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-red-600 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Agotado
           </span>
         )}
         <button
@@ -44,7 +48,7 @@ export function ProductCard({ product }: { product: Product }) {
           aria-pressed={favorite}
           className="absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-ink-500 backdrop-blur-sm transition-colors hover:text-ink-900"
         >
-          <Heart size={15} className={cn(favorite && 'fill-ink-900 text-ink-900')} />
+          <Heart size={15} className={cn(favorite && 'fill-primary text-primary')} />
         </button>
       </div>
 
@@ -56,7 +60,7 @@ export function ProductCard({ product }: { product: Product }) {
 
         <div className="mt-auto flex flex-col gap-2 pt-1">
           <div className="flex items-center justify-between">
-            <span className="text-base font-semibold text-ink-900">{price ?? 'Consultar precio'}</span>
+            <span className="text-base font-bold text-secondary">{price ?? 'Consultar precio'}</span>
             <Badge>{product.category}</Badge>
           </div>
           {product.userEnterprise && (

@@ -29,7 +29,7 @@ export function HowItWorks() {
         {steps.map((step, i) => (
           <div key={step.title} className="relative rounded-2xl border border-ink-200/80 bg-white p-6">
             <span className="absolute -top-3 -left-1 text-5xl font-bold text-ink-100 select-none">{i + 1}</span>
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-ink-900 text-white">
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
               <step.icon size={19} />
             </div>
             <h3 className="relative mt-4 font-medium text-ink-900">{step.title}</h3>

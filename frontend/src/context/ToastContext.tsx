@@ -44,7 +44,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             className={cn(
               'animate-fade-up flex items-start gap-2.5 rounded-xl border px-4 py-3 shadow-lift backdrop-blur-sm',
               toast.variant === 'success'
-                ? 'bg-ink-900 border-ink-900 text-white'
+                ? 'bg-primary border-primary text-white'
                 : 'bg-white border-ink-200 text-ink-900',
             )}
           >

@@ -34,7 +34,7 @@ export function DashboardLayout() {
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-2.5 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-medium transition-colors',
-                  isActive ? 'bg-ink-900 text-white' : 'text-ink-600 hover:bg-ink-100',
+                  isActive ? 'bg-primary text-white' : 'text-ink-600 hover:bg-ink-100',
                 )
               }
             >
