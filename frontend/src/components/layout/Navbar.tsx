@@ -47,6 +47,15 @@ export function Navbar() {
             <NavLink to="/" end className={navLinkClass}>
               Explorar
             </NavLink>
+            <NavLink to="/mercados" className={navLinkClass}>
+              Mercados
+            </NavLink>
+            <Link to="/?pop=1" className={navLinkClass({ isActive: false })}>
+              Más populares
+            </Link>
+            <Link to="/?stock=1" className={navLinkClass({ isActive: false })}>
+              Disponibles
+            </Link>
             {isSeller && (
               <NavLink to="/panel" className={navLinkClass}>
                 Mi tienda
@@ -159,6 +168,15 @@ export function Navbar() {
           <div className="flex flex-col gap-1">
             <Link to="/" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50">
               Explorar
+            </Link>
+            <Link to="/mercados" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50">
+              Mercados
+            </Link>
+            <Link to="/?pop=1" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50">
+              Más populares
+            </Link>
+            <Link to="/?stock=1" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50">
+              Disponibles
             </Link>
             <Link
               to="/favoritos"

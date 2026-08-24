@@ -126,6 +126,22 @@ export function ExplorePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, minPrice, maxPrice, popularOnly, inStockOnly, category, sortOrder, page]);
 
+  // Mirror the URL back into state: the component doesn't remount when a
+  // navbar link (e.g. "Más populares") points at "/" with different query
+  // params, so without this the filters would silently keep whatever was
+  // set before navigating.
+  useEffect(() => {
+    setSearch(searchParams.get('q') ?? '');
+    setMinPrice(searchParams.get('min') ?? '');
+    setMaxPrice(searchParams.get('max') ?? '');
+    setPopularOnly(searchParams.get('pop') === '1');
+    setInStockOnly(searchParams.get('stock') === '1');
+    setCategory(searchParams.get('cat'));
+    setSortOrder(searchParams.get('sort') === 'desc' ? 'desc' : 'asc');
+    setPage(Number(searchParams.get('page')) || 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);

@@ -11,6 +11,7 @@ import { ProtectedRoute, RequireSeller } from '@/components/layout/ProtectedRout
 import { LoginPage } from '@/pages/auth/LoginPage';
 import { RegisterPage } from '@/pages/auth/RegisterPage';
 import { ExplorePage } from '@/pages/explore/ExplorePage';
+import { MarketsPage } from '@/pages/markets/MarketsPage';
 import { FavoritesPage } from '@/pages/favorites/FavoritesPage';
 import { ProductDetailPage } from '@/pages/product/ProductDetailPage';
 import { EnterprisePage } from '@/pages/enterprise/EnterprisePage';
@@ -37,6 +38,7 @@ export default function App() {
             <Route element={<AppLayout />}>
               <Route index element={<ExplorePage />} />
               <Route path="explorar" element={<Navigate to="/" replace />} />
+              <Route path="mercados" element={<MarketsPage />} />
               <Route path="favoritos" element={<FavoritesPage />} />
               <Route path="productos/:id" element={<ProductDetailPage />} />
               <Route path="tiendas/:id" element={<EnterprisePage />} />
