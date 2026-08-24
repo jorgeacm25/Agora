@@ -268,7 +268,10 @@ export function ExplorePage() {
         <div className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-secondary/10 blur-3xl" />
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
           <h1 className="max-w-xl text-3xl sm:text-4xl font-semibold leading-tight text-ink-900">
-            Todo lo que necesitas, para tu casa o tu negocio
+            Todo lo que necesitas, para{' '}
+            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              tu casa o tu negocio
+            </span>
           </h1>
           <p className="mt-3 max-w-lg text-ink-500">
             Busca en todos los mercados y mypimes de tu ciudad desde un solo lugar: compara precios y ubicaciones sin perder tiempo recorriendo tienda por tienda.
@@ -288,7 +291,7 @@ export function ExplorePage() {
                 onBlur={() => setSearchFocused(false)}
                 placeholder="Busca productos, categorías o tiendas…"
                 className={cn(
-                  'h-12 w-full rounded-xl border bg-white pl-11 pr-4 text-sm outline-none transition-all duration-200',
+                  'h-12 w-full rounded-xl border bg-ink-50 pl-11 pr-4 text-sm outline-none transition-all duration-200',
                   searchFocused ? 'border-primary shadow-lift ring-4 ring-primary/10' : 'border-ink-200 shadow-soft',
                 )}
               />
@@ -331,14 +334,14 @@ export function ExplorePage() {
 
         <div className="flex flex-col lg:flex-row gap-8">
           <aside className="hidden lg:block lg:w-64 shrink-0 space-y-6">
-            <div className="rounded-2xl border border-ink-200 bg-white p-4">
+            <div className="rounded-2xl border border-ink-200 bg-ink-50 p-4">
               <FiltersPanel {...filtersProps} />
             </div>
 
             {!isSeller && (
               <Link
                 to="/vender"
-                className="group flex items-center gap-3 rounded-2xl border border-ink-200 bg-white p-4 transition-colors hover:border-primary"
+                className="group flex items-center gap-3 rounded-2xl border border-ink-200 bg-ink-50 p-4 transition-colors hover:border-primary"
               >
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
                   <Store size={16} />

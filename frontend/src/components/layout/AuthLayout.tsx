@@ -19,7 +19,7 @@ const POINTS = [
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-primary-light via-white to-primary-light p-10">
+      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-primary-light via-ink-50 to-primary-light p-10">
         <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-secondary/10 blur-3xl" />
 
@@ -36,7 +36,9 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
             </g>
           </svg>
 
-          <h2 className="text-3xl font-bold leading-tight text-ink-900">Todo lo que buscas, en un solo lugar</h2>
+          <h2 className="text-3xl font-bold leading-tight text-ink-900">
+            Todo lo que buscas, <span className="text-primary">en un solo lugar</span>
+          </h2>
           <p className="mt-4 text-sm leading-relaxed text-ink-500">
             Agora es el buscador de tu ciudad: encuentra en segundos lo que venden las mypimes y mercados locales, sin recorrerlos uno a uno.
           </p>
@@ -44,7 +46,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
           <div className="mt-8 space-y-5 border-t border-ink-900/10 pt-6">
             {POINTS.map(({ icon: Icon, title, description }) => (
               <div key={title} className="flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-primary shadow-soft">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-ink-50 text-primary shadow-soft">
                   <Icon size={14} />
                 </div>
                 <div>

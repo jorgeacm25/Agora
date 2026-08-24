@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Heart, LayoutGrid, LogOut, Store, User as UserIcon, ChevronDown, Menu, X } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from '@/components/ui/Button';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { cn, initials } from '@/lib/utils';
@@ -38,7 +39,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-ink-200/70 bg-white/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-ink-200/70 bg-ink-50/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-8">
           <Logo />
@@ -55,6 +56,7 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           <Link
             to="/favoritos"
             aria-label="Favoritos"
@@ -80,7 +82,7 @@ export function Navbar() {
                 <ChevronDown size={14} className="text-ink-400" />
               </button>
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-56 animate-fade-up rounded-xl border border-ink-200 bg-white p-1.5 shadow-lift">
+                <div className="absolute right-0 mt-2 w-56 animate-fade-up rounded-xl border border-ink-200 bg-ink-50 p-1.5 shadow-lift">
                   <div className="px-3 py-2 border-b border-ink-100 mb-1">
                     <p className="text-sm font-medium text-ink-900 truncate">{user.username}</p>
                     <p className="text-xs text-ink-500">{isSeller ? 'Cuenta de vendedor' : 'Cuenta de comprador'}</p>
@@ -125,7 +127,7 @@ export function Navbar() {
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-500/10"
                   >
                     <LogOut size={15} /> Cerrar sesión
                   </button>
@@ -144,13 +146,16 @@ export function Navbar() {
           )}
         </div>
 
-        <button className="md:hidden p-2 text-ink-700" onClick={() => setMobileOpen((v) => !v)} aria-label="Menú">
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        <div className="flex items-center gap-1 md:hidden">
+          <ThemeToggle />
+          <button className="p-2 text-ink-700" onClick={() => setMobileOpen((v) => !v)} aria-label="Menú">
+            {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {mobileOpen && (
-        <div className="md:hidden border-t border-ink-200 bg-white px-4 py-3 animate-fade-in">
+        <div className="md:hidden border-t border-ink-200 bg-ink-50 px-4 py-3 animate-fade-in">
           <div className="flex flex-col gap-1">
             <Link to="/" onClick={() => setMobileOpen(false)} className="rounded-lg px-3 py-2.5 text-sm font-medium text-ink-700 hover:bg-ink-50">
               Explorar
@@ -182,7 +187,7 @@ export function Navbar() {
                     setMobileOpen(false);
                     handleLogout();
                   }}
-                  className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50"
+                  className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-500/10"
                 >
                   Cerrar sesión
                 </button>

@@ -27,7 +27,7 @@ export function PlanPicker({ plan, onSubscribe, submitting, ctaLabel = 'Continua
             onClick={() => setCycle(c)}
             className={cn(
               'rounded-lg py-2 text-sm font-medium transition-colors',
-              cycle === c ? 'bg-white text-ink-900 shadow-soft' : 'text-ink-500 hover:text-ink-800',
+              cycle === c ? 'bg-ink-50 text-ink-900 shadow-soft' : 'text-ink-500 hover:text-ink-800',
             )}
           >
             {CYCLE_LABELS[c]}

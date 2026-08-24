@@ -85,9 +85,9 @@ export function BottomSheet({
 
   return (
     <div className={cn(dismissible ? 'fixed inset-0 z-50' : 'absolute inset-0 z-20', className)}>
-      {dismissible && <div className="absolute inset-0 bg-ink-950/45 animate-fade-in" onClick={onClose} />}
+      {dismissible && <div className="absolute inset-0 bg-black/45 animate-fade-in" onClick={onClose} />}
       <div
-        className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-3xl bg-white shadow-lift animate-sheet-up"
+        className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-3xl bg-ink-50 shadow-lift animate-sheet-up"
         style={{ height: heightVh, transition: dragPx !== null ? 'none' : 'height 0.3s cubic-bezier(0.32, 0.72, 0, 1)' }}
       >
         <div

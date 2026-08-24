@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('rounded-2xl border border-ink-200/80 bg-white shadow-card', className)}
+      className={cn('rounded-2xl border border-ink-200/80 bg-ink-50 shadow-card', className)}
       {...props}
     />
   );
@@ -17,7 +17,7 @@ export function Badge({
 }: HTMLAttributes<HTMLSpanElement> & { variant?: 'neutral' | 'dark' | 'outline' }) {
   const variants = {
     neutral: 'bg-ink-100 text-ink-700',
-    dark: 'bg-ink-900 text-white',
+    dark: 'bg-neutral-900 text-white',
     outline: 'border border-ink-300 text-ink-600',
   };
   return (

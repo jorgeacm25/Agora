@@ -29,7 +29,7 @@ function FieldWrapper({ label, hint, error, required, children }: WrapperProps) 
 }
 
 const baseInputClasses =
-  'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 transition-colors outline-none focus:border-ink-500 focus:ring-4 focus:ring-ink-900/5 disabled:bg-ink-50 disabled:text-ink-400';
+  'w-full rounded-xl border bg-ink-50 px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 transition-colors outline-none focus:border-ink-500 focus:ring-4 focus:ring-ink-900/5 disabled:bg-ink-100 disabled:text-ink-400';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement>, Omit<WrapperProps, 'children'> {}
 

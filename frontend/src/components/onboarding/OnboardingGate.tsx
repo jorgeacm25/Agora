@@ -40,7 +40,7 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
   if (dismissed) return <>{children}</>;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-white">
+    <div className="fixed inset-0 z-50 flex flex-col bg-ink-50">
       <div className="p-6">
         <Logo />
       </div>
@@ -48,7 +48,7 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
       <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
         <div className="relative mb-8 flex h-40 w-40 items-center justify-center rounded-full bg-primary-light">
           <MapPin size={56} strokeWidth={1.6} className="text-primary" fill="#0EA5E9" />
-          <span className="absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-4 border-white bg-ink-900 text-white">
+          <span className="absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-4 border-ink-50 bg-neutral-900 text-white">
             <Search size={18} />
           </span>
         </div>
@@ -62,7 +62,7 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
 
         <div className="mt-8 w-full max-w-xs">
           {phase === 'detected' ? (
-            <div className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-50 text-sm font-semibold text-emerald-600">
+            <div className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 text-sm font-semibold text-emerald-600">
               <CheckCircle2 size={18} /> Ubicación detectada
             </div>
           ) : (

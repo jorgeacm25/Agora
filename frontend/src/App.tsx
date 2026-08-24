@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from '@/context/AuthContext';
+import { ThemeProvider } from '@/context/ThemeContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
@@ -27,6 +28,7 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 export default function App() {
   return (
     <BrowserRouter>
+      <ThemeProvider>
       <AuthProvider>
         <ToastProvider>
           <FavoritesProvider>
@@ -67,6 +69,7 @@ export default function App() {
           </FavoritesProvider>
         </ToastProvider>
       </AuthProvider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }

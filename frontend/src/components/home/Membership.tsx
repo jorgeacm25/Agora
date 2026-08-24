@@ -20,7 +20,9 @@ export function Membership() {
     <section className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
       <div className="mb-8 max-w-lg">
         <span className="text-xs font-semibold uppercase tracking-wider text-ink-500">Membresías</span>
-        <h2 className="mt-2 text-2xl sm:text-3xl font-semibold text-ink-900">Elige cómo usar Agora</h2>
+        <h2 className="mt-2 text-2xl sm:text-3xl font-semibold text-ink-900">
+          Elige cómo usar <span className="text-primary">Agora</span>
+        </h2>
       </div>
 
       <div className="mb-8 inline-flex gap-1.5 rounded-xl bg-ink-100 p-1">
@@ -30,7 +32,7 @@ export function Membership() {
             onClick={() => setCycle(c)}
             className={cn(
               'rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-              cycle === c ? 'bg-white text-ink-900 shadow-soft' : 'text-ink-500 hover:text-ink-800',
+              cycle === c ? 'bg-ink-50 text-ink-900 shadow-soft' : 'text-ink-500 hover:text-ink-800',
             )}
           >
             {CYCLE_LABELS[c]}
@@ -39,7 +41,7 @@ export function Membership() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="rounded-2xl border border-ink-200/80 bg-white p-7">
+        <div className="rounded-2xl border border-ink-200/80 bg-ink-50 p-7">
           <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-ink-100 text-ink-600">
             <ShoppingBag size={19} />
           </div>
@@ -86,7 +88,7 @@ export function Membership() {
             <span className="text-3xl font-semibold text-ink-900">${sellerTier.cost}</span>
             <span className="text-sm text-ink-400">/ {sellerTier.durationDays} días</span>
             {sellerTier.savingsLabel && (
-              <span className="ml-auto rounded-full bg-white px-2.5 py-1 text-xs font-medium text-primary-dark">{sellerTier.savingsLabel}</span>
+              <span className="ml-auto rounded-full bg-ink-50 px-2.5 py-1 text-xs font-medium text-primary-dark">{sellerTier.savingsLabel}</span>
             )}
           </div>
           <ul className="mt-6 space-y-2.5 text-sm text-ink-600">

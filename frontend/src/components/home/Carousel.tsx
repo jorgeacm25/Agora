@@ -59,7 +59,7 @@ export function Carousel({ slides }: { slides: CarouselSlide[] }) {
               <h2 className="mt-2 max-w-lg text-2xl sm:text-3xl font-semibold leading-tight text-white">{slide.title}</h2>
               <p className="mt-3 max-w-md text-sm sm:text-base leading-relaxed text-white/60">{slide.description}</p>
               <Link to={slide.cta.to} className="mt-6">
-                <span className="inline-flex items-center gap-1.5 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-ink-950 transition-transform hover:scale-[1.02]">
+                <span className="inline-flex items-center gap-1.5 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-neutral-900 transition-transform hover:scale-[1.02]">
                   {slide.cta.label}
                 </span>
               </Link>

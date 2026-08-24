@@ -9,6 +9,28 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <title>Agora — Compra y vende cerca de ti</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('agora_theme');
+          var dark = stored ? stored === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+          if (!dark) return;
+          document.documentElement.classList.add('dark');
+          var root = document.documentElement.style;
+          var vars = {
+            '--color-ink-50': '#0a0e14', '--color-ink-100': '#12161f', '--color-ink-200': '#232935',
+            '--color-ink-300': '#333b4a', '--color-ink-400': '#7c8598', '--color-ink-500': '#98a1b3',
+            '--color-ink-600': '#b3bbc9', '--color-ink-700': '#cbd2dd', '--color-ink-800': '#e2e6ec',
+            '--color-ink-900': '#f4f6f8', '--color-ink-950': '#ffffff',
+            '--color-primary-light': 'rgb(14 165 233 / 0.14)', '--color-secondary-light': 'rgb(249 115 22 / 0.14)',
+            '--shadow-soft': '0 1px 2px 0 rgb(0 0 0 / 0.3), 0 1px 3px 0 rgb(0 0 0 / 0.35)',
+            '--shadow-card': '0 0 0 1px rgb(255 255 255 / 0.04), 0 8px 24px -8px rgb(0 0 0 / 0.5)',
+            '--shadow-lift': '0 0 0 1px rgb(255 255 255 / 0.06), 0 16px 40px -12px rgb(0 0 0 / 0.6)',
+          };
+          for (var k in vars) root.setProperty(k, vars[k]);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

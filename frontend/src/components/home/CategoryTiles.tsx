@@ -14,10 +14,10 @@ interface CategoryTilesProps {
 const TINTS = [
   { bg: 'bg-primary-light', fg: 'text-primary' },
   { bg: 'bg-secondary-light', fg: 'text-secondary' },
-  { bg: 'bg-emerald-50', fg: 'text-emerald-600' },
-  { bg: 'bg-purple-50', fg: 'text-purple-600' },
-  { bg: 'bg-rose-50', fg: 'text-rose-600' },
-  { bg: 'bg-amber-50', fg: 'text-amber-600' },
+  { bg: 'bg-emerald-500/10', fg: 'text-emerald-600' },
+  { bg: 'bg-purple-500/10', fg: 'text-purple-600' },
+  { bg: 'bg-rose-500/10', fg: 'text-rose-600' },
+  { bg: 'bg-amber-500/10', fg: 'text-amber-600' },
 ];
 
 export function CategoryTiles({ categories, isLoading, activeCategory, onSelect }: CategoryTilesProps) {

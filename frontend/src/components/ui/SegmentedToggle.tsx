@@ -23,7 +23,7 @@ export function SegmentedToggle<T extends string>({ options, value, onChange, cl
           onClick={() => onChange(opt.value)}
           className={cn(
             'flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-colors',
-            value === opt.value ? 'bg-white text-primary shadow-soft' : 'text-ink-500 hover:text-ink-800',
+            value === opt.value ? 'bg-ink-50 text-primary shadow-soft' : 'text-ink-500 hover:text-ink-800',
           )}
         >
           {opt.icon}
