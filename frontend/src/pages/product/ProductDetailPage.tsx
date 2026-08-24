@@ -106,7 +106,7 @@ export function ProductDetailPage() {
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <Badge>{product.category}</Badge>
-                {!product.stock && <Badge variant="dark">Agotado</Badge>}
+                {!product.stock && <Badge variant="danger">Agotado</Badge>}
               </div>
               <button
                 onClick={() => toggleFavorite(product.idProduct)}

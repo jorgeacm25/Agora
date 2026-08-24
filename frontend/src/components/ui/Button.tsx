@@ -13,7 +13,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: 'bg-primary text-white shadow-soft hover:bg-primary-dark hover:shadow-[0_8px_24px_-6px_rgb(14_165_233_/_0.45)] disabled:bg-ink-300 disabled:shadow-none',
+  primary: 'bg-primary text-white shadow-soft hover:bg-primary-dark hover:shadow-[0_8px_24px_-6px_rgb(67_97_238_/_0.45)] disabled:bg-ink-300 disabled:shadow-none',
   secondary: 'bg-ink-100 text-ink-900 hover:bg-ink-200 disabled:text-ink-400',
   outline: 'border border-ink-300 text-ink-900 hover:border-primary hover:text-primary disabled:text-ink-300',
   ghost: 'text-ink-700 hover:bg-ink-100 disabled:text-ink-300',
@@ -21,9 +21,9 @@ const variantClasses: Record<Variant, string> = {
 };
 
 const sizeClasses: Record<Size, string> = {
-  sm: 'h-8 px-3 text-sm gap-1.5 rounded-lg',
-  md: 'h-10 px-4 text-sm gap-2 rounded-xl',
-  lg: 'h-12 px-6 text-base gap-2 rounded-xl',
+  sm: 'h-8 px-3 text-sm gap-1.5 rounded-xl',
+  md: 'h-10 px-4 text-sm gap-2 rounded-2xl',
+  lg: 'h-12 px-8 text-base gap-2 rounded-3xl',
 };
 
 export function Button({
@@ -40,7 +40,7 @@ export function Button({
     <button
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center font-medium transition-all duration-150 disabled:cursor-not-allowed',
+        'inline-flex items-center justify-center font-medium transition-all duration-150 hover:scale-[1.02] active:scale-95 disabled:cursor-not-allowed disabled:hover:scale-100',
         variantClasses[variant],
         sizeClasses[size],
         className,

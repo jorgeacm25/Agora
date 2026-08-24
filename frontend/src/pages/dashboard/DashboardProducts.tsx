@@ -73,7 +73,7 @@ export function DashboardProducts() {
                     </td>
                     <td className="p-3 text-ink-700">{formatPrice(product.priceUsd, 'USD') ?? formatPrice(product.priceCup, 'CUP')}</td>
                     <td className="p-3">
-                      <Badge variant={product.stock ? 'neutral' : 'dark'}>{product.stock ? 'Disponible' : 'Agotado'}</Badge>
+                      <Badge variant={product.stock ? 'success' : 'danger'}>{product.stock ? 'Disponible' : 'Agotado'}</Badge>
                     </td>
                     <td className="p-3 text-right">
                       <div className="inline-flex gap-1">

@@ -6,6 +6,7 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "SF Pro Display", sans-serif;
+  --font-display: "Urbanist", "Inter", ui-sans-serif, system-ui, sans-serif;
 
   /* Neutral scale */
   --color-ink-50: #fafafb;
@@ -20,17 +21,21 @@
   --color-ink-900: #1f2937;
   --color-ink-950: #111827;
 
-  /* Brand: primary (actions) + secondary (prices/deals) */
-  --color-primary-light: #e0f2fe;
-  --color-primary: #0ea5e9;
-  --color-primary-dark: #0284c7;
-  --color-secondary-light: #fff7ed;
-  --color-secondary: #f97316;
-  --color-secondary-dark: #ea580c;
+  /* Brand: primary (actions) + secondary (precios/CTAs), "Urbano y Tecnológico" */
+  --color-primary-light: #eef2ff;
+  --color-primary: #4361ee;
+  --color-primary-dark: #3a56d4;
+  --color-secondary-light: #fde8f0;
+  --color-secondary: #f72585;
+  --color-secondary-dark: #d91c6b;
 
-  --shadow-soft: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 1px 3px 0 rgb(0 0 0 / 0.06);
-  --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.03), 0 8px 24px -8px rgb(0 0 0 / 0.10);
-  --shadow-lift: 0 12px 32px -12px rgb(0 0 0 / 0.22);
+  /* Estados: usados en los badges de disponibilidad de producto */
+  --color-success: #06d6a0;
+  --color-danger: #ef476f;
+
+  --shadow-soft: 0 2px 8px 0 rgb(0 0 0 / 0.06);
+  --shadow-card: 0 4px 20px -2px rgb(0 0 0 / 0.08);
+  --shadow-lift: 0 8px 40px -4px rgb(0 0 0 / 0.12);
 
   --animate-fade-in: fade-in 0.4s ease-out both;
   --animate-fade-up: fade-up 0.5s ease-out both;
@@ -61,6 +66,9 @@
   }
   body {
     @apply bg-ink-100 text-ink-900 font-sans transition-colors duration-200;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
   }
   ::selection {
     @apply bg-primary text-white;

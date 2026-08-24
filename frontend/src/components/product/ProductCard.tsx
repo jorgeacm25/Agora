@@ -31,12 +31,12 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
         {product.stock ? (
-          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-emerald-600 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Disponible ahora
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-success backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-success" /> Disponible ahora
           </span>
         ) : (
-          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-red-600 backdrop-blur-sm">
-            <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Agotado
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-danger backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-danger" /> Agotado
           </span>
         )}
         <button

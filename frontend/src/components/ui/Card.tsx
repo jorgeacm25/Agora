@@ -14,11 +14,13 @@ export function Badge({
   className,
   variant = 'neutral',
   ...props
-}: HTMLAttributes<HTMLSpanElement> & { variant?: 'neutral' | 'dark' | 'outline' }) {
+}: HTMLAttributes<HTMLSpanElement> & { variant?: 'neutral' | 'dark' | 'outline' | 'success' | 'danger' }) {
   const variants = {
     neutral: 'bg-ink-100 text-ink-700',
     dark: 'bg-neutral-900 text-white',
     outline: 'border border-ink-300 text-ink-600',
+    success: 'bg-success/10 text-success',
+    danger: 'bg-danger/10 text-danger',
   };
   return (
     <span
