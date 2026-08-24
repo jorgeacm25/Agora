@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import { tryMockResponse } from './mockFallback';
 
 export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api';
 
@@ -40,6 +41,21 @@ export class ApiError extends Error {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<{ message?: string | string[] }>) => {
+    // Dev-only convenience: if the real backend simply isn't reachable
+    // (no response at all — not a real 4xx/5xx), fall back to local sample
+    // data so the app isn't just error toasts right after `git clone`.
+    if (import.meta.env.DEV && !error.response && error.config) {
+      const mocked = tryMockResponse(error.config);
+      if (mocked !== undefined) {
+        return Promise.resolve({
+          data: mocked,
+          status: 200,
+          statusText: 'OK (mock)',
+          headers: {},
+          config: error.config,
+        });
+      }
+    }
     const status = error.response?.status ?? 0;
     const raw = error.response?.data?.message;
     const message = Array.isArray(raw)
