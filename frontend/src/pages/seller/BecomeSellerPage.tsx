@@ -40,7 +40,7 @@ export function BecomeSellerPage() {
   // Con la empresa creada y un plan que dé negocio ya no hay nada que hacer
   // aquí: se entra al panel. Con la prueba activa vale igual, así que el paso
   // del plan se salta.
-  const planDaNegocio = daAccesoDeNegocio(subscription?.name);
+  const planDaNegocio = daAccesoDeNegocio(subscription);
   useEffect(() => {
     if (enterprise && planDaNegocio) {
       navigate('/panel', { replace: true });

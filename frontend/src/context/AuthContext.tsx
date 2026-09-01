@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Con suscripción vigente se entra en Agora; el panel de negocio pide
       // además que ese plan sea de los que dan negocio.
       tieneAcceso: Boolean(subscription),
-      puedeAdministrarNegocio: daAccesoDeNegocio(subscription?.name) && Boolean(enterprise),
+      puedeAdministrarNegocio: daAccesoDeNegocio(subscription) && Boolean(enterprise),
       isAuthenticated: Boolean(user),
       login,
       register,

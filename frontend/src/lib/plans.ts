@@ -69,10 +69,25 @@ export function esPlanDe(plan: PlanConfig, nombreSuscripcion: string | undefined
   return Boolean(nombreSuscripcion?.startsWith(plan.name));
 }
 
-/** Los planes que abren la parte de administrar un negocio. */
-export function daAccesoDeNegocio(nombrePlan: string | undefined | null): boolean {
-  return esPlanDe(SELLER_PLAN, nombrePlan) || esPlanDe(TRIAL_PLAN, nombrePlan);
+/**
+ * Si la suscripción abre la parte de administrar un negocio.
+ *
+ * El tipo de plan lo da la conexión: en el modelo acordado una `Subscription`
+ * cuelga de un `User` o de un `UserEnterprise`, y la que cuelga de la empresa
+ * es la de negocio. Mientras el backend no exponga esa relación —hoy la tabla
+ * solo guarda `userId`— se reconoce por el nombre, que al contratar lleva el
+ * ciclo pegado («Plan Vendedor Trimestral»); de ahí la comparación por prefijo.
+ * Cuando llegue `userEnterpriseId`, esta función deja de mirar el nombre y no
+ * hay que tocar nada más.
+ */
+export function daAccesoDeNegocio(suscripcion: PlanReconocible): boolean {
+  if (typeof suscripcion === 'object' && suscripcion?.userEnterpriseId) return true;
+  const nombre = typeof suscripcion === 'string' ? suscripcion : suscripcion?.name;
+  return esPlanDe(SELLER_PLAN, nombre) || esPlanDe(TRIAL_PLAN, nombre);
 }
+
+/** Lo mínimo que hace falta para reconocer un plan: la suscripción o su nombre. */
+type PlanReconocible = { name?: string; userEnterpriseId?: string | null } | string | undefined | null;
 
 export function getTier(plan: PlanConfig, cycle: BillingCycle): PlanTier {
   return plan.tiers.find((t) => t.cycle === cycle) ?? plan.tiers[0];

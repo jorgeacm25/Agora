@@ -34,7 +34,7 @@ export function DashboardLayout() {
       </div>
 
       {sinNegocio ? (
-        <SellerPitch tieneEmpresa={Boolean(enterprise)} yaTienePlan={daAccesoDeNegocio(subscription?.name)} />
+        <SellerPitch tieneEmpresa={Boolean(enterprise)} yaTienePlan={daAccesoDeNegocio(subscription)} />
       ) : (
       <div id="dashboard__layout" className="dashboard__layout flex flex-col md:flex-row gap-8">
         <nav id="dashboard__nav" className="dashboard__nav flex md:flex-col gap-1 md:w-52 shrink-0 overflow-x-auto">
