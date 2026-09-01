@@ -14,24 +14,37 @@
   --color-ink-200: #e5e7eb;
   --color-ink-300: #d1d5db;
   --color-ink-400: #9ca3af;
-  --color-ink-500: #6b7280;
+  /* El gris de texto secundario daba 4,39:1 sobre el fondo de página: se
+     quedaba a un pelo del mínimo y era la causa de los 14 fallos de contraste
+     que quedaban. Oscurecido lo justo para llegar a 5,4:1. */
+  --color-ink-500: #5b6472;
   --color-ink-600: #4b5563;
   --color-ink-700: #374151;
   --color-ink-800: #27303f;
   --color-ink-900: #1f2937;
   --color-ink-950: #111827;
 
-  /* Brand: primary (actions) + secondary (precios/CTAs), "Urbano y Tecnológico" */
+  /* Brand, "Urbano y Tecnológico". Cada color tiene UN papel y solo uno:
+     - primary  → la acción principal. Una por bloque. Nunca en fondos
+                  decorativos, titulares ni iconos que no se clican.
+     - secondary → promoción y destacado comercial. Nada más.
+     Los datos (precios incluidos) se destacan con tipografía, no con color:
+     gastar un color de acción en algo que no se clica es lo que deja al ojo
+     sin ninguna regla que seguir. */
   --color-primary-light: #eef2ff;
   --color-primary: #4361ee;
   --color-primary-dark: #3a56d4;
   --color-secondary-light: #fde8f0;
   --color-secondary: #f72585;
+  /* Sobre blanco, el fucsia da 3,78:1 — por debajo del mínimo. Para texto
+     pequeño o fondo con texto blanco se usa siempre esta variante (4,86:1). */
   --color-secondary-dark: #d91c6b;
 
-  /* Estados: usados en los badges de disponibilidad de producto */
-  --color-success: #06d6a0;
-  --color-danger: #ef476f;
+  /* Estados: usados en los badges de disponibilidad de producto. Oscurecidos
+     respecto al original (#06d6a0 daba 1,87:1 y #ef476f, 3,63:1) para que se
+     lean sobre fondo claro. */
+  --color-success: #047857;
+  --color-danger: #c81e4a;
 
   --shadow-soft: 0 2px 8px 0 rgb(0 0 0 / 0.06);
   --shadow-card: 0 4px 20px -2px rgb(0 0 0 / 0.08);
@@ -43,20 +56,47 @@
   --animate-sheet-up: sheet-up 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
 
   @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
+
   @keyframes fade-up {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
+
   @keyframes shimmer {
-    0% { background-position: -300px 0; }
-    100% { background-position: 300px 0; }
+    0% {
+      background-position: -300px 0;
+    }
+
+    100% {
+      background-position: 300px 0;
+    }
   }
+
   @keyframes sheet-up {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
@@ -64,15 +104,24 @@
   html {
     -webkit-font-smoothing: antialiased;
   }
+
   body {
     @apply bg-ink-100 text-ink-900 font-sans transition-colors duration-200;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
   }
+
   ::selection {
     @apply bg-primary text-white;
   }
+
   button:active {
     transform: scale(0.95);
   }
@@ -103,7 +152,174 @@
   .scrollbar-none {
     scrollbar-width: none;
   }
+
   .scrollbar-none::-webkit-scrollbar {
     display: none;
+  }
+}
+
+@layer utilities {
+
+  /* Fondo de la pantalla de acceso: los iconos de las categorías del catálogo
+     —cesta, zanahoria, spray, píldora, refresco, tienda…— en tresbolillo, para
+     que al repetirse no se lea como una cuadrícula. Son iconos de lucide, que
+     ya es dependencia del proyecto (licencia ISC), dibujados dentro de un SVG
+     embebido en este archivo: ni una petición de red más, que aquí cuenta. */
+  .pattern-categories {
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22312%22%20height%3D%22312%22%20viewBox%3D%220%200%20312%20312%22%20fill%3D%22none%22%20stroke%3D%22%231f2937%22%20stroke-width%3D%220.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate(14%2014)%20rotate(-9%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22m15%2011-1%209%22%2F%3E%3Cpath%20d%3D%22m19%2011-4-7%22%2F%3E%3Cpath%20d%3D%22M2%2011h20%22%2F%3E%3Cpath%20d%3D%22m3.5%2011%201.6%207.4a2%202%200%200%200%202%201.6h9.8a2%202%200%200%200%202-1.6l1.7-7.4%22%2F%3E%3Cpath%20d%3D%22M4.5%2015.5h15%22%2F%3E%3Cpath%20d%3D%22m5%2011%204-7%22%2F%3E%3Cpath%20d%3D%22m9%2011%201%209%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(92%2014)%20rotate(-3%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M15%2016a1%201%200%200%200-7-7q-4%204-5.987%2012.385a.5.5%200%200%200%20.602.602Q11%2020%2015%2016l-3-3%22%2F%3E%3Cpath%20d%3D%22M15%209q4%204%207%200-3-4-7%200%204-4%200-7-4%203%200%207%22%2F%3E%3Cpath%20d%3D%22m8%2015-2.58-2.58%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(170%2014)%20rotate(3%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M3%203h.01%22%2F%3E%3Cpath%20d%3D%22M7%205h.01%22%2F%3E%3Cpath%20d%3D%22M11%207h.01%22%2F%3E%3Cpath%20d%3D%22M3%207h.01%22%2F%3E%3Cpath%20d%3D%22M7%209h.01%22%2F%3E%3Cpath%20d%3D%22M3%2011h.01%22%2F%3E%3Crect%20width%3D%224%22%20height%3D%224%22%20x%3D%2215%22%20y%3D%225%22%2F%3E%3Cpath%20d%3D%22m19%209%202%202v10c0%20.6-.4%201-1%201h-6c-.6%200-1-.4-1-1V11l2-2%22%2F%3E%3Cpath%20d%3D%22m13%2014%208-2%22%2F%3E%3Cpath%20d%3D%22m13%2019%208-2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(248%2014)%20rotate(9%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22m10.5%2020.5%2010-10a4.95%204.95%200%201%200-7-7l-10%2010a4.95%204.95%200%201%200%207%207Z%22%2F%3E%3Cpath%20d%3D%22m8.5%208.5%207%207%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(53%2092)%20rotate(15%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22m6%208%201.75%2012.28a2%202%200%200%200%202%201.72h4.54a2%202%200%200%200%202-1.72L18%208%22%2F%3E%3Cpath%20d%3D%22M5%208h14%22%2F%3E%3Cpath%20d%3D%22M7%2015a6.47%206.47%200%200%201%205%200%206.47%206.47%200%200%200%205%200%22%2F%3E%3Cpath%20d%3D%22m12%208%201-6h2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(131%2092)%20rotate(-10%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M15%2021v-5a1%201%200%200%200-1-1h-4a1%201%200%200%200-1%201v5%22%2F%3E%3Cpath%20d%3D%22M17.774%2010.31a1.12%201.12%200%200%200-1.549%200%202.5%202.5%200%200%201-3.451%200%201.12%201.12%200%200%200-1.548%200%202.5%202.5%200%200%201-3.452%200%201.12%201.12%200%200%200-1.549%200%202.5%202.5%200%200%201-3.77-3.248l2.889-4.184A2%202%200%200%201%207%202h10a2%202%200%200%201%201.653.873l2.895%204.192a2.5%202.5%200%200%201-3.774%203.244%22%2F%3E%3Cpath%20d%3D%22M4%2010.95V19a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-8.05%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(209%2092)%20rotate(-4%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M12%206.528V3a1%201%200%200%201%201-1h0%22%2F%3E%3Cpath%20d%3D%22M18.237%2021A15%2015%200%200%200%2022%2011a6%206%200%200%200-10-4.472A6%206%200%200%200%202%2011a15.1%2015.1%200%200%200%203.763%2010%203%203%200%200%200%203.648.648%205.5%205.5%200%200%201%205.178%200A3%203%200%200%200%2018.237%2021%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(287%2092)%20rotate(2%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M8%202h8%22%2F%3E%3Cpath%20d%3D%22M9%202v2.789a4%204%200%200%201-.672%202.219l-.656.984A4%204%200%200%200%207%2010.212V20a2%202%200%200%200%202%202h6a2%202%200%200%200%202-2v-9.789a4%204%200%200%200-.672-2.219l-.656-.984A4%204%200%200%201%2015%204.788V2%22%2F%3E%3Cpath%20d%3D%22M7%2015a6.472%206.472%200%200%201%205%200%206.47%206.47%200%200%200%205%200%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(14%20170)%20rotate(8%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M10.2%2018H4.774a1.5%201.5%200%200%201-1.352-.97%2011%2011%200%200%201%20.132-6.487%22%2F%3E%3Cpath%20d%3D%22M18%2010.2V4.774a1.5%201.5%200%200%200-.97-1.352%2011%2011%200%200%200-6.486.132%22%2F%3E%3Cpath%20d%3D%22M18%205a4%203%200%200%201%204%203%202%202%200%200%201-2%202%2010%2010%200%200%200-5.139%201.42%22%2F%3E%3Cpath%20d%3D%22M5%2018a3%204%200%200%200%203%204%202%202%200%200%200%202-2%2010%2010%200%200%201%201.42-5.14%22%2F%3E%3Cpath%20d%3D%22M8.709%202.554a10%2010%200%200%200-6.155%206.155%201.5%201.5%200%200%200%20.676%201.626l9.807%205.42a2%202%200%200%200%202.718-2.718l-5.42-9.807a1.5%201.5%200%200%200-1.626-.676%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(92%20170)%20rotate(14%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22m15%2012-9.373%209.373a1%201%200%200%201-3.001-3L12%209%22%2F%3E%3Cpath%20d%3D%22m18%2015%204-4%22%2F%3E%3Cpath%20d%3D%22m21.5%2011.5-1.914-1.914A2%202%200%200%201%2019%208.172v-.344a2%202%200%200%200-.586-1.414l-1.657-1.657A6%206%200%200%200%2012.516%203H9l1.243%201.243A6%206%200%200%201%2012%208.485V10l2%202h1.172a2%202%200%200%201%201.414.586L18.5%2014.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(170%20170)%20rotate(-11%2012%2012)%20scale(2.2)%22%3E%3Ccircle%20cx%3D%226%22%20cy%3D%226%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M8.12%208.12%2012%2012%22%2F%3E%3Cpath%20d%3D%22M20%204%208.12%2015.88%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2218%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M14.8%2014.8%2020%2020%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(248%20170)%20rotate(-5%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M14.7%206.3a1%201%200%200%200%200%201.4l1.6%201.6a1%201%200%200%200%201.4%200l3.106-3.105c.32-.322.863-.22.983.218a6%206%200%200%201-8.259%207.057l-7.91%207.91a1%201%200%200%201-2.999-3l7.91-7.91a6%206%200%200%201%207.057-8.259c.438.12.54.662.219.984z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(53%20248)%20rotate(1%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M10%204%208%206%22%2F%3E%3Cpath%20d%3D%22M17%2019v2%22%2F%3E%3Cpath%20d%3D%22M2%2012h20%22%2F%3E%3Cpath%20d%3D%22M7%2019v2%22%2F%3E%3Cpath%20d%3D%22M9%205%207.621%203.621A2.121%202.121%200%200%200%204%205v12a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(131%20248)%20rotate(7%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M16.4%2013.7A6.5%206.5%200%201%200%206.28%206.6c-1.1%203.13-.78%203.9-3.18%206.08A3%203%200%200%200%205%2018c4%200%208.4-1.8%2011.4-4.3%22%2F%3E%3Cpath%20d%3D%22m18.5%206%202.19%204.5a6.48%206.48%200%200%201-2.29%207.2C15.4%2020.2%2011%2022%207%2022a3%203%200%200%201-2.68-1.66L2.4%2016.5%22%2F%3E%3Ccircle%20cx%3D%2212.5%22%20cy%3D%228.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(209%20248)%20rotate(13%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M6.5%2012c.94-3.46%204.94-6%208.5-6%203.56%200%206.06%202.54%207%206-.94%203.47-3.44%206-7%206s-7.56-2.53-8.5-6Z%22%2F%3E%3Cpath%20d%3D%22M18%2012v.5%22%2F%3E%3Cpath%20d%3D%22M16%2017.93a9.77%209.77%200%200%201%200-11.86%22%2F%3E%3Cpath%20d%3D%22M7%2010.67C7%208%205.58%205.97%202.73%205.5c-1%201.5-1%205%20.23%206.5-1.24%201.5-1.24%205-.23%206.5C5.58%2018.03%207%2016%207%2013.33%22%2F%3E%3Cpath%20d%3D%22M10.46%207.26C10.2%205.88%209.17%204.24%208%203h5.8a2%202%200%200%201%201.98%201.67l.23%201.4%22%2F%3E%3Cpath%20d%3D%22m16.01%2017.93-.23%201.4A2%202%200%200%201%2013.8%2021H9.5a5.96%205.96%200%200%200%201.49-3.98%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(287%20248)%20rotate(-12%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M12%202C8%202%204%208%204%2014a8%208%200%200%200%2016%200c0-6-4-12-8-12%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+    background-size: 312px 312px;
+    background-repeat: repeat;
+    opacity: 0.07;
+  }
+
+  .dark .pattern-categories {
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22312%22%20height%3D%22312%22%20viewBox%3D%220%200%20312%20312%22%20fill%3D%22none%22%20stroke%3D%22%23ffffff%22%20stroke-width%3D%220.9%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20transform%3D%22translate(14%2014)%20rotate(-9%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22m15%2011-1%209%22%2F%3E%3Cpath%20d%3D%22m19%2011-4-7%22%2F%3E%3Cpath%20d%3D%22M2%2011h20%22%2F%3E%3Cpath%20d%3D%22m3.5%2011%201.6%207.4a2%202%200%200%200%202%201.6h9.8a2%202%200%200%200%202-1.6l1.7-7.4%22%2F%3E%3Cpath%20d%3D%22M4.5%2015.5h15%22%2F%3E%3Cpath%20d%3D%22m5%2011%204-7%22%2F%3E%3Cpath%20d%3D%22m9%2011%201%209%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(92%2014)%20rotate(-3%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M15%2016a1%201%200%200%200-7-7q-4%204-5.987%2012.385a.5.5%200%200%200%20.602.602Q11%2020%2015%2016l-3-3%22%2F%3E%3Cpath%20d%3D%22M15%209q4%204%207%200-3-4-7%200%204-4%200-7-4%203%200%207%22%2F%3E%3Cpath%20d%3D%22m8%2015-2.58-2.58%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(170%2014)%20rotate(3%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M3%203h.01%22%2F%3E%3Cpath%20d%3D%22M7%205h.01%22%2F%3E%3Cpath%20d%3D%22M11%207h.01%22%2F%3E%3Cpath%20d%3D%22M3%207h.01%22%2F%3E%3Cpath%20d%3D%22M7%209h.01%22%2F%3E%3Cpath%20d%3D%22M3%2011h.01%22%2F%3E%3Crect%20width%3D%224%22%20height%3D%224%22%20x%3D%2215%22%20y%3D%225%22%2F%3E%3Cpath%20d%3D%22m19%209%202%202v10c0%20.6-.4%201-1%201h-6c-.6%200-1-.4-1-1V11l2-2%22%2F%3E%3Cpath%20d%3D%22m13%2014%208-2%22%2F%3E%3Cpath%20d%3D%22m13%2019%208-2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(248%2014)%20rotate(9%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22m10.5%2020.5%2010-10a4.95%204.95%200%201%200-7-7l-10%2010a4.95%204.95%200%201%200%207%207Z%22%2F%3E%3Cpath%20d%3D%22m8.5%208.5%207%207%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(53%2092)%20rotate(15%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22m6%208%201.75%2012.28a2%202%200%200%200%202%201.72h4.54a2%202%200%200%200%202-1.72L18%208%22%2F%3E%3Cpath%20d%3D%22M5%208h14%22%2F%3E%3Cpath%20d%3D%22M7%2015a6.47%206.47%200%200%201%205%200%206.47%206.47%200%200%200%205%200%22%2F%3E%3Cpath%20d%3D%22m12%208%201-6h2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(131%2092)%20rotate(-10%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M15%2021v-5a1%201%200%200%200-1-1h-4a1%201%200%200%200-1%201v5%22%2F%3E%3Cpath%20d%3D%22M17.774%2010.31a1.12%201.12%200%200%200-1.549%200%202.5%202.5%200%200%201-3.451%200%201.12%201.12%200%200%200-1.548%200%202.5%202.5%200%200%201-3.452%200%201.12%201.12%200%200%200-1.549%200%202.5%202.5%200%200%201-3.77-3.248l2.889-4.184A2%202%200%200%201%207%202h10a2%202%200%200%201%201.653.873l2.895%204.192a2.5%202.5%200%200%201-3.774%203.244%22%2F%3E%3Cpath%20d%3D%22M4%2010.95V19a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-8.05%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(209%2092)%20rotate(-4%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M12%206.528V3a1%201%200%200%201%201-1h0%22%2F%3E%3Cpath%20d%3D%22M18.237%2021A15%2015%200%200%200%2022%2011a6%206%200%200%200-10-4.472A6%206%200%200%200%202%2011a15.1%2015.1%200%200%200%203.763%2010%203%203%200%200%200%203.648.648%205.5%205.5%200%200%201%205.178%200A3%203%200%200%200%2018.237%2021%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(287%2092)%20rotate(2%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M8%202h8%22%2F%3E%3Cpath%20d%3D%22M9%202v2.789a4%204%200%200%201-.672%202.219l-.656.984A4%204%200%200%200%207%2010.212V20a2%202%200%200%200%202%202h6a2%202%200%200%200%202-2v-9.789a4%204%200%200%200-.672-2.219l-.656-.984A4%204%200%200%201%2015%204.788V2%22%2F%3E%3Cpath%20d%3D%22M7%2015a6.472%206.472%200%200%201%205%200%206.47%206.47%200%200%200%205%200%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(14%20170)%20rotate(8%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M10.2%2018H4.774a1.5%201.5%200%200%201-1.352-.97%2011%2011%200%200%201%20.132-6.487%22%2F%3E%3Cpath%20d%3D%22M18%2010.2V4.774a1.5%201.5%200%200%200-.97-1.352%2011%2011%200%200%200-6.486.132%22%2F%3E%3Cpath%20d%3D%22M18%205a4%203%200%200%201%204%203%202%202%200%200%201-2%202%2010%2010%200%200%200-5.139%201.42%22%2F%3E%3Cpath%20d%3D%22M5%2018a3%204%200%200%200%203%204%202%202%200%200%200%202-2%2010%2010%200%200%201%201.42-5.14%22%2F%3E%3Cpath%20d%3D%22M8.709%202.554a10%2010%200%200%200-6.155%206.155%201.5%201.5%200%200%200%20.676%201.626l9.807%205.42a2%202%200%200%200%202.718-2.718l-5.42-9.807a1.5%201.5%200%200%200-1.626-.676%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(92%20170)%20rotate(14%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22m15%2012-9.373%209.373a1%201%200%200%201-3.001-3L12%209%22%2F%3E%3Cpath%20d%3D%22m18%2015%204-4%22%2F%3E%3Cpath%20d%3D%22m21.5%2011.5-1.914-1.914A2%202%200%200%201%2019%208.172v-.344a2%202%200%200%200-.586-1.414l-1.657-1.657A6%206%200%200%200%2012.516%203H9l1.243%201.243A6%206%200%200%201%2012%208.485V10l2%202h1.172a2%202%200%200%201%201.414.586L18.5%2014.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(170%20170)%20rotate(-11%2012%2012)%20scale(2.2)%22%3E%3Ccircle%20cx%3D%226%22%20cy%3D%226%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M8.12%208.12%2012%2012%22%2F%3E%3Cpath%20d%3D%22M20%204%208.12%2015.88%22%2F%3E%3Ccircle%20cx%3D%226%22%20cy%3D%2218%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M14.8%2014.8%2020%2020%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(248%20170)%20rotate(-5%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M14.7%206.3a1%201%200%200%200%200%201.4l1.6%201.6a1%201%200%200%200%201.4%200l3.106-3.105c.32-.322.863-.22.983.218a6%206%200%200%201-8.259%207.057l-7.91%207.91a1%201%200%200%201-2.999-3l7.91-7.91a6%206%200%200%201%207.057-8.259c.438.12.54.662.219.984z%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(53%20248)%20rotate(1%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M10%204%208%206%22%2F%3E%3Cpath%20d%3D%22M17%2019v2%22%2F%3E%3Cpath%20d%3D%22M2%2012h20%22%2F%3E%3Cpath%20d%3D%22M7%2019v2%22%2F%3E%3Cpath%20d%3D%22M9%205%207.621%203.621A2.121%202.121%200%200%200%204%205v12a2%202%200%200%200%202%202h12a2%202%200%200%200%202-2v-5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(131%20248)%20rotate(7%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M16.4%2013.7A6.5%206.5%200%201%200%206.28%206.6c-1.1%203.13-.78%203.9-3.18%206.08A3%203%200%200%200%205%2018c4%200%208.4-1.8%2011.4-4.3%22%2F%3E%3Cpath%20d%3D%22m18.5%206%202.19%204.5a6.48%206.48%200%200%201-2.29%207.2C15.4%2020.2%2011%2022%207%2022a3%203%200%200%201-2.68-1.66L2.4%2016.5%22%2F%3E%3Ccircle%20cx%3D%2212.5%22%20cy%3D%228.5%22%20r%3D%222.5%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(209%20248)%20rotate(13%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M6.5%2012c.94-3.46%204.94-6%208.5-6%203.56%200%206.06%202.54%207%206-.94%203.47-3.44%206-7%206s-7.56-2.53-8.5-6Z%22%2F%3E%3Cpath%20d%3D%22M18%2012v.5%22%2F%3E%3Cpath%20d%3D%22M16%2017.93a9.77%209.77%200%200%201%200-11.86%22%2F%3E%3Cpath%20d%3D%22M7%2010.67C7%208%205.58%205.97%202.73%205.5c-1%201.5-1%205%20.23%206.5-1.24%201.5-1.24%205-.23%206.5C5.58%2018.03%207%2016%207%2013.33%22%2F%3E%3Cpath%20d%3D%22M10.46%207.26C10.2%205.88%209.17%204.24%208%203h5.8a2%202%200%200%201%201.98%201.67l.23%201.4%22%2F%3E%3Cpath%20d%3D%22m16.01%2017.93-.23%201.4A2%202%200%200%201%2013.8%2021H9.5a5.96%205.96%200%200%200%201.49-3.98%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(287%20248)%20rotate(-12%2012%2012)%20scale(2.2)%22%3E%3Cpath%20d%3D%22M12%202C8%202%204%208%204%2014a8%208%200%200%200%2016%200c0-6-4-12-8-12%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+    opacity: 0.06;
+  }
+
+  /* Tarjeta de vidrio: se apoya en el fondo dejándolo entrever. */
+  .glass-card {
+    background-color: color-mix(in srgb, var(--color-ink-50) 72%, transparent);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid color-mix(in srgb, var(--color-ink-900) 8%, transparent);
+    box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.22), inset 0 1px 0 0 rgb(255 255 255 / 0.45);
+  }
+
+  .dark .glass-card {
+    background-color: color-mix(in srgb, var(--color-ink-100) 62%, transparent);
+    border-color: color-mix(in srgb, #ffffff 12%, transparent);
+    box-shadow: 0 24px 60px -20px rgb(0 0 0 / 0.6), inset 0 1px 0 0 rgb(255 255 255 / 0.08);
+  }
+
+  /* Velo de la cabecera del negocio. Radial y descentrado a la izquierda: el
+     borde entre el fondo y el mapa describe una curva en diagonal en vez de
+     una línea recta. Las paradas intermedias van con color-mix para que el
+     paso sea gradual y no se vea la banda del degradado.
+     Cuadra con dos límites medidos: los datos nunca pasan del 43% del ancho
+     —zona sólida— y el marcador cae al 75% —zona ya limpia—. */
+  /* Las dos paradas las calcula EnterprisePage midiendo dónde acaba el texto,
+     para que el sólido siempre lo cubra por largo que sea el nombre o la
+     dirección. Los valores de aquí son el resultado para una ficha normal y
+     hacen de red si el cálculo no llega a correr. */
+  .business-hero__veil {
+    background-image: radial-gradient(circle at 0% 150%,
+        var(--color-ink-50) 0%,
+        var(--color-ink-50) var(--velo-solido, 43%),
+        transparent var(--velo-transparente, 70%));
+  }
+
+  /* El degradado del carrusel se desplaza despacio. El lienzo se dibuja mayor
+     que la caja para tener recorrido, y lo que se mueve es la posición del
+     fondo, no el elemento: no descoloca nada de lo que hay encima. */
+  /* El lienzo solo un poco mayor que la caja: a 220% se veía menos de la mitad
+     del degradado y los colores salían casi planos. A 130% se ve el 77% del
+     recorrido —casi como sin animar— y aún queda margen para desplazarlo. */
+  .gradient-drift {
+    background-size: 130% 130%;
+    animation: gradient-drift 16s ease-in-out infinite alternate;
+  }
+  @keyframes gradient-drift {
+    from { background-position: 0% 15%; }
+    to { background-position: 100% 85%; }
+  }
+
+  /* Un solo interruptor para toda la aplicación: la clase la pone
+     MotionContext en <html>, ya sea por elección del usuario o porque el
+     sistema pide menos movimiento. */
+  .motion-off *,
+  .motion-off *::before,
+  .motion-off *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Marcador del negocio en la cabecera: late para que el ojo lo encuentre.
+     El origen va en la punta (50% 100%) y no en el centro; si escalara desde
+     el centro, la punta se movería y parecería señalar otro sitio. */
+  .map-pin {
+    display: block;
+    position: relative;
+    color: var(--color-primary);
+  }
+
+  .map-pin__body {
+    display: block;
+    filter: drop-shadow(0 2px 4px rgb(0 0 0 / 0.35));
+    transform-origin: 50% 100%;
+    animation: pin-latido 1.9s ease-in-out infinite;
+  }
+
+  .map-pin__halo {
+    position: absolute;
+    left: 50%;
+    bottom: 2px;
+    height: 14px;
+    width: 14px;
+    margin-left: -7px;
+    border-radius: 9999px;
+    background-color: var(--color-primary);
+    animation: pin-halo 1.9s ease-out infinite;
+  }
+
+  @keyframes pin-latido {
+
+    0%,
+    60%,
+    100% {
+      transform: scale(1);
+    }
+
+    30% {
+      transform: scale(1.18);
+    }
+  }
+
+  @keyframes pin-halo {
+    0% {
+      opacity: 0.45;
+      transform: scale(0.6);
+    }
+
+    70%,
+    100% {
+      opacity: 0;
+      transform: scale(2.6);
+    }
+  }
+
+  /* Quien pide menos movimiento se queda con el marcador quieto. */
+  @media (prefers-reduced-motion: reduce) {
+
+    .map-pin__body,
+    .map-pin__halo {
+      animation: none;
+    }
+
+    .map-pin__halo {
+      opacity: 0;
+    }
+  }
+
+  /* Divisoria entre las dos mitades de la tarjeta de acceso. No es un `border`
+     porque tiene que quedarse corta: 24px sin tocar por los dos extremos. */
+  .auth__intro::after {
+    content: '';
+    position: absolute;
+    background-color: color-mix(in srgb, var(--color-ink-900) 10%, transparent);
+    /* Apilado en móvil: la línea va abajo, horizontal. */
+    inset: auto 24px 0 24px;
+    height: 1px;
+  }
+
+  @media (min-width: 1024px) {
+    .auth__intro::after {
+      /* En dos columnas: vertical, pegada al canto derecho. */
+      inset: 24px 0 24px auto;
+      width: 1px;
+      height: auto;
+    }
   }
 }

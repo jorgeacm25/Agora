@@ -6,12 +6,14 @@ import { AuthLayout, AuthLink } from '@/components/layout/AuthLayout';
 import { Input } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
+import { createSubscription } from '@/api/subscription';
+import { TRIAL_PLAN } from '@/lib/plans';
 import { cn } from '@/lib/utils';
 
 type Role = 'comprador' | 'vendedor';
 
 export function RegisterPage() {
-  const { register, login } = useAuth();
+  const { register, login, refreshSellerStatus } = useAuth();
   const navigate = useNavigate();
 
   const [role, setRole] = useState<Role>('comprador');
@@ -31,8 +33,28 @@ export function RegisterPage() {
     setLoading(true);
     try {
       await register(username, password);
-      await login(username, password);
-      navigate(role === 'vendedor' ? '/vender' : '/planes', { replace: true });
+      const nuevoUsuario = await login(username, password);
+      // La prueba se concede al crear la cuenta: sin ella la app queda cerrada
+      // detrás de las opciones de compra y nadie llega a ver nada. Vale para
+      // todo durante una semana, panel de negocio incluido.
+      try {
+        const prueba = TRIAL_PLAN.tiers[0];
+        await createSubscription({
+          userId: nuevoUsuario.id,
+          name: TRIAL_PLAN.name,
+          cost: prueba.cost,
+          description: `Prueba de ${prueba.durationDays} días`,
+          quantityAccounts: 1,
+          durationDays: prueba.durationDays,
+        });
+        await refreshSellerStatus();
+      } catch {
+        // Si el alta de la prueba falla, la cuenta ya existe: se sigue a las
+        // opciones de compra en vez de dejar el registro a medias.
+        navigate('/planes', { replace: true });
+        return;
+      }
+      navigate(role === 'vendedor' ? '/vender' : '/', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo crear la cuenta');
     } finally {
@@ -50,28 +72,41 @@ export function RegisterPage() {
         </>
       }
     >
-      <div className="mb-5 grid grid-cols-2 gap-2.5">
-        <RoleOption
-          icon={<ShoppingBag size={18} />}
-          label="Comprar"
-          description="Buscar productos"
-          active={role === 'comprador'}
-          onClick={() => setRole('comprador')}
-        />
-        <RoleOption
-          icon={<Store size={18} />}
-          label="Vender"
-          description="Publicar catálogo"
-          active={role === 'vendedor'}
-          onClick={() => setRole('vendedor')}
-        />
-      </div>
+      {/* React 19 sube estas etiquetas al <head>: cada ruta con su título. */}
+      <title>Crear cuenta · Agora</title>
+      <meta name="description" content="Crea tu cuenta en Agora para buscar productos de las mypimes y mercados de tu ciudad, o para publicar tu catálogo." />
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} id="register" className="register space-y-4">
+        {/* Opciones excluyentes: fieldset + legend + radios nativos, no dos
+            botones con un estado pintado a mano. El radio se oculta a la vista
+            pero sigue siendo el que recibe foco y teclado. */}
+        <fieldset className="register__roles">
+          <legend className="register__legend mb-2 text-sm font-medium text-ink-800">¿Cómo vas a usar Agora?</legend>
+          <div id="register__options" className="register__options grid grid-cols-2 gap-2.5">
+            <RoleOption
+              icon={<ShoppingBag size={18} aria-hidden="true" />}
+              label="Comprar"
+              description="Buscar productos"
+              value="comprador"
+              checked={role === 'comprador'}
+              onChange={setRole}
+            />
+            <RoleOption
+              icon={<Store size={18} aria-hidden="true" />}
+              label="Vender"
+              description="Publicar catálogo"
+              value="vendedor"
+              checked={role === 'vendedor'}
+              onChange={setRole}
+            />
+          </div>
+        </fieldset>
+
         <Input
           label="Usuario"
           required
           minLength={3}
+          autoComplete="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="tu_usuario"
@@ -81,6 +116,7 @@ export function RegisterPage() {
           type="password"
           required
           minLength={6}
+          autoComplete="new-password"
           hint="Mínimo 6 caracteres"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -90,11 +126,17 @@ export function RegisterPage() {
           label="Confirmar contraseña"
           type="password"
           required
+          autoComplete="new-password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           placeholder="••••••••"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {/* role="alert" para que un lector de pantalla lo anuncie al aparecer. */}
+        {error && (
+          <p id="register__error" className="register__error text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
         <Button type="submit" className="w-full" size="lg" loading={loading}>
           {role === 'vendedor' ? 'Crear cuenta de vendedor' : 'Crear cuenta'}
         </Button>
@@ -107,27 +149,36 @@ function RoleOption({
   icon,
   label,
   description,
-  active,
-  onClick,
+  value,
+  checked,
+  onChange,
 }: {
   icon: ReactNode;
   label: string;
   description: string;
-  active: boolean;
-  onClick: () => void;
+  value: Role;
+  checked: boolean;
+  onChange: (value: Role) => void;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
+    <label
       className={cn(
-        'flex flex-col items-start gap-1.5 rounded-xl border px-4 py-3 text-left transition-colors',
-        active ? 'border-primary bg-primary text-white' : 'border-ink-200 text-ink-700 hover:border-ink-400',
+        'role flex cursor-pointer flex-col items-start gap-1.5 rounded-xl border px-4 py-3 text-left transition-colors',
+        'has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-ink-900/10',
+        checked ? 'role--checked border-ink-900 bg-ink-900 text-ink-50' : 'border-ink-200 text-ink-700 hover:border-ink-400',
       )}
     >
+      <input
+        type="radio"
+        name="role"
+        value={value}
+        checked={checked}
+        onChange={() => onChange(value)}
+        id="role__input" className="role__input sr-only"
+      />
       {icon}
-      <span className="text-sm font-semibold">{label}</span>
-      <span className={cn('text-xs', active ? 'text-white/60' : 'text-ink-500')}>{description}</span>
-    </button>
+      <span id="role__label" className="role__label text-sm font-semibold">{label}</span>
+      <span className={cn('role__description text-xs', checked ? 'text-ink-50/85' : 'text-ink-500')}>{description}</span>
+    </label>
   );
 }

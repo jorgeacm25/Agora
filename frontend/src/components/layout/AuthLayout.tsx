@@ -4,6 +4,7 @@ import { Search, Target, Users } from 'lucide-react';
 import { Logo } from './Logo';
 
 interface AuthLayoutProps {
+  /** Saludo de la pantalla. Es el h2: el h1 lo ocupa el titular de la página. */
   title: string;
   subtitle: string;
   children: ReactNode;
@@ -11,74 +12,88 @@ interface AuthLayoutProps {
 }
 
 const POINTS = [
-  { icon: Users, title: 'Quiénes somos', description: 'Reunimos lo que ofrecen las mypimes y mercados de tu ciudad.' },
+  { icon: Users, title: 'Qué hacemos', description: 'Reunimos lo que ofrecen las mypimes y mercados de tu ciudad.' },
   { icon: Target, title: 'Nuestro objetivo', description: 'Ahorrarte tiempo: nada de recorrer tienda por tienda.' },
   { icon: Search, title: 'Para qué sirve', description: 'Buscar, comparar y localizar lo que necesitas, hoy.' },
 ];
 
 export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProps) {
   return (
-    <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
-      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-gradient-to-br from-primary-light via-ink-50 to-primary-light p-10">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-primary/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-secondary/10 blur-3xl" />
+    <div id="auth" className="auth relative flex min-h-screen flex-col bg-ink-100">
+      {/* Decoración pura: fuera del árbol de accesibilidad. */}
+      <div id="auth__backdrop" className="auth__backdrop pattern-categories pointer-events-none absolute inset-0" aria-hidden="true" />
+      <div id="auth__wash" className="auth__wash pointer-events-none absolute inset-0 bg-gradient-to-br from-primary-light/50 via-transparent to-secondary-light/40" aria-hidden="true" />
 
-        <Logo className="relative" />
+      {/* Un único `main`, y es de nivel superior: dentro va todo el contenido
+          de la página, incluido el h1. El pie queda fuera para que cuente como
+          contentinfo. */}
+      <main id="auth__stage" className="auth__stage relative flex flex-1 items-center justify-center p-4 sm:p-8">
+        <div id="auth__card" className="auth__card glass-card grid w-full max-w-5xl grid-cols-1 overflow-hidden rounded-3xl lg:grid-cols-2">
+          {/* `section` solo es landmark si tiene nombre accesible: se lo da su
+              propio encabezado con aria-labelledby. */}
+          {/* La divisoria no es un `border`: se dibuja con ::after para poder
+              dejarla corta por los extremos. Ver .auth__intro en index.css. */}
+          <section id="auth__intro" className="auth__intro relative flex flex-col justify-center gap-6 p-8 xl:p-10" aria-labelledby="auth-title">
+            <Logo className="auth__brand" />
 
-        <div className="relative max-w-sm">
-          <svg width="88" height="88" viewBox="0 0 168 168" fill="none" className="mb-6">
-            <circle cx="84" cy="84" r="84" fill="#E0F2FE" />
-            <path d="M84 44c-19.9 0-36 16.1-36 36 0 27 36 62 36 62s36-35 36-62c0-19.9-16.1-36-36-36z" fill="#0EA5E9" />
-            <circle cx="84" cy="80" r="15" fill="#FFFFFF" />
-            <g transform="translate(104 108)">
-              <circle cx="14" cy="14" r="13" fill="none" stroke="#1F2937" strokeWidth="4" />
-              <line x1="23.5" y1="23.5" x2="34" y2="34" stroke="#1F2937" strokeWidth="5" strokeLinecap="round" />
-            </g>
-          </svg>
+            <h1 id="auth-title" className="auth__title text-2xl font-bold leading-tight text-ink-900 xl:text-3xl">
+              Todo lo que buscas, en un solo lugar
+            </h1>
 
-          <h2 className="text-3xl font-bold leading-tight text-ink-900">
-            Todo lo que buscas, <span className="text-primary">en un solo lugar</span>
-          </h2>
-          <p className="mt-4 text-sm leading-relaxed text-ink-500">
-            Agora es el buscador de tu ciudad: encuentra en segundos lo que venden las mypimes y mercados locales, sin recorrerlos uno a uno.
-          </p>
+            {/* En móvil la card se queda en marca + titular + formulario: el
+                resto del argumentario sobra cuando lo que toca es entrar. */}
+            <p id="auth__lead" className="auth__lead hidden text-sm leading-relaxed text-ink-500 lg:block">
+              Agora es el buscador de tu ciudad: encuentra en segundos lo que venden las mypimes y mercados locales, sin recorrerlos uno a uno.
+            </p>
 
-          <div className="mt-8 space-y-5 border-t border-ink-900/10 pt-6">
-            {POINTS.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="flex items-start gap-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-ink-50 text-primary shadow-soft">
-                  <Icon size={14} />
+            {/* Cada punto es un término y su definición, no una lista suelta. */}
+            <dl id="auth__points" className="auth__points hidden space-y-5 border-t border-ink-900/10 pt-6 lg:block">
+              {/* `dt` y `dd` tienen que ser hijos directos del div que los
+                  agrupa: cualquier envoltorio intermedio rompe la lista de
+                  definición. El icono va dentro del propio término. */}
+              {POINTS.map(({ icon: Icon, title: pointTitle, description }) => (
+                <div key={pointTitle} id="point" className="point">
+                  <dt id="point__term" className="point__term flex items-center gap-3 text-sm font-semibold text-ink-900">
+                    <span id="point__icon" className="point__icon flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-ink-50/80 text-ink-600 shadow-soft">
+                      <Icon size={14} aria-hidden="true" />
+                    </span>
+                    {pointTitle}
+                  </dt>
+                  <dd id="point__desc" className="point__desc mt-1 ml-11 text-xs leading-relaxed text-ink-500">{description}</dd>
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-ink-900">{title}</p>
-                  <p className="mt-0.5 text-xs leading-relaxed text-ink-500">{description}</p>
-                </div>
+              ))}
+            </dl>
+          </section>
+
+          <section id="access" className="access flex flex-col p-8 xl:p-10" aria-labelledby="access-title">
+            {/* El contenido se queda centrado y el pie cae al fondo: por eso el
+                panel crece con flex-1 en vez de centrar la sección entera. */}
+            <div id="access__panel" className="access__panel flex flex-1 items-center">
+              <div id="access__content" className="access__content w-full">
+                <h2 id="access-title" className="access__title text-3xl font-semibold text-ink-900 sm:text-4xl">
+                  {title}
+                </h2>
+                <p id="access__subtitle" className="access__subtitle mt-2 text-sm text-ink-500">{subtitle}</p>
+                <div id="access__body" className="access__body mt-8">{children}</div>
+                <p id="access__footer" className="access__footer mt-6 text-sm text-ink-500">{footer}</p>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
 
-        <p className="relative text-xs text-ink-400">© {new Date().getFullYear()} Agora</p>
-      </div>
-
-      <div className="flex items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 lg:hidden">
-            <Logo />
-          </div>
-          <h1 className="text-2xl font-semibold text-ink-900">{title}</h1>
-          <p className="mt-1.5 text-sm text-ink-500">{subtitle}</p>
-          <div className="mt-8">{children}</div>
-          <div className="mt-6 text-sm text-ink-500">{footer}</div>
+            {/* Pie de esta sección, no del documento: por eso no lleva rol de
+                contentinfo (un `footer` solo es landmark si cuelga del body). */}
+            <footer id="access__legal" className="access__legal mt-8 text-center">
+              <small id="auth__copyright" className="auth__copyright text-xs text-ink-500">© {new Date().getFullYear()} Agora</small>
+            </footer>
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
 
 export function AuthLink({ to, children }: { to: string; children: ReactNode }) {
   return (
-    <Link to={to} className="font-medium text-primary hover:underline">
+    <Link to={to} className="access__link font-medium text-primary hover:underline">
       {children}
     </Link>
   );

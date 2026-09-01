@@ -2,11 +2,12 @@ import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { cn } from '@/lib/utils';
 
-export function ThemeToggle({ className }: { className?: string }) {
+export function ThemeToggle({ id = 'theme-toggle', className }: { id?: string; className?: string }) {
   const { theme, toggleTheme } = useTheme();
 
   return (
     <button
+      id={id}
       onClick={toggleTheme}
       aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
       className={cn(

@@ -11,7 +11,7 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-3">
+    <div id="pagination" className="pagination flex items-center justify-center gap-3">
       <Button
         variant="outline"
         size="sm"
@@ -21,8 +21,8 @@ export function Pagination({ page, totalPages, onChange }: PaginationProps) {
       >
         Anterior
       </Button>
-      <span className="text-sm text-ink-500">
-        Página <span className="font-medium text-ink-900">{page}</span> de {totalPages}
+      <span id="pagination__status" className="pagination__status text-sm text-ink-500">
+        Página <span id="pagination__page" className="pagination__page font-medium text-ink-900">{page}</span> de {totalPages}
       </span>
       <Button
         variant="outline"

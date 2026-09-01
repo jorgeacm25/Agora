@@ -20,18 +20,18 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="mx-auto max-w-6xl px-4 sm:px-6 py-16">
-      <div className="mb-10 max-w-lg">
-        <span className="text-xs font-semibold uppercase tracking-wider text-ink-500">Cómo funciona</span>
-        <h2 className="mt-2 text-2xl sm:text-3xl font-semibold text-ink-900">
-          Buscar en Agora toma <span className="text-primary">tres pasos</span>
+    <section id="how" className="how mx-auto max-w-6xl px-4 sm:px-6 py-16">
+      <div id="how__intro" className="how__intro mb-10 max-w-lg">
+        <span id="how__eyebrow" className="how__eyebrow text-xs font-semibold uppercase tracking-wider text-ink-500">Cómo funciona</span>
+        <h2 id="how__title" className="how__title mt-2 text-2xl sm:text-3xl font-semibold text-ink-900">
+          Buscar en Agora toma <span className="font-bold">tres pasos</span>
         </h2>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+      <div id="how__steps" className="how__steps grid grid-cols-1 sm:grid-cols-3 gap-6">
         {steps.map((step, i) => (
           <div key={step.title} className="relative rounded-2xl border border-ink-200/80 bg-ink-50 p-6">
             <span className="absolute -top-3 -left-1 text-5xl font-bold text-ink-100 select-none">{i + 1}</span>
-            <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
+            <div className="relative flex h-11 w-11 items-center justify-center rounded-xl bg-ink-200 text-ink-700">
               <step.icon size={19} />
             </div>
             <h3 className="relative mt-4 font-medium text-ink-900">{step.title}</h3>

@@ -20,7 +20,7 @@ export function PlanPicker({ plan, onSubscribe, submitting, ctaLabel = 'Continua
 
   return (
     <div>
-      <div className="mb-6 grid grid-cols-3 gap-1.5 rounded-xl bg-ink-100 p-1">
+      <div id="plan__cycles" className="plan__cycles mb-6 grid grid-cols-3 gap-1.5 rounded-xl bg-ink-100 p-1">
         {CYCLES.map((c) => (
           <button
             key={c}
@@ -35,15 +35,15 @@ export function PlanPicker({ plan, onSubscribe, submitting, ctaLabel = 'Continua
         ))}
       </div>
 
-      <div className="flex items-baseline gap-2">
-        <span className="text-3xl font-semibold text-ink-900">${tier.cost}</span>
-        <span className="text-sm text-ink-400">/ {tier.durationDays} días</span>
+      <div id="plan__price" className="plan__price flex items-baseline gap-2">
+        <span id="plan__cost" className="plan__cost text-3xl font-semibold text-ink-900">${tier.cost}</span>
+        <span id="plan__period" className="plan__period text-sm text-ink-400">/ {tier.durationDays} días</span>
         {tier.savingsLabel && (
-          <span className="ml-auto rounded-full bg-ink-100 px-2.5 py-1 text-xs font-medium text-ink-700">{tier.savingsLabel}</span>
+          <span id="plan__savings" className="plan__savings ml-auto rounded-full bg-ink-100 px-2.5 py-1 text-xs font-medium text-ink-700">{tier.savingsLabel}</span>
         )}
       </div>
 
-      <ul className="mt-5 space-y-2 text-sm text-ink-600">
+      <ul id="plan__features" className="plan__features mt-5 space-y-2 text-sm text-ink-600">
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-center gap-2">
             <Check size={14} className="text-ink-900 shrink-0" /> {feature}

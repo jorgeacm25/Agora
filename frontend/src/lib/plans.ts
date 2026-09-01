@@ -50,6 +50,45 @@ export const SELLER_PLAN: PlanConfig = {
   ],
 };
 
+/**
+ * La prueba se concede sola al crear la cuenta y vale para todo, panel de
+ * negocio incluido: la idea es que un vendedor pueda publicar su catálogo antes
+ * de pagar nada. Se guarda como una suscripción más, con coste cero.
+ */
+export const TRIAL_PLAN: PlanConfig = {
+  name: 'Prueba gratuita',
+  tiers: [{ cycle: 'monthly', label: 'Prueba', cost: 0, durationDays: 7, savingsLabel: null }],
+  features: ['Acceso completo durante 7 días', 'Incluye el panel de negocio'],
+};
+
+/**
+ * Si una suscripción es de un plan dado. Se compara por prefijo porque al
+ * contratarla se le pega el ciclo al nombre: «Plan Vendedor Trimestral».
+ */
+export function esPlanDe(plan: PlanConfig, nombreSuscripcion: string | undefined | null): boolean {
+  return Boolean(nombreSuscripcion?.startsWith(plan.name));
+}
+
+/**
+ * Si la suscripción abre la parte de administrar un negocio.
+ *
+ * El tipo de plan lo da la conexión: en el modelo acordado una `Subscription`
+ * cuelga de un `User` o de un `UserEnterprise`, y la que cuelga de la empresa
+ * es la de negocio. Mientras el backend no exponga esa relación —hoy la tabla
+ * solo guarda `userId`— se reconoce por el nombre, que al contratar lleva el
+ * ciclo pegado («Plan Vendedor Trimestral»); de ahí la comparación por prefijo.
+ * Cuando llegue `userEnterpriseId`, esta función deja de mirar el nombre y no
+ * hay que tocar nada más.
+ */
+export function daAccesoDeNegocio(suscripcion: PlanReconocible): boolean {
+  if (typeof suscripcion === 'object' && suscripcion?.userEnterpriseId) return true;
+  const nombre = typeof suscripcion === 'string' ? suscripcion : suscripcion?.name;
+  return esPlanDe(SELLER_PLAN, nombre) || esPlanDe(TRIAL_PLAN, nombre);
+}
+
+/** Lo mínimo que hace falta para reconocer un plan: la suscripción o su nombre. */
+type PlanReconocible = { name?: string; userEnterpriseId?: string | null } | string | undefined | null;
+
 export function getTier(plan: PlanConfig, cycle: BillingCycle): PlanTier {
   return plan.tiers.find((t) => t.cycle === cycle) ?? plan.tiers[0];
 }

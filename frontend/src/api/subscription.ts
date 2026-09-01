@@ -3,6 +3,14 @@ import { apiClient } from './client';
 export interface Subscription {
   idSubscription: string;
   userId: string;
+  /**
+   * A qué empresa pertenece la suscripción. En el diagrama acordado
+   * `Subscription` se conecta con `User` y con `UserEnterprise`, y es esa
+   * conexión la que dice de qué tipo es el plan. El backend todavía no la
+   * implementa —`subscriptions` solo tiene `userId`—, así que llega vacío y
+   * hay que caer en el nombre. Ver `daAccesoDeNegocio`.
+   */
+  userEnterpriseId?: string | null;
   name: string;
   cost: number;
   description: string | null;
@@ -20,6 +28,16 @@ export interface SubscriptionInput {
   description?: string;
   quantityAccounts: number;
   durationDays: number;
+}
+
+/**
+ * Quien lleva el estado es el backend: al pedir la suscripción activa la
+ * verifica y, si ya venció, la guarda con `status: false`. Lo que no hace es
+ * responder 404 en ese caso —devuelve la suscripción caducada—, así que aquí
+ * se lee el campo en vez de dar por buena cualquier respuesta.
+ */
+export function estaVigente(s: Subscription | null | undefined): boolean {
+  return Boolean(s?.status);
 }
 
 export function getMyActiveSubscription() {

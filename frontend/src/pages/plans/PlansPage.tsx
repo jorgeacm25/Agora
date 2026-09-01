@@ -12,7 +12,7 @@ import { BUYER_PLAN, getTier } from '@/lib/plans';
 import type { BillingCycle } from '@/lib/plans';
 
 export function PlansPage() {
-  const { user, isAuthenticated, isLoading, isSeller, subscription, refreshSellerStatus } = useAuth();
+  const { user, isAuthenticated, isLoading, isSeller, subscription, tieneAcceso, logout, refreshSellerStatus } = useAuth();
   const { notify } = useToast();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
@@ -48,24 +48,37 @@ export function PlansPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-12">
-      <div className="mb-10 text-center">
-        <div className="mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-ink-100 text-ink-700">
+    <div id="plans-page" className="plans-page mx-auto max-w-2xl px-4 sm:px-6 py-12">
+      <div id="plans-page__intro" className="plans-page__intro mb-10 text-center">
+        <div id="plans-page__icon" className="plans-page__icon mx-auto mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-ink-100 text-ink-700">
           <ShoppingBag size={19} />
         </div>
-        <h1 className="text-2xl font-semibold text-ink-900">Elige tu membresía de comprador</h1>
-        <p className="mt-2 text-sm text-ink-500">Un paso más y podrás buscar en todo el catálogo de tu ciudad.</p>
+        <h1 id="plans-page__title" className="plans-page__title text-2xl font-semibold text-ink-900">
+          {tieneAcceso ? 'Elige tu membresía de comprador' : 'Tu suscripción ya no está activa'}
+        </h1>
+        <p id="plans-page__subtitle" className="plans-page__subtitle mt-2 text-sm text-ink-500">
+          {tieneAcceso
+            ? 'Un paso más y podrás buscar en todo el catálogo de tu ciudad.'
+            : 'Agora se usa con una membresía al día. Actívala y vuelves justo donde estabas.'}
+        </p>
       </div>
 
       <Card className="p-6">
         <PlanPicker plan={BUYER_PLAN} onSubscribe={handleSubscribe} submitting={submitting} ctaLabel="Activar membresía" />
-        <p className="mt-3 text-center text-xs text-ink-400">Se registrará tu suscripción; el cobro se gestiona fuera de la plataforma por ahora.</p>
+        <p id="plans-page__note" className="plans-page__note mt-3 text-center text-xs text-ink-400">Se registrará tu suscripción; el cobro se gestiona fuera de la plataforma por ahora.</p>
       </Card>
 
-      <div className="mt-6 flex items-center justify-center">
-        <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
-          Decidir más tarde
-        </Button>
+      <div id="plans-page__skip" className="plans-page__skip mt-6 flex items-center justify-center">
+        {tieneAcceso ? (
+          <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
+            Decidir más tarde
+          </Button>
+        ) : (
+          // Sin membresía no hay a dónde volver: la única salida es cerrar sesión.
+          <Button variant="ghost" size="sm" onClick={logout}>
+            Cerrar sesión
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -16,8 +16,8 @@ export function DashboardHome() {
     : null;
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div id="dash-home" className="dash-home space-y-6">
+      <div id="dash-home__stats" className="dash-home__stats grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard icon={<Package size={18} />} label="Productos" value={products.length} />
         <StatCard icon={<Wrench size={18} />} label="Servicios" value={services.length} />
         <StatCard
@@ -28,10 +28,10 @@ export function DashboardHome() {
       </div>
 
       <Card className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-ink-900">Acciones rápidas</h2>
+        <div id="dash-home__actions-header" className="dash-home__actions-header flex items-center justify-between mb-4">
+          <h2 id="dash-home__actions-title" className="dash-home__actions-title font-semibold text-ink-900">Acciones rápidas</h2>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div id="dash-home__actions" className="dash-home__actions flex flex-wrap gap-3">
           <Link to="/panel/productos/nuevo">
             <Button icon={<Plus size={15} />}>Publicar producto</Button>
           </Link>

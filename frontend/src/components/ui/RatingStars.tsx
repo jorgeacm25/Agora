@@ -2,6 +2,8 @@ import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface RatingStarsProps {
+  /** Identificador del bloque, para engancharlo desde fuera. */
+  id?: string;
   value: number;
   count?: number;
   size?: number;
@@ -9,11 +11,11 @@ interface RatingStarsProps {
   onChange?: (value: number) => void;
 }
 
-export function RatingStars({ value, count, size = 15, interactive = false, onChange }: RatingStarsProps) {
+export function RatingStars({ id, value, count, size = 15, interactive = false, onChange }: RatingStarsProps) {
   const stars = [1, 2, 3, 4, 5];
   return (
-    <div className="inline-flex items-center gap-1">
-      <div className="flex items-center">
+    <div id={id} className="rating inline-flex items-center gap-1">
+      <div className="rating__stars flex items-center">
         {stars.map((star) => (
           <button
             key={star}
@@ -33,7 +35,7 @@ export function RatingStars({ value, count, size = 15, interactive = false, onCh
           </button>
         ))}
       </div>
-      {count !== undefined && <span className="text-xs text-ink-500">({count})</span>}
+      {count !== undefined && <span className="rating__count text-xs text-ink-500">({count})</span>}
     </div>
   );
 }

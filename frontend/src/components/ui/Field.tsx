@@ -5,24 +5,18 @@ interface WrapperProps {
   label?: string;
   hint?: string;
   error?: string;
-  required?: boolean;
   children: ReactNode;
 }
 
-function FieldWrapper({ label, hint, error, required, children }: WrapperProps) {
+function FieldWrapper({ label, hint, error, children }: WrapperProps) {
   return (
-    <label className="block">
-      {label && (
-        <span className="mb-1.5 block text-sm font-medium text-ink-800">
-          {label}
-          {required && <span className="text-ink-400"> *</span>}
-        </span>
-      )}
+    <label id="field" className="field block">
+      {label && <span id="field__label" className="field__label mb-1.5 block text-sm font-medium text-ink-800">{label}</span>}
       {children}
       {error ? (
-        <span className="mt-1.5 block text-xs text-red-600">{error}</span>
+        <span id="field__error" className="field__error mt-1.5 block text-xs text-red-600">{error}</span>
       ) : hint ? (
-        <span className="mt-1.5 block text-xs text-ink-500">{hint}</span>
+        <span id="field__hint" className="field__hint mt-1.5 block text-xs text-ink-500">{hint}</span>
       ) : null}
     </label>
   );
@@ -33,11 +27,14 @@ const baseInputClasses =
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement>, Omit<WrapperProps, 'children'> {}
 
-export function Input({ label, hint, error, required, className, ...props }: InputProps) {
+export function Input({ label, hint, error, className, ...props }: InputProps) {
   return (
-    <FieldWrapper label={label} hint={hint} error={error} required={required}>
+    <FieldWrapper label={label} hint={hint} error={error}>
+      {/* `required` viaja con el resto de props hasta el control nativo: antes se
+          quedaba aquí solo para pintar un asterisco y el navegador nunca llegaba
+          a validar el campo. */}
       <input
-        className={cn(baseInputClasses, error ? 'border-red-300' : 'border-ink-200', className)}
+        className={cn('field__control', baseInputClasses, error ? 'border-red-300' : 'border-ink-200', className)}
         {...props}
       />
     </FieldWrapper>
@@ -46,11 +43,11 @@ export function Input({ label, hint, error, required, className, ...props }: Inp
 
 interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement>, Omit<WrapperProps, 'children'> {}
 
-export function TextArea({ label, hint, error, required, className, ...props }: TextAreaProps) {
+export function TextArea({ label, hint, error, className, ...props }: TextAreaProps) {
   return (
-    <FieldWrapper label={label} hint={hint} error={error} required={required}>
+    <FieldWrapper label={label} hint={hint} error={error}>
       <textarea
-        className={cn(baseInputClasses, 'resize-none', error ? 'border-red-300' : 'border-ink-200', className)}
+        className={cn('field__control', baseInputClasses, 'resize-none', error ? 'border-red-300' : 'border-ink-200', className)}
         {...props}
       />
     </FieldWrapper>
@@ -59,11 +56,11 @@ export function TextArea({ label, hint, error, required, className, ...props }: 
 
 interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement>, Omit<WrapperProps, 'children'> {}
 
-export function Select({ label, hint, error, required, className, children, ...props }: SelectProps) {
+export function Select({ label, hint, error, className, children, ...props }: SelectProps) {
   return (
-    <FieldWrapper label={label} hint={hint} error={error} required={required}>
+    <FieldWrapper label={label} hint={hint} error={error}>
       <select
-        className={cn(baseInputClasses, 'appearance-none bg-no-repeat', error ? 'border-red-300' : 'border-ink-200', className)}
+        className={cn('field__control', baseInputClasses, 'appearance-none bg-no-repeat', error ? 'border-red-300' : 'border-ink-200', className)}
         {...props}
       >
         {children}

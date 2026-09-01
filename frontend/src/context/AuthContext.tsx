@@ -2,47 +2,31 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 import * as authApi from '@/api/auth';
 import { getMyEnterprise } from '@/api/userEnterprise';
-import { getMyActiveSubscription } from '@/api/subscription';
+import { estaVigente, getMyActiveSubscription } from '@/api/subscription';
 import { clearToken, getToken, setToken } from '@/api/client';
 import type { AuthUser, UserEnterprise } from '@/types';
 import type { Subscription } from '@/api/subscription';
+import { daAccesoDeNegocio } from '@/lib/plans';
 import { ApiError } from '@/api/client';
 import { isSeller as computeIsSeller } from '@/lib/permissions';
 
-// Solo en `npm run dev` (Vite reemplaza esto por `false` en un build de producción,
-// así que este bloque nunca llega al bundle publicado): permite navegar por todas
-// las pantallas protegidas sin tener que registrarte/iniciar sesión primero.
-const DEV_PREVIEW = import.meta.env.DEV;
-
-const DEV_USER: AuthUser = {
-  id: 'dev-preview-user',
-  username: 'vista_previa',
-  // Sin permisos de vendedor a propósito: así /planes (solo comprador) sigue
-  // siendo visible. El acceso a /panel/* en desarrollo no depende de esto,
-  // ver el bypass dedicado en ProtectedRoute.tsx.
-  permissions: [],
-};
-
-const DEV_ENTERPRISE: UserEnterprise = {
-  idUserEnterprise: 'dev-preview-enterprise',
-  userId: DEV_USER.id,
-  companyName: 'Mi Negocio (vista previa)',
-  address: { street: 'Calle Falsa 123', city: 'Ciudad', state: 'Estado', zipCode: '00000', country: 'País' },
-  contact: { email: 'preview@example.com', phone: '+000000000' },
-  officeHours: null,
-  code: null,
-  latitude: 23.1136,
-  longitude: -82.3666,
-};
+// Agora no es una landing: sin sesión no se ve ninguna pantalla, solo el acceso.
+// Aquí vivía un usuario de vista previa que en `npm run dev` entraba solo y
+// dejaba navegarlo todo sin cuenta; se quitó porque contradice esa regla y
+// porque tapaba los 401 reales de la API detrás de una sesión que no existía.
 
 interface AuthContextValue {
   user: AuthUser | null;
   enterprise: UserEnterprise | null;
   subscription: Subscription | null;
+  /** Hay una suscripción vigente: se puede usar la app. */
+  tieneAcceso: boolean;
+  /** El plan vigente da negocio y hay empresa creada. */
+  puedeAdministrarNegocio: boolean;
   isLoading: boolean;
   isSeller: boolean;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<AuthUser>;
   register: (username: string, password: string) => Promise<void>;
   logout: () => void;
   refreshSellerStatus: () => Promise<void>;
@@ -55,6 +39,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [enterprise, setEnterprise] = useState<UserEnterprise | null>(null);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // La empresa y la suscripción llegan en una segunda vuelta, después de
+  // restaurar la sesión. Hasta que estén, los guardias no pueden decidir: sin
+  // esto, al recargar cualquier página se expulsaba a quien sí tenía plan.
+  const [datosListos, setDatosListos] = useState(false);
 
   const loadSellerStatus = useCallback(async () => {
     const [enterpriseResult, subscriptionResult] = await Promise.allSettled([
@@ -62,7 +50,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       getMyActiveSubscription(),
     ]);
     setEnterprise(enterpriseResult.status === 'fulfilled' ? enterpriseResult.value : null);
-    setSubscription(subscriptionResult.status === 'fulfilled' ? subscriptionResult.value : null);
+    // Una suscripción caducada llega igual, con `status: false`: aquí solo se
+    // guarda la que el backend da por vigente.
+    const suscripcion = subscriptionResult.status === 'fulfilled' ? subscriptionResult.value : null;
+    setSubscription(estaVigente(suscripcion) ? suscripcion : null);
+    setDatosListos(true);
   }, []);
 
   useEffect(() => {
@@ -77,25 +69,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearToken();
       }
     }
-    if (DEV_PREVIEW) {
-      setUser(DEV_USER);
-    }
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    if (DEV_PREVIEW && user?.id === DEV_USER.id) {
-      setEnterprise(DEV_ENTERPRISE);
-      // Sin suscripción simulada a propósito: así /planes sigue siendo visible
-      // (esa pantalla se oculta en cuanto detecta una suscripción activa).
-      setSubscription(null);
-      return;
-    }
     if (user) {
       loadSellerStatus();
     } else {
       setEnterprise(null);
       setSubscription(null);
+      setDatosListos(false);
     }
   }, [user, loadSellerStatus]);
 
@@ -104,6 +87,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(response.accessToken);
     localStorage.setItem('agora_user', JSON.stringify(response.user));
     setUser(response.user);
+    // Devuelto para quien lo necesite nada más entrar, como el alta de la
+    // prueba en el registro: el estado de React aún no se ha propagado.
+    return response.user;
   }, []);
 
   const register = useCallback(async (username: string, password: string) => {
@@ -113,7 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     clearToken();
     localStorage.removeItem('agora_user');
-    setUser(DEV_PREVIEW ? DEV_USER : null);
+    setUser(null);
   }, []);
 
   const value = useMemo<AuthContextValue>(
@@ -121,18 +107,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       enterprise,
       subscription,
-      isLoading,
-      isSeller:
-        DEV_PREVIEW && user?.id === DEV_USER.id
-          ? false
-          : computeIsSeller(user?.permissions) || Boolean(enterprise),
+      isLoading: isLoading || (Boolean(user) && !datosListos),
+      isSeller: computeIsSeller(user?.permissions) || Boolean(enterprise),
+      // Con suscripción vigente se entra en Agora; el panel de negocio pide
+      // además que ese plan sea de los que dan negocio.
+      tieneAcceso: Boolean(subscription),
+      puedeAdministrarNegocio: daAccesoDeNegocio(subscription) && Boolean(enterprise),
       isAuthenticated: Boolean(user),
       login,
       register,
       logout,
       refreshSellerStatus: loadSellerStatus,
     }),
-    [user, enterprise, subscription, isLoading, login, register, logout, loadSellerStatus],
+    [user, enterprise, subscription, isLoading, datosListos, login, register, logout, loadSellerStatus],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

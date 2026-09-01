@@ -63,8 +63,8 @@ export function ProductDetailPage() {
   if (isLoading) return <PageSpinner />;
   if (!product) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <p className="text-ink-500">No encontramos este producto.</p>
+      <div id="product-detail__missing" className="product-detail__missing mx-auto max-w-3xl px-4 py-16 text-center">
+        <p id="product-detail__missing-text" className="product-detail__missing-text text-ink-500">No encontramos este producto.</p>
         <Button variant="outline" className="mt-4" onClick={() => navigate('/')}>
           Volver a explorar
         </Button>
@@ -83,79 +83,79 @@ export function ProductDetailPage() {
       : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 sm:px-6 py-8">
-      <Link to="/" className="mb-6 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
+    <div id="product-detail" className="product-detail mx-auto max-w-5xl px-4 sm:px-6 py-8">
+      <Link to="/" id="product-detail__back" className="product-detail__back mb-6 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
         <ArrowLeft size={14} /> Volver a explorar
       </Link>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-        <div className="lg:col-span-3">
-          <div className="aspect-square w-full overflow-hidden rounded-2xl bg-ink-100">
+      <div id="product-detail__layout" className="product-detail__layout grid grid-cols-1 lg:grid-cols-5 gap-10">
+        <div id="product-detail__media" className="product-detail__media lg:col-span-3">
+          <div id="product-detail__frame" className="product-detail__frame aspect-square w-full overflow-hidden rounded-2xl bg-ink-100">
             {imageUrl ? (
-              <img src={imageUrl} alt={product.name} className="h-full w-full object-cover" />
+              <img src={imageUrl} alt={product.name} id="product-detail__image" className="product-detail__image h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-ink-300">
+              <div id="product-detail__placeholder" className="product-detail__placeholder flex h-full w-full items-center justify-center text-ink-300">
                 <ImageOff size={40} />
               </div>
             )}
           </div>
         </div>
 
-        <div className="lg:col-span-2 flex flex-col gap-5">
+        <div id="product-detail__info" className="product-detail__info lg:col-span-2 flex flex-col gap-5">
           <div>
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
+            <div id="product-detail__topbar" className="product-detail__topbar mb-2 flex items-center justify-between gap-2">
+              <div id="product-detail__tags" className="product-detail__tags flex items-center gap-2">
                 <Badge>{product.category}</Badge>
                 {!product.stock && <Badge variant="danger">Agotado</Badge>}
               </div>
               <button
                 onClick={() => toggleFavorite(product.idProduct)}
                 aria-pressed={isFavorite(product.idProduct)}
-                className="flex h-9 w-9 items-center justify-center rounded-full border border-ink-200 text-ink-500 transition-colors hover:text-ink-900"
+                id="product-detail__fav" className="product-detail__fav flex h-9 w-9 items-center justify-center rounded-full border border-ink-200 text-ink-500 transition-colors hover:text-ink-900"
                 aria-label={isFavorite(product.idProduct) ? 'Quitar de favoritos' : 'Guardar en favoritos'}
               >
-                <Heart size={16} className={cn(isFavorite(product.idProduct) && 'fill-primary text-primary')} />
+                <Heart size={16} className={cn(isFavorite(product.idProduct) && 'fill-danger text-danger')} />
               </button>
             </div>
-            <h1 className="text-2xl font-semibold text-ink-900">{product.name}</h1>
+            <h1 id="product-detail__name" className="product-detail__name text-2xl font-semibold text-ink-900">{product.name}</h1>
             {ratingsAvailable && ratings.length > 0 && (
-              <div className="mt-2">
+              <div id="product-detail__rating" className="product-detail__rating mt-2">
                 <RatingStars value={avg} count={ratings.length} />
               </div>
             )}
           </div>
 
-          <div className="flex items-baseline gap-3">
-            {product.priceUsd !== null && <span className="text-3xl font-extrabold text-secondary">{formatPrice(product.priceUsd, 'USD')}</span>}
-            {product.priceCup !== null && <span className="text-ink-500">{formatPrice(product.priceCup, 'CUP')}</span>}
+          <div id="product-detail__prices" className="product-detail__prices flex items-baseline gap-3">
+            {product.priceUsd !== null && <span id="product-detail__price-usd" className="product-detail__price-usd text-3xl font-extrabold text-ink-900">{formatPrice(product.priceUsd, 'USD')}</span>}
+            {product.priceCup !== null && <span id="product-detail__price-cup" className="product-detail__price-cup text-ink-500">{formatPrice(product.priceCup, 'CUP')}</span>}
           </div>
 
-          <p className="leading-relaxed text-ink-600">{product.description}</p>
-          <p className="text-sm text-ink-500">Unidad de venta: <span className="text-ink-800 font-medium">{product.unit}</span></p>
+          <p id="product-detail__description" className="product-detail__description leading-relaxed text-ink-600">{product.description}</p>
+          <p id="product-detail__unit" className="product-detail__unit text-sm text-ink-500">Unidad de venta: <span className="text-ink-800 font-medium">{product.unit}</span></p>
 
           {enterprise && (
-            <div className="rounded-2xl border border-ink-200 bg-ink-50/60 p-4 space-y-2.5">
-              <Link to={`/tiendas/${enterprise.idUserEnterprise}`} className="flex items-center gap-2 font-medium text-ink-900 hover:underline">
+            <div id="product-detail__seller" className="product-detail__seller rounded-2xl border border-ink-200 bg-ink-50/60 p-4 space-y-2.5">
+              <Link to={`/negocios/${enterprise.idUserEnterprise}`} id="product-detail__seller-link" className="product-detail__seller-link flex items-center gap-2 font-medium text-ink-900 hover:underline">
                 <Store size={16} /> {enterprise.companyName}
               </Link>
               {enterprise.address && (
-                <p className="flex items-start gap-2 text-sm text-ink-600">
+                <p id="product-detail__seller-address" className="product-detail__seller-address flex items-start gap-2 text-sm text-ink-600">
                   <MapPin size={14} className="mt-0.5 shrink-0" />
                   {enterprise.address.street}, {enterprise.address.city}, {enterprise.address.state}
                 </p>
               )}
               {mapUrl && (
-                <a href={mapUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-sm text-ink-700 hover:text-ink-900">
+                <a href={mapUrl} target="_blank" rel="noreferrer" id="product-detail__map-link" className="product-detail__map-link inline-flex items-center gap-1.5 text-sm text-ink-700 hover:text-ink-900">
                   Abrir en Google Maps <ExternalLink size={12} />
                 </a>
               )}
               {enterprise.latitude && enterprise.longitude && (
-                <div className="overflow-hidden rounded-xl border border-ink-200">
+                <div id="product-detail__map-frame" className="product-detail__map-frame overflow-hidden rounded-xl border border-ink-200">
                   <MapEmbed
                     latitude={enterprise.latitude}
                     longitude={enterprise.longitude}
                     label={enterprise.companyName}
-                    className="h-40 w-full border-0"
+                    id="product-detail__map" className="product-detail__map h-40 w-full border-0"
                   />
                 </div>
               )}
@@ -163,17 +163,20 @@ export function ProductDetailPage() {
           )}
 
           {enterprise && (mapUrl || enterprise.contact?.phone) && (
-            <div className="flex gap-2.5">
+            <div id="product-detail__actions" className="product-detail__actions flex gap-2.5">
+              {/* El negocio es descubrir y CONTACTAR: el índigo se lo queda la
+                  llamada, no el enlace a Google Maps, que además se lleva al
+                  usuario fuera de Agora. */}
               {mapUrl && (
-                <a href={mapUrl} target="_blank" rel="noreferrer" className="flex-1">
-                  <Button className="w-full" size="lg" icon={<Navigation size={16} />}>
+                <a href={mapUrl} target="_blank" rel="noreferrer" id="product-detail__route" className="product-detail__route flex-1">
+                  <Button variant="outline" className="w-full" size="lg" icon={<Navigation size={16} />}>
                     ¿Cómo llegar?
                   </Button>
                 </a>
               )}
               {enterprise.contact?.phone && (
                 <a href={`tel:${enterprise.contact.phone}`}>
-                  <Button variant="outline" size="lg" className="h-12 w-12 px-0" aria-label="Llamar a la tienda">
+                  <Button size="lg" className="h-12 w-12 px-0" aria-label="Llamar al negocio">
                     <Phone size={17} />
                   </Button>
                 </a>
@@ -186,23 +189,23 @@ export function ProductDetailPage() {
               <AccordionItem icon={<Clock size={15} className="text-ink-500" />} title="Horario de apertura" defaultOpen>
                 {enterprise.officeHours
                   ? new Date(enterprise.officeHours).toLocaleString('es-ES', { weekday: 'long', hour: '2-digit', minute: '2-digit' })
-                  : 'Esta tienda aún no publicó su horario. Contáctala directamente para confirmarlo.'}
+                  : 'Este negocio aún no publicó su horario. Contáctalo directamente para confirmarlo.'}
               </AccordionItem>
               <AccordionItem icon={<CreditCard size={15} className="text-ink-500" />} title="Formas de pago">
-                Consulta con la tienda las formas de pago que acepta al momento de tu visita.
+                Consulta con el negocio las formas de pago que acepta al momento de tu visita.
               </AccordionItem>
             </div>
           )}
 
           {ratingsAvailable && canRate && (
-            <div className="rounded-2xl border border-ink-200 p-4">
-              <p className="mb-2 text-sm font-medium text-ink-800">¿Ya probaste este producto? Califícalo</p>
+            <div id="product-detail__rate" className="product-detail__rate rounded-2xl border border-ink-200 p-4">
+              <p id="product-detail__rate-title" className="product-detail__rate-title mb-2 text-sm font-medium text-ink-800">¿Ya probaste este producto? Califícalo</p>
               <RatingStars value={0} interactive onChange={handleRate} size={22} />
-              {submittingRating && <p className="mt-2 text-xs text-ink-400">Enviando…</p>}
+              {submittingRating && <p id="product-detail__rate-sending" className="product-detail__rate-sending mt-2 text-xs text-ink-400">Enviando…</p>}
             </div>
           )}
           {myRating && (
-            <p className="text-sm text-ink-500">
+            <p id="product-detail__rated" className="product-detail__rated text-sm text-ink-500">
               Ya calificaste este producto con <span className="font-medium text-ink-800">{myRating.quantity} estrellas</span>
             </p>
           )}

@@ -58,17 +58,17 @@ export function DashboardEnterprise() {
 
   return (
     <Card className="max-w-2xl p-6">
-      <h2 className="mb-5 font-semibold text-ink-900">Información de la empresa</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <h2 id="dash-enterprise__title" className="dash-enterprise__title mb-5 font-semibold text-ink-900">Información de la empresa</h2>
+      <form onSubmit={handleSubmit} id="dash-enterprise__form" className="dash-enterprise__form space-y-4">
         <Input label="Nombre de la empresa / mercado" required value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
-        <div className="grid grid-cols-2 gap-3">
+        <div id="dash-enterprise__address-row" className="dash-enterprise__address-row grid grid-cols-2 gap-3">
           <Input label="Calle" required value={street} onChange={(e) => setStreet(e.target.value)} />
           <Input label="Ciudad" required value={city} onChange={(e) => setCity(e.target.value)} />
           <Input label="Provincia / Estado" required value={state} onChange={(e) => setState(e.target.value)} />
           <Input label="Código postal" required value={zipCode} onChange={(e) => setZipCode(e.target.value)} />
         </div>
         <Input label="País" required value={country} onChange={(e) => setCountry(e.target.value)} />
-        <div className="grid grid-cols-2 gap-3">
+        <div id="dash-enterprise__contact-row" className="dash-enterprise__contact-row grid grid-cols-2 gap-3">
           <Input label="Email de contacto" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
           <Input label="Teléfono" required value={phone} onChange={(e) => setPhone(e.target.value)} />
         </div>

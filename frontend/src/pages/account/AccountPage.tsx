@@ -3,6 +3,7 @@ import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { CalendarClock, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useMotion } from '@/context/MotionContext';
 import { useToast } from '@/context/ToastContext';
 import { updatePassword, deleteAccount } from '@/api/user';
 import { Input } from '@/components/ui/Field';
@@ -13,6 +14,7 @@ import { initials } from '@/lib/utils';
 
 export function AccountPage() {
   const { user, isSeller, subscription, logout } = useAuth();
+  const { reducirMovimiento, loPideElSistema, eleccionManual, setReducirMovimiento, seguirAlSistema } = useMotion();
   const { notify } = useToast();
   const navigate = useNavigate();
 
@@ -55,13 +57,13 @@ export function AccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 sm:px-6 py-10 space-y-6">
-      <div className="flex items-center gap-4">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-semibold text-white">
+    <div id="account" className="account mx-auto max-w-2xl px-4 sm:px-6 py-10 space-y-6">
+      <div id="account__identity" className="account__identity flex items-center gap-4">
+        <span id="account__initials" className="account__initials flex h-14 w-14 items-center justify-center rounded-full bg-primary text-lg font-semibold text-white">
           {initials(user.username)}
         </span>
         <div>
-          <h1 className="text-xl font-semibold text-ink-900">{user.username}</h1>
+          <h1 id="account__username" className="account__username text-xl font-semibold text-ink-900">{user.username}</h1>
           <Badge variant={isSeller ? 'dark' : 'neutral'} className="mt-1">
             {isSeller ? 'Cuenta de vendedor' : 'Cuenta de comprador'}
           </Badge>
@@ -91,6 +93,40 @@ export function AccountPage() {
               <Button size="sm">Elegir plan</Button>
             </Link>
           </div>
+        )}
+      </Card>
+
+      <Card className="motion-pref p-6">
+        <h2 className="mb-1.5 font-semibold text-ink-900">Accesibilidad</h2>
+        <p className="mb-4 text-sm text-ink-500">
+          Agora usa movimiento en algunos sitios: el fondo del carrusel, el marcador de los mapas y las
+          transiciones entre pantallas. Puedes apagarlo todo.
+        </p>
+
+        <label id="motion-pref__switch" className="motion-pref__switch flex cursor-pointer items-center justify-between gap-4">
+          <span>
+            <span className="block text-sm font-medium text-ink-900">Reducir animaciones</span>
+            <span className="block text-xs text-ink-500">
+              {loPideElSistema
+                ? 'Tu sistema ya pide menos movimiento, así que viene activado.'
+                : 'Deja la interfaz quieta, sin desplazamientos ni parpadeos.'}
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            checked={reducirMovimiento}
+            onChange={(e) => setReducirMovimiento(e.target.checked)}
+            id="motion-pref__input" className="motion-pref__input h-5 w-5 shrink-0 accent-primary"
+          />
+        </label>
+
+        {eleccionManual !== null && (
+          <button
+            onClick={seguirAlSistema}
+            id="motion-pref__reset" className="motion-pref__reset mt-3 text-xs font-medium text-ink-500 underline hover:text-ink-900"
+          >
+            Volver a seguir la configuración del sistema
+          </button>
         )}
       </Card>
 

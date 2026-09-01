@@ -15,7 +15,8 @@ const pinIcon = (color: string) =>
     popupAnchor: [0, -34],
   });
 
-const productPin = pinIcon('#0EA5E9');
+// Índigo de la paleta, no el cian suelto que había antes.
+const productPin = pinIcon('var(--color-primary)');
 
 function FitBounds({ points }: { points: [number, number][] }) {
   const map = useMap();
@@ -57,7 +58,7 @@ export function ResultsMap({ products }: { products: Product[] }) {
         >
           <Popup>
             <p className="font-semibold text-ink-900">{product.name}</p>
-            <p className="text-secondary font-bold">{formatPrice(product.priceUsd, 'USD') ?? formatPrice(product.priceCup, 'CUP')}</p>
+            <p className="text-ink-900 font-bold">{formatPrice(product.priceUsd, 'USD') ?? formatPrice(product.priceCup, 'CUP')}</p>
             <p className="text-xs text-ink-500">{product.userEnterprise.companyName}</p>
           </Popup>
         </Marker>
