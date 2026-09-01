@@ -2,19 +2,18 @@ import { useEffect, useState } from 'react';
 import { listProducts } from '@/api/product';
 import type { UserEnterprise } from '@/types';
 
-export interface MarketSummary {
+export interface BusinessSummary {
   enterprise: UserEnterprise;
   productCount: number;
 }
 
 /**
- * Derives the list of markets/mypimes from a broad product sample, the same
- * way useCategories derives categories — the backend has no dedicated
- * "list all enterprises" endpoint, but every product already carries its
- * userEnterprise, so this dedupes that instead of fabricating data.
+ * Deriva la lista de negocios de una muestra amplia del catálogo, igual que
+ * useCategories deriva las categorías: el backend no tiene un endpoint que
+ * liste empresas, pero cada producto ya viaja con su `userEnterprise`.
  */
-export function useMarkets() {
-  const [markets, setMarkets] = useState<MarketSummary[]>([]);
+export function useBusinesses() {
+  const [businesses, setBusinesses] = useState<BusinessSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +21,7 @@ export function useMarkets() {
     listProducts({ limit: 100 })
       .then((data) => {
         if (cancelled) return;
-        const byId = new Map<string, MarketSummary>();
+        const byId = new Map<string, BusinessSummary>();
         for (const product of data.products) {
           const enterprise = product.userEnterprise;
           if (!enterprise) continue;
@@ -30,14 +29,14 @@ export function useMarkets() {
           if (existing) existing.productCount += 1;
           else byId.set(enterprise.idUserEnterprise, { enterprise, productCount: 1 });
         }
-        setMarkets(Array.from(byId.values()).sort((a, b) => b.productCount - a.productCount));
+        setBusinesses(Array.from(byId.values()).sort((a, b) => b.productCount - a.productCount));
       })
-      .catch(() => setMarkets([]))
+      .catch(() => setBusinesses([]))
       .finally(() => !cancelled && setIsLoading(false));
     return () => {
       cancelled = true;
     };
   }, []);
 
-  return { markets, isLoading };
+  return { businesses, isLoading };
 }
