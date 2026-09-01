@@ -6,12 +6,14 @@ import { AuthLayout, AuthLink } from '@/components/layout/AuthLayout';
 import { Input } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
+import { createSubscription } from '@/api/subscription';
+import { TRIAL_PLAN } from '@/lib/plans';
 import { cn } from '@/lib/utils';
 
 type Role = 'comprador' | 'vendedor';
 
 export function RegisterPage() {
-  const { register, login } = useAuth();
+  const { register, login, refreshSellerStatus } = useAuth();
   const navigate = useNavigate();
 
   const [role, setRole] = useState<Role>('comprador');
@@ -31,8 +33,28 @@ export function RegisterPage() {
     setLoading(true);
     try {
       await register(username, password);
-      await login(username, password);
-      navigate(role === 'vendedor' ? '/vender' : '/planes', { replace: true });
+      const nuevoUsuario = await login(username, password);
+      // La prueba se concede al crear la cuenta: sin ella la app queda cerrada
+      // detrás de las opciones de compra y nadie llega a ver nada. Vale para
+      // todo durante una semana, panel de negocio incluido.
+      try {
+        const prueba = TRIAL_PLAN.tiers[0];
+        await createSubscription({
+          userId: nuevoUsuario.id,
+          name: TRIAL_PLAN.name,
+          cost: prueba.cost,
+          description: `Prueba de ${prueba.durationDays} días`,
+          quantityAccounts: 1,
+          durationDays: prueba.durationDays,
+        });
+        await refreshSellerStatus();
+      } catch {
+        // Si el alta de la prueba falla, la cuenta ya existe: se sigue a las
+        // opciones de compra en vez de dejar el registro a medias.
+        navigate('/planes', { replace: true });
+        return;
+      }
+      navigate(role === 'vendedor' ? '/vender' : '/', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo crear la cuenta');
     } finally {
