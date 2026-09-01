@@ -3,12 +3,14 @@ import type { ReactNode } from 'react';
 import { Search, MapPin, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Logo } from '@/components/layout/Logo';
+import { useAuth } from '@/context/AuthContext';
 
 const STORAGE_KEY = 'agora_onboarded';
 
 type Phase = 'idle' | 'loading' | 'detected' | 'error';
 
 export function OnboardingGate({ children }: { children: ReactNode }) {
+  const { tieneAcceso } = useAuth();
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(STORAGE_KEY) === 'true');
   const [phase, setPhase] = useState<Phase>('idle');
 
@@ -37,7 +39,9 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
     );
   }
 
-  if (dismissed) return <>{children}</>;
+  // A quien no tiene suscripción vigente se le enseñan las opciones de compra,
+  // no se le pide la ubicación: no va a poder usar nada de lo que hay detrás.
+  if (dismissed || !tieneAcceso) return <>{children}</>;
 
   return (
     <div id="onboarding" className="onboarding fixed inset-0 z-50 flex flex-col bg-ink-50">

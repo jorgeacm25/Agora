@@ -9,7 +9,7 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { cn, initials } from '@/lib/utils';
 
 export function Navbar() {
-  const { user, isAuthenticated, isSeller, logout } = useAuth();
+  const { user, isAuthenticated, isSeller, tieneAcceso, logout } = useAuth();
   const { favorites } = useFavorites();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -45,6 +45,8 @@ export function Navbar() {
       <div id="navbar__bar" className="navbar__bar mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <div id="navbar__left" className="navbar__left flex shrink-0 items-center gap-8">
           <Logo />
+          {/* Sin membresía al día esas secciones rebotan a las opciones de compra. */}
+          {tieneAcceso && (
           <nav id="navbar__nav" className="navbar__nav hidden md:flex items-center gap-1">
             <NavLink to="/" end className={navLinkClass}>
               Explorar
@@ -64,6 +66,7 @@ export function Navbar() {
               </NavLink>
             )}
           </nav>
+          )}
         </div>
 
         <div id="navbar__right" className="navbar__right hidden min-w-0 flex-1 md:flex items-center justify-end gap-3">
