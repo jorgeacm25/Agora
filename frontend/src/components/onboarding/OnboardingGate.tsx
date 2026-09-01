@@ -40,29 +40,29 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
   if (dismissed) return <>{children}</>;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-ink-50">
-      <div className="p-6">
+    <div id="onboarding" className="onboarding fixed inset-0 z-50 flex flex-col bg-ink-50">
+      <div id="onboarding__topbar" className="onboarding__topbar p-6">
         <Logo />
       </div>
 
-      <div className="flex flex-1 flex-col items-center justify-center px-8 text-center">
-        <div className="relative mb-8 flex h-40 w-40 items-center justify-center rounded-full bg-primary-light">
-          <MapPin size={56} strokeWidth={1.6} className="text-primary" fill="#0EA5E9" />
-          <span className="absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-4 border-ink-50 bg-neutral-900 text-white">
+      <div id="onboarding__body" className="onboarding__body flex flex-1 flex-col items-center justify-center px-8 text-center">
+        <div id="onboarding__art" className="onboarding__art relative mb-8 flex h-40 w-40 items-center justify-center rounded-full bg-primary-light">
+          <MapPin size={56} strokeWidth={1.6} className="text-primary" />
+          <span id="onboarding__badge" className="onboarding__badge absolute bottom-2 right-2 flex h-11 w-11 items-center justify-center rounded-full border-4 border-ink-50 bg-neutral-900 text-white">
             <Search size={18} />
           </span>
         </div>
 
-        <h1 className="max-w-xs text-2xl font-bold leading-tight text-ink-900">
+        <h1 id="onboarding__title" className="onboarding__title max-w-xs text-2xl font-bold leading-tight text-ink-900">
           Encuentra lo que buscas, justo al lado
         </h1>
-        <p className="mt-3 max-w-xs text-sm leading-relaxed text-ink-500">
+        <p id="onboarding__text" className="onboarding__text mt-3 max-w-xs text-sm leading-relaxed text-ink-500">
           Activa tu ubicación para ver primero lo que hay disponible cerca de ti.
         </p>
 
-        <div className="mt-8 w-full max-w-xs">
+        <div id="onboarding__actions" className="onboarding__actions mt-8 w-full max-w-xs">
           {phase === 'detected' ? (
-            <div className="flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 text-sm font-semibold text-emerald-600">
+            <div id="onboarding__granted" className="onboarding__granted flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500/10 text-sm font-semibold text-emerald-600">
               <CheckCircle2 size={18} /> Ubicación detectada
             </div>
           ) : (
@@ -77,11 +77,11 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
             </Button>
           )}
           {phase === 'error' && (
-            <p className="mt-2.5 text-xs text-red-500">No pudimos acceder a tu ubicación. Puedes continuar sin ella.</p>
+            <p id="onboarding__error" className="onboarding__error mt-2.5 text-xs text-red-500">No pudimos acceder a tu ubicación. Puedes continuar sin ella.</p>
           )}
         </div>
 
-        <button onClick={finish} className="mt-5 text-sm font-medium text-ink-500 hover:text-primary">
+        <button onClick={finish} id="onboarding__skip" className="onboarding__skip mt-5 text-sm font-medium text-ink-500 hover:text-primary">
           Continuar sin ubicación
         </button>
       </div>

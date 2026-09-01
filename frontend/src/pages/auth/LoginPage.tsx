@@ -41,11 +41,16 @@ export function LoginPage() {
         </>
       }
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* React 19 sube estas etiquetas al <head>: cada ruta con su título. */}
+      <title>Iniciar sesión · Agora</title>
+      <meta name="description" content="Entra en Agora para buscar y comparar lo que venden las mypimes y mercados de tu ciudad." />
+
+      <form onSubmit={handleSubmit} id="login" className="login space-y-4">
         <Input
           label="Usuario"
           required
           autoFocus
+          autoComplete="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="tu_usuario"
@@ -54,11 +59,17 @@ export function LoginPage() {
           label="Contraseña"
           type="password"
           required
+          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {/* role="alert" para que un lector de pantalla lo anuncie al aparecer. */}
+        {error && (
+          <p id="login__error" className="login__error text-sm text-red-600" role="alert">
+            {error}
+          </p>
+        )}
         <Button type="submit" className="w-full" size="lg" loading={loading}>
           Iniciar sesión
         </Button>

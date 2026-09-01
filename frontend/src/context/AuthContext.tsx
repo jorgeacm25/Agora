@@ -9,31 +9,10 @@ import type { Subscription } from '@/api/subscription';
 import { ApiError } from '@/api/client';
 import { isSeller as computeIsSeller } from '@/lib/permissions';
 
-// Solo en `npm run dev` (Vite reemplaza esto por `false` en un build de producción,
-// así que este bloque nunca llega al bundle publicado): permite navegar por todas
-// las pantallas protegidas sin tener que registrarte/iniciar sesión primero.
-const DEV_PREVIEW = import.meta.env.DEV;
-
-const DEV_USER: AuthUser = {
-  id: 'dev-preview-user',
-  username: 'vista_previa',
-  // Sin permisos de vendedor a propósito: así /planes (solo comprador) sigue
-  // siendo visible. El acceso a /panel/* en desarrollo no depende de esto,
-  // ver el bypass dedicado en ProtectedRoute.tsx.
-  permissions: [],
-};
-
-const DEV_ENTERPRISE: UserEnterprise = {
-  idUserEnterprise: 'dev-preview-enterprise',
-  userId: DEV_USER.id,
-  companyName: 'Mi Negocio (vista previa)',
-  address: { street: 'Calle Falsa 123', city: 'Ciudad', state: 'Estado', zipCode: '00000', country: 'País' },
-  contact: { email: 'preview@example.com', phone: '+000000000' },
-  officeHours: null,
-  code: null,
-  latitude: 23.1136,
-  longitude: -82.3666,
-};
+// Agora no es una landing: sin sesión no se ve ninguna pantalla, solo el acceso.
+// Aquí vivía un usuario de vista previa que en `npm run dev` entraba solo y
+// dejaba navegarlo todo sin cuenta; se quitó porque contradice esa regla y
+// porque tapaba los 401 reales de la API detrás de una sesión que no existía.
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -77,20 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearToken();
       }
     }
-    if (DEV_PREVIEW) {
-      setUser(DEV_USER);
-    }
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
-    if (DEV_PREVIEW && user?.id === DEV_USER.id) {
-      setEnterprise(DEV_ENTERPRISE);
-      // Sin suscripción simulada a propósito: así /planes sigue siendo visible
-      // (esa pantalla se oculta en cuanto detecta una suscripción activa).
-      setSubscription(null);
-      return;
-    }
     if (user) {
       loadSellerStatus();
     } else {
@@ -113,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => {
     clearToken();
     localStorage.removeItem('agora_user');
-    setUser(DEV_PREVIEW ? DEV_USER : null);
+    setUser(null);
   }, []);
 
   const value = useMemo<AuthContextValue>(
@@ -122,10 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       enterprise,
       subscription,
       isLoading,
-      isSeller:
-        DEV_PREVIEW && user?.id === DEV_USER.id
-          ? false
-          : computeIsSeller(user?.permissions) || Boolean(enterprise),
+      isSeller: computeIsSeller(user?.permissions) || Boolean(enterprise),
       isAuthenticated: Boolean(user),
       login,
       register,
