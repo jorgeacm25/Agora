@@ -50,6 +50,30 @@ export const SELLER_PLAN: PlanConfig = {
   ],
 };
 
+/**
+ * La prueba se concede sola al crear la cuenta y vale para todo, panel de
+ * negocio incluido: la idea es que un vendedor pueda publicar su catálogo antes
+ * de pagar nada. Se guarda como una suscripción más, con coste cero.
+ */
+export const TRIAL_PLAN: PlanConfig = {
+  name: 'Prueba gratuita',
+  tiers: [{ cycle: 'monthly', label: 'Prueba', cost: 0, durationDays: 7, savingsLabel: null }],
+  features: ['Acceso completo durante 7 días', 'Incluye el panel de negocio'],
+};
+
+/**
+ * Si una suscripción es de un plan dado. Se compara por prefijo porque al
+ * contratarla se le pega el ciclo al nombre: «Plan Vendedor Trimestral».
+ */
+export function esPlanDe(plan: PlanConfig, nombreSuscripcion: string | undefined | null): boolean {
+  return Boolean(nombreSuscripcion?.startsWith(plan.name));
+}
+
+/** Los planes que abren la parte de administrar un negocio. */
+export function daAccesoDeNegocio(nombrePlan: string | undefined | null): boolean {
+  return esPlanDe(SELLER_PLAN, nombrePlan) || esPlanDe(TRIAL_PLAN, nombrePlan);
+}
+
 export function getTier(plan: PlanConfig, cycle: BillingCycle): PlanTier {
   return plan.tiers.find((t) => t.cycle === cycle) ?? plan.tiers[0];
 }

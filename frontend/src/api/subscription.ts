@@ -22,6 +22,16 @@ export interface SubscriptionInput {
   durationDays: number;
 }
 
+/**
+ * Quien lleva el estado es el backend: al pedir la suscripción activa la
+ * verifica y, si ya venció, la guarda con `status: false`. Lo que no hace es
+ * responder 404 en ese caso —devuelve la suscripción caducada—, así que aquí
+ * se lee el campo en vez de dar por buena cualquier respuesta.
+ */
+export function estaVigente(s: Subscription | null | undefined): boolean {
+  return Boolean(s?.status);
+}
+
 export function getMyActiveSubscription() {
   return apiClient.get<Subscription>('/subscription').then((res) => res.data);
 }

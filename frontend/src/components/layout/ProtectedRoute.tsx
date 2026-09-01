@@ -34,11 +34,34 @@ export function SoloSinSesion() {
   return <Outlet />;
 }
 
-export function RequireSeller() {
-  const { isSeller, isLoading } = useAuth();
+/**
+ * Sin suscripción vigente no se usa Agora: se sale a las opciones de compra.
+ * Quedan fuera de la puerta las pantallas que sirven justamente para salir de
+ * esa situación —comprar un plan, darse de alta como negocio— y la cuenta,
+ * desde donde se cierra la sesión.
+ */
+const SIN_SUSCRIPCION = ['/planes', '/vender', '/cuenta'];
+
+export function RequireSubscription() {
+  const { tieneAcceso, isLoading } = useAuth();
+  const location = useLocation();
 
   if (isLoading) return <PageSpinner />;
-  if (!isSeller) {
+  if (!tieneAcceso && !SIN_SUSCRIPCION.includes(location.pathname)) {
+    return <Navigate to="/planes" replace />;
+  }
+  return <Outlet />;
+}
+
+/**
+ * El panel de negocio pide plan que dé negocio y empresa creada. Tener empresa
+ * no basta: si la suscripción vigente es de comprador, no se administra nada.
+ */
+export function RequireSeller() {
+  const { puedeAdministrarNegocio, isLoading } = useAuth();
+
+  if (isLoading) return <PageSpinner />;
+  if (!puedeAdministrarNegocio) {
     return <Navigate to="/vender" replace />;
   }
   return <Outlet />;

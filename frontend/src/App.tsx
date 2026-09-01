@@ -7,7 +7,7 @@ import { FavoritesProvider } from '@/context/FavoritesContext';
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { ProtectedRoute, RequireSeller, SoloSinSesion } from '@/components/layout/ProtectedRoute';
+import { ProtectedRoute, RequireSubscription, SoloSinSesion } from '@/components/layout/ProtectedRoute';
 import { ScrollAlInicio } from '@/components/layout/ScrollAlInicio';
 
 import { LoginPage } from '@/pages/auth/LoginPage';
@@ -58,6 +58,8 @@ export default function App() {
           <Routes>
             {/* Todo lo de dentro exige sesión: Agora no se navega sin cuenta. */}
             <Route element={<ProtectedRoute />}>
+              {/* Y con sesión, además, una suscripción vigente. */}
+              <Route element={<RequireSubscription />}>
               <Route element={<ConOnboarding />}>
                 <Route element={<AppLayout />}>
                 <Route index element={<ExplorePage />} />
@@ -74,8 +76,10 @@ export default function App() {
                 <Route path="cuenta" element={<AccountPage />} />
                 <Route path="planes" element={<PlansPage />} />
 
-                <Route element={<RequireSeller />}>
-                  <Route path="panel" element={<DashboardLayout />}>
+                {/* El panel no se cierra con un guardia: DashboardLayout
+                    enseña la página de venta a quien no puede administrar, y
+                    entonces no llega a montar ninguna de estas subrutas. */}
+                <Route path="panel" element={<DashboardLayout />}>
                     <Route index element={<DashboardHome />} />
                     <Route path="productos" element={<DashboardProducts />} />
                     <Route path="productos/nuevo" element={<ProductFormPage />} />
@@ -84,10 +88,10 @@ export default function App() {
                     <Route path="servicios/nuevo" element={<ServiceFormPage />} />
                     <Route path="servicios/:id" element={<ServiceFormPage />} />
                     <Route path="empresa" element={<DashboardEnterprise />} />
-                  </Route>
                 </Route>
 
                 <Route path="*" element={<NotFoundPage />} />
+              </Route>
               </Route>
               </Route>
             </Route>
