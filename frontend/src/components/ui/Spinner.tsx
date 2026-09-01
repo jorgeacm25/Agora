@@ -7,7 +7,7 @@ export function Spinner({ className, size = 22 }: { className?: string; size?: n
 
 export function PageSpinner() {
   return (
-    <div className="flex min-h-[40vh] items-center justify-center">
+    <div id="page-spinner" className="page-spinner flex min-h-[40vh] items-center justify-center">
       <Spinner size={28} />
     </div>
   );

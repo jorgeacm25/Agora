@@ -97,24 +97,24 @@ export function ProductFormPage() {
   const imageUrl = image ? URL.createObjectURL(image) : productImageUrl(existingImage);
 
   return (
-    <div className="max-w-2xl">
-      <Link to="/panel/productos" className="mb-5 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
+    <div id="product-form" className="product-form max-w-2xl">
+      <Link to="/panel/productos" id="product-form__back" className="product-form__back mb-5 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
         <ArrowLeft size={14} /> Volver a productos
       </Link>
       <Card className="p-6">
-        <h2 className="mb-5 font-semibold text-ink-900">{isEditing ? 'Editar producto' : 'Publicar producto'}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 id="product-form__title" className="product-form__title mb-5 font-semibold text-ink-900">{isEditing ? 'Editar producto' : 'Publicar producto'}</h2>
+        <form onSubmit={handleSubmit} id="product-form__form" className="product-form__form space-y-4">
           {!isEditing && (
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-ink-800">Imagen</span>
-              <div className="flex items-center gap-4">
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-ink-100 text-ink-300">
+            <label id="product-form__image-field" className="product-form__image-field block">
+              <span id="product-form__image-label" className="product-form__image-label mb-1.5 block text-sm font-medium text-ink-800">Imagen</span>
+              <div id="product-form__image-row" className="product-form__image-row flex items-center gap-4">
+                <div id="product-form__image-preview" className="product-form__image-preview flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-ink-100 text-ink-300">
                   {imageUrl ? <img src={imageUrl} alt="" className="h-full w-full object-cover" /> : <ImageOff size={22} />}
                 </div>
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-ink-200 px-4 py-2 text-sm font-medium text-ink-700 hover:border-ink-400">
+                <label id="product-form__image-button" className="product-form__image-button inline-flex cursor-pointer items-center gap-2 rounded-xl border border-ink-200 px-4 py-2 text-sm font-medium text-ink-700 hover:border-ink-400">
                   <ImagePlus size={15} />
                   {image ? 'Cambiar imagen' : 'Subir imagen'}
-                  <input type="file" accept="image/*" className="hidden" onChange={(e) => setImage(e.target.files?.[0] ?? null)} />
+                  <input type="file" accept="image/*" id="product-form__image-input" className="product-form__image-input hidden" onChange={(e) => setImage(e.target.files?.[0] ?? null)} />
                 </label>
               </div>
             </label>
@@ -122,12 +122,12 @@ export function ProductFormPage() {
 
           <Input label="Nombre" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Café molido" />
 
-          <div className="grid grid-cols-2 gap-3">
+          <div id="product-form__price-row" className="product-form__price-row grid grid-cols-2 gap-3">
             <Input label="Precio (CUP)" inputMode="decimal" value={priceCup} onChange={(e) => setPriceCup(e.target.value)} placeholder="0.00" />
             <Input label="Precio (USD)" inputMode="decimal" value={priceUsd} onChange={(e) => setPriceUsd(e.target.value)} placeholder="0.00" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div id="product-form__meta-row" className="product-form__meta-row grid grid-cols-2 gap-3">
             <Input label="Unidad" required value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="kg, unidad, libra…" />
             <Input label="Categoría" required value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Alimentos" />
           </div>

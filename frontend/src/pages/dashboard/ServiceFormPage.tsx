@@ -74,15 +74,15 @@ export function ServiceFormPage() {
   if (loading) return <PageSpinner />;
 
   return (
-    <div className="max-w-2xl">
-      <Link to="/panel/servicios" className="mb-5 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
+    <div id="service-form" className="service-form max-w-2xl">
+      <Link to="/panel/servicios" id="service-form__back" className="service-form__back mb-5 inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-ink-900">
         <ArrowLeft size={14} /> Volver a servicios
       </Link>
       <Card className="p-6">
-        <h2 className="mb-5 font-semibold text-ink-900">{isEditing ? 'Editar servicio' : 'Publicar servicio'}</h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 id="service-form__title" className="service-form__title mb-5 font-semibold text-ink-900">{isEditing ? 'Editar servicio' : 'Publicar servicio'}</h2>
+        <form onSubmit={handleSubmit} id="service-form__form" className="service-form__form space-y-4">
           <Input label="Nombre" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Mensajería express" />
-          <div className="grid grid-cols-2 gap-3">
+          <div id="service-form__price-row" className="service-form__price-row grid grid-cols-2 gap-3">
             <Input label="Precio (CUP)" inputMode="decimal" value={priceCup} onChange={(e) => setPriceCup(e.target.value)} placeholder="0.00" />
             <Input label="Precio (USD)" inputMode="decimal" value={priceUsd} onChange={(e) => setPriceUsd(e.target.value)} placeholder="0.00" />
           </div>

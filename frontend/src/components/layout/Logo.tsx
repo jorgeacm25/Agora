@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
-export function Logo({ className, dark = false }: { className?: string; dark?: boolean }) {
+export function Logo({ id = 'logo', className, dark = false }: { id?: string; className?: string; dark?: boolean }) {
   return (
-    <Link to="/" className={cn('inline-flex items-center gap-2 select-none', className)}>
+    <Link to="/" id={id} className={cn('logo inline-flex items-center gap-2 select-none', className)}>
       <span
         className={cn(
           'flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold',
@@ -12,7 +12,7 @@ export function Logo({ className, dark = false }: { className?: string; dark?: b
       >
         A
       </span>
-      <span className={cn('text-[1.05rem] font-semibold tracking-tight', dark ? 'text-white' : 'text-ink-900')}>
+      <span className={cn('logo__word text-[1.05rem] font-semibold tracking-tight', dark ? 'text-white' : 'text-ink-900')}>
         Agora
       </span>
     </Link>

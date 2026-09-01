@@ -34,9 +34,9 @@ export function DashboardServices() {
   if (isLoading) return <PageSpinner />;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-ink-900">Servicios ({services.length})</h2>
+    <div id="dash-services" className="dash-services space-y-5">
+      <div id="dash-services__header" className="dash-services__header flex items-center justify-between">
+        <h2 id="dash-services__title" className="dash-services__title font-semibold text-ink-900">Servicios ({services.length})</h2>
         <Link to="/panel/servicios/nuevo">
           <Button size="sm" icon={<Plus size={15} />}>Publicar servicio</Button>
         </Link>
@@ -53,8 +53,8 @@ export function DashboardServices() {
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-ink-200">
-          <table className="w-full text-sm">
+        <div id="dash-services__table-frame" className="dash-services__table-frame overflow-hidden rounded-2xl border border-ink-200">
+          <table id="dash-services__table" className="dash-services__table w-full text-sm">
             <tbody>
               {services.map((service) => (
                 <tr key={service.idService} className="border-b border-ink-100 last:border-0 hover:bg-ink-50/60">

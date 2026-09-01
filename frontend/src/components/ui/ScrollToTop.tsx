@@ -15,6 +15,7 @@ export function ScrollToTop() {
 
   return (
     <button
+      id="scroll-top"
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       aria-label="Volver arriba"
       className={cn(

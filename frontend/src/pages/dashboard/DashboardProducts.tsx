@@ -35,9 +35,9 @@ export function DashboardProducts() {
   if (isLoading) return <PageSpinner />;
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-ink-900">Productos ({products.length})</h2>
+    <div id="dash-products" className="dash-products space-y-5">
+      <div id="dash-products__header" className="dash-products__header flex items-center justify-between">
+        <h2 id="dash-products__title" className="dash-products__title font-semibold text-ink-900">Productos ({products.length})</h2>
         <Link to="/panel/productos/nuevo">
           <Button size="sm" icon={<Plus size={15} />}>Publicar producto</Button>
         </Link>
@@ -55,8 +55,8 @@ export function DashboardProducts() {
           }
         />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-ink-200">
-          <table className="w-full text-sm">
+        <div id="dash-products__table-frame" className="dash-products__table-frame overflow-hidden rounded-2xl border border-ink-200">
+          <table id="dash-products__table" className="dash-products__table w-full text-sm">
             <tbody>
               {products.map((product) => {
                 const imageUrl = productImageUrl(product.image);

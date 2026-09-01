@@ -84,30 +84,30 @@ export function BottomSheet({
   const heightVh = dragPx !== null ? `${dragPx}px` : `${targetHeight * 100}vh`;
 
   return (
-    <div className={cn(dismissible ? 'fixed inset-0 z-50' : 'absolute inset-0 z-20', className)}>
-      {dismissible && <div className="absolute inset-0 bg-black/45 animate-fade-in" onClick={onClose} />}
+    <div id="sheet" className={cn('sheet', dismissible ? 'fixed inset-0 z-50' : 'absolute inset-0 z-20', className)}>
+      {dismissible && <div id="sheet__backdrop" className="sheet__backdrop absolute inset-0 bg-black/45 animate-fade-in" onClick={onClose} />}
       <div
-        className="absolute inset-x-0 bottom-0 flex flex-col rounded-t-3xl bg-ink-50 shadow-lift animate-sheet-up"
+        id="sheet__panel" className="sheet__panel absolute inset-x-0 bottom-0 flex flex-col rounded-t-3xl bg-ink-50 shadow-lift animate-sheet-up"
         style={{ height: heightVh, transition: dragPx !== null ? 'none' : 'height 0.3s cubic-bezier(0.32, 0.72, 0, 1)' }}
       >
         <div
-          className="flex shrink-0 cursor-grab touch-none flex-col items-center pt-2.5 pb-1 active:cursor-grabbing"
+          id="sheet__handle" className="sheet__handle flex shrink-0 cursor-grab touch-none flex-col items-center pt-2.5 pb-1 active:cursor-grabbing"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
         >
-          <div className="h-1.5 w-10 rounded-full bg-ink-200" />
+          <div id="sheet__grip" className="sheet__grip h-1.5 w-10 rounded-full bg-ink-200" />
         </div>
 
         {title && (
-          <div className="flex shrink-0 items-center justify-between px-5 pb-2 pt-1">
-            <h2 className="text-lg font-bold text-ink-900">{title}</h2>
+          <div id="sheet__header" className="sheet__header flex shrink-0 items-center justify-between px-5 pb-2 pt-1">
+            <h2 id="sheet__title" className="sheet__title text-lg font-bold text-ink-900">{title}</h2>
           </div>
         )}
 
-        <div className={cn('flex-1 overflow-y-auto scrollbar-none px-5', !title && 'pt-1')}>{children}</div>
+        <div id="sheet__body" className={cn('sheet__body flex-1 overflow-y-auto scrollbar-none px-5', !title && 'pt-1')}>{children}</div>
 
-        {footer && <div className="shrink-0 border-t border-ink-100 p-4">{footer}</div>}
+        {footer && <div id="sheet__footer" className="sheet__footer shrink-0 border-t border-ink-100 p-4">{footer}</div>}
       </div>
     </div>
   );
