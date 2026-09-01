@@ -3,7 +3,6 @@ import { LayoutDashboard, Package, Wrench, Building2, ArrowLeft } from 'lucide-r
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { SellerPitch } from '@/components/dashboard/SellerPitch';
-import { SELLER_PLAN } from '@/lib/plans';
 
 const links = [
   { to: '/panel', label: 'Resumen', icon: LayoutDashboard, end: true },
@@ -13,13 +12,15 @@ const links = [
 ];
 
 export function DashboardLayout() {
-  const { enterprise, subscription } = useAuth();
+  const { enterprise } = useAuth();
 
-  // Sin plan activo el panel solo enseñaría ceros y un «Inactivo» al final. En
-  // su lugar se explica para qué sirve cada sección y cuánto cuesta activarla.
-  // Se mira el plan de vendedor por nombre: con uno de comprador este panel
-  // sigue sin servir de nada.
-  const sinPlan = subscription?.name !== SELLER_PLAN.name;
+  // Quien tiene su negocio registrado entra a administrarlo. La página de
+  // venta es para quien todavía no tiene cuenta de negocio: a ese el panel solo
+  // le enseñaría ceros y un «Inactivo» al final.
+  // El criterio es la empresa, no la suscripción: el backend no da de alta
+  // ninguna al crear el negocio, así que mirar el plan dejaba fuera a todos los
+  // negocios reales.
+  const sinNegocio = !enterprise;
 
   return (
     <div id="dashboard" className="dashboard mx-auto max-w-6xl px-4 sm:px-6 py-8">
@@ -29,12 +30,12 @@ export function DashboardLayout() {
             <ArrowLeft size={14} /> Volver a Agora
           </NavLink>
           <h1 id="dashboard__title" className="dashboard__title text-2xl font-semibold text-ink-900">
-            {sinPlan ? 'Vender en Agora' : enterprise?.companyName ?? 'Mi negocio'}
+            {sinNegocio ? 'Vender en Agora' : enterprise.companyName}
           </h1>
         </div>
       </div>
 
-      {sinPlan ? (
+      {sinNegocio ? (
         <SellerPitch />
       ) : (
       <div id="dashboard__layout" className="dashboard__layout flex flex-col md:flex-row gap-8">
