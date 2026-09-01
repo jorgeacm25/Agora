@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, ShoppingBag, Store } from 'lucide-react';
-import { BUYER_PLAN, SELLER_PLAN, CYCLE_LABELS, getTier } from '@/lib/plans';
+import { BUYER_PLAN, SELLER_PLAN, CYCLE_LABELS, esPlanDe, getTier } from '@/lib/plans';
 import type { BillingCycle } from '@/lib/plans';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
@@ -17,8 +17,8 @@ export function Membership() {
   // Cuál de los dos planes tiene, por nombre: `isSeller` solo dice que hay una
   // empresa creada, que es otra cosa (se puede tener empresa y plan comprador).
   const planActual = isAuthenticated ? subscription?.name : undefined;
-  const tienePlanComprador = planActual === BUYER_PLAN.name;
-  const tienePlanVendedor = planActual === SELLER_PLAN.name;
+  const tienePlanComprador = esPlanDe(BUYER_PLAN, planActual);
+  const tienePlanVendedor = esPlanDe(SELLER_PLAN, planActual);
 
   return (
     <section id="plans" className="plans mx-auto max-w-6xl px-4 sm:px-6 py-16">

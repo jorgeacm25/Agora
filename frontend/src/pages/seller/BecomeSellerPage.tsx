@@ -12,7 +12,7 @@ import { Card } from '@/components/ui/Card';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { PlanPicker } from '@/components/plans/PlanPicker';
 import { cn } from '@/lib/utils';
-import { SELLER_PLAN, getTier } from '@/lib/plans';
+import { SELLER_PLAN, daAccesoDeNegocio, getTier } from '@/lib/plans';
 import type { BillingCycle } from '@/lib/plans';
 
 export function BecomeSellerPage() {
@@ -37,11 +37,15 @@ export function BecomeSellerPage() {
     if (enterprise) setStep(2);
   }, [enterprise]);
 
+  // Con la empresa creada y un plan que dé negocio ya no hay nada que hacer
+  // aquí: se entra al panel. Con la prueba activa vale igual, así que el paso
+  // del plan se salta.
+  const planDaNegocio = daAccesoDeNegocio(subscription?.name);
   useEffect(() => {
-    if (enterprise && subscription) {
+    if (enterprise && planDaNegocio) {
       navigate('/panel', { replace: true });
     }
-  }, [enterprise, subscription, navigate]);
+  }, [enterprise, planDaNegocio, navigate]);
 
   if (isLoading) return <PageSpinner />;
 

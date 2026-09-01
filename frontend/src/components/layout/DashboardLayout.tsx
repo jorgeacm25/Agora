@@ -3,6 +3,7 @@ import { LayoutDashboard, Package, Wrench, Building2, ArrowLeft } from 'lucide-r
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { SellerPitch } from '@/components/dashboard/SellerPitch';
+import { daAccesoDeNegocio } from '@/lib/plans';
 
 const links = [
   { to: '/panel', label: 'Resumen', icon: LayoutDashboard, end: true },
@@ -12,15 +13,12 @@ const links = [
 ];
 
 export function DashboardLayout() {
-  const { enterprise } = useAuth();
+  const { enterprise, subscription, puedeAdministrarNegocio } = useAuth();
 
-  // Quien tiene su negocio registrado entra a administrarlo. La página de
-  // venta es para quien todavía no tiene cuenta de negocio: a ese el panel solo
-  // le enseñaría ceros y un «Inactivo» al final.
-  // El criterio es la empresa, no la suscripción: el backend no da de alta
-  // ninguna al crear el negocio, así que mirar el plan dejaba fuera a todos los
-  // negocios reales.
-  const sinNegocio = !enterprise;
+  // Hace falta un plan que dé negocio y la empresa creada. Sin las dos cosas
+  // el panel solo enseñaría ceros, así que en su lugar va la página de venta:
+  // también la ve quien tiene su empresa pero pagó un plan de comprador.
+  const sinNegocio = !puedeAdministrarNegocio;
 
   return (
     <div id="dashboard" className="dashboard mx-auto max-w-6xl px-4 sm:px-6 py-8">
@@ -30,13 +28,13 @@ export function DashboardLayout() {
             <ArrowLeft size={14} /> Volver a Agora
           </NavLink>
           <h1 id="dashboard__title" className="dashboard__title text-2xl font-semibold text-ink-900">
-            {sinNegocio ? 'Vender en Agora' : enterprise.companyName}
+            {sinNegocio ? 'Vender en Agora' : enterprise?.companyName ?? 'Mi negocio'}
           </h1>
         </div>
       </div>
 
       {sinNegocio ? (
-        <SellerPitch />
+        <SellerPitch tieneEmpresa={Boolean(enterprise)} yaTienePlan={daAccesoDeNegocio(subscription?.name)} />
       ) : (
       <div id="dashboard__layout" className="dashboard__layout flex flex-col md:flex-row gap-8">
         <nav id="dashboard__nav" className="dashboard__nav flex md:flex-col gap-1 md:w-52 shrink-0 overflow-x-auto">

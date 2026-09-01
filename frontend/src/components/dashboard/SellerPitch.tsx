@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Building2, Check, LayoutDashboard, MessageCircle, Package, Wrench } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Building2, Check, LayoutDashboard, MessageCircle, Package, Store, Wrench } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { SELLER_PLAN, getTier, monthlyEquivalent } from '@/lib/plans';
 import type { BillingCycle } from '@/lib/plans';
@@ -35,7 +36,14 @@ const SECCIONES = [
   },
 ];
 
-export function SellerPitch() {
+export function SellerPitch({
+  tieneEmpresa = false,
+  yaTienePlan = false,
+}: {
+  tieneEmpresa?: boolean;
+  /** El plan vigente ya da negocio: entonces lo que falta es la empresa. */
+  yaTienePlan?: boolean;
+}) {
   const { user } = useAuth();
   const [cycle, setCycle] = useState<BillingCycle>('quarterly');
   const tier = getTier(SELLER_PLAN, cycle);
@@ -56,8 +64,11 @@ export function SellerPitch() {
           Tu catálogo, donde la gente lo busca
         </h2>
         <p id="pitch__text" className="pitch__text mt-3 text-sm leading-relaxed text-ink-600">
-          Con el plan de vendedor activo, este panel pasa a ser el sitio desde donde publicas y
-          gestionas todo lo que ofreces. Esto es lo que te espera dentro.
+          {yaTienePlan
+            ? 'Tu plan ya incluye la cuenta de negocio: solo falta registrar el tuyo para abrir el panel. Es un formulario, y esto es lo que hay dentro.'
+            : tieneEmpresa
+              ? 'Tu negocio sigue registrado, pero tu plan actual no incluye la parte de administrarlo. Al activar el plan de vendedor recuperas el panel tal como lo dejaste.'
+              : 'Con el plan de vendedor activo, este panel pasa a ser el sitio desde donde publicas y gestionas todo lo que ofreces. Esto es lo que te espera dentro.'}
         </p>
       </header>
 
@@ -84,6 +95,24 @@ export function SellerPitch() {
         </ul>
       </section>
 
+      {yaTienePlan ? (
+        <section id="pitch__register" className="pitch__register rounded-2xl border-2 border-primary bg-primary-light/40 p-7">
+          <h3 id="pitch__register-title" className="pitch__register-title text-lg font-semibold text-ink-900">
+            Registra tu negocio
+          </h3>
+          <p id="pitch__register-text" className="pitch__register-text mt-1 text-sm text-ink-500">
+            Su nombre, dónde está y cómo contactarte. Al guardarlo entras al panel.
+          </p>
+          <Link
+            to="/vender"
+            id="pitch__register-cta"
+            className="pitch__register-cta mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-dark"
+          >
+            <Store size={16} aria-hidden="true" />
+            Registrar mi negocio
+          </Link>
+        </section>
+      ) : (
       <section id="pitch__plan" className="pitch__plan rounded-2xl border-2 border-primary bg-primary-light/40 p-7">
         <h3 id="pitch__plan-title" className="pitch__plan-title text-lg font-semibold text-ink-900">{SELLER_PLAN.name}</h3>
         <p id="pitch__plan-subtitle" className="pitch__plan-subtitle mt-1 text-sm text-ink-500">
@@ -155,6 +184,7 @@ export function SellerPitch() {
           Te escribimos para confirmar el pago y activamos tu cuenta de negocio.
         </p>
       </section>
+      )}
     </div>
   );
 }
