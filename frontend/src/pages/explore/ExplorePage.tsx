@@ -1,8 +1,6 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
-  Search,
   SlidersHorizontal,
   MapPin,
   TrendingUp,
@@ -11,14 +9,8 @@ import {
   ArrowRight,
   ShoppingBag,
   Star,
-  Clock3,
-  Users,
-  Target,
-  List as ListIcon,
-  Map as MapIcon,
 } from 'lucide-react';
-import { getProduct, listProducts } from '@/api/product';
-import { productImageUrl } from '@/api/product';
+import { listProducts } from '@/api/product';
 import type { Product } from '@/types';
 import { ProductCard } from '@/components/product/ProductCard';
 import { ProductCardSkeleton } from '@/components/product/ProductCardSkeleton';
@@ -26,22 +18,17 @@ import { Button } from '@/components/ui/Button';
 import { Pagination } from '@/components/ui/Pagination';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
-import { SegmentedToggle } from '@/components/ui/SegmentedToggle';
 import { BottomSheet } from '@/components/ui/BottomSheet';
 import { Carousel } from '@/components/home/Carousel';
 import type { CarouselSlide } from '@/components/home/Carousel';
-import { CategoryTiles } from '@/components/home/CategoryTiles';
 import { DiscoveryRow } from '@/components/home/DiscoveryRow';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { Membership } from '@/components/home/Membership';
 import { FiltersPanel } from '@/components/explore/FiltersPanel';
 import type { SortOrder } from '@/components/explore/FiltersPanel';
-const ResultsMap = lazy(() => import('@/components/explore/ResultsMap').then((m) => ({ default: m.ResultsMap })));
 import { useToast } from '@/context/ToastContext';
 import { useAuth } from '@/context/AuthContext';
 import { useCategories } from '@/hooks/useCategories';
-import { getRecentlyViewed } from '@/lib/recentlyViewed';
-import { cn, formatPrice } from '@/lib/utils';
 
 const CAROUSEL_SLIDES: CarouselSlide[] = [
   {
@@ -50,7 +37,9 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
     title: 'Productos de tu ciudad, cerca de ti',
     description: 'Filtra por ubicación y descubre lo que venden las mypimes y mercados de tu zona.',
     cta: { label: 'Buscar cerca de mí', to: '/' },
-    gradient: 'bg-gradient-to-br from-primary to-primary-dark',
+    // Los degradados cruzan de un color de marca al otro. Antes iban de un tono
+    // a su propia variante oscura y el recorrido no se veía: parecían planos.
+    gradient: 'bg-gradient-to-br from-primary via-primary to-secondary',
   },
   {
     icon: <Store size={20} />,
@@ -58,7 +47,7 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
     title: 'Publica tu catálogo y que te encuentren',
     description: 'Regístrate como vendedor y aparece cuando alguien busque lo que ofreces en tu ciudad.',
     cta: { label: 'Empezar a vender', to: '/vender' },
-    gradient: 'bg-gradient-to-br from-secondary to-secondary-dark',
+    gradient: 'bg-gradient-to-tr from-secondary via-secondary-dark to-primary',
   },
   {
     icon: <Star size={20} />,
@@ -66,7 +55,7 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
     title: 'Decide con reseñas reales',
     description: 'Revisa las calificaciones de otros usuarios antes de decidir dónde ir.',
     cta: { label: 'Ver mejor calificados', to: '/' },
-    gradient: 'bg-gradient-to-br from-primary-dark to-primary',
+    gradient: 'bg-gradient-to-r from-primary-dark via-primary to-secondary-dark',
   },
   {
     icon: <ShoppingBag size={20} />,
@@ -78,14 +67,19 @@ const CAROUSEL_SLIDES: CarouselSlide[] = [
   },
 ];
 
-const PAGE_SIZE = 24;
+// Dos filas por página: 4 columnas en escritorio. Con `auto-fill` el número
+// de columnas variaba con el ancho y las filas nunca cuadraban.
+const COLUMNAS = 4;
+const PAGE_SIZE = COLUMNAS * 2;
+/** Tope de lo que se trae de una vez para filtrar y paginar en el cliente. */
+const CATALOGO_MAX = 200;
+const SCROLL_KEY = 'agora_explorar_scroll';
 
-type View = 'list' | 'map';
 
 export function ExplorePage() {
   const { notify } = useToast();
-  const { isSeller } = useAuth();
-  const { categories, isLoading: categoriesLoading } = useCategories();
+  const { isSeller, subscription } = useAuth();
+  const { categories } = useCategories();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [rawProducts, setRawProducts] = useState<Product[]>([]);
@@ -93,7 +87,6 @@ export function ExplorePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   const [search, setSearch] = useState(() => searchParams.get('q') ?? '');
-  const [searchFocused, setSearchFocused] = useState(false);
   const [minPrice, setMinPrice] = useState(() => searchParams.get('min') ?? '');
   const [maxPrice, setMaxPrice] = useState(() => searchParams.get('max') ?? '');
   const [popularOnly, setPopularOnly] = useState(() => searchParams.get('pop') === '1');
@@ -101,14 +94,12 @@ export function ExplorePage() {
   const [category, setCategory] = useState<string | null>(() => searchParams.get('cat'));
   const [sortOrder, setSortOrder] = useState<SortOrder>(() => (searchParams.get('sort') === 'desc' ? 'desc' : 'asc'));
   const [page, setPage] = useState(() => Number(searchParams.get('page')) || 1);
-  const [view, setView] = useState<View>('list');
 
   const [nearMe, setNearMe] = useState<{ lat: number; lng: number } | null>(null);
   const [radiusKm, setRadiusKm] = useState(15);
   const [locating, setLocating] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const [recentProducts, setRecentProducts] = useState<Product[] | null>(null);
   const [popularProducts, setPopularProducts] = useState<Product[] | null>(null);
 
   // Keep the URL in sync so filters survive back/forward navigation and can be shared.
@@ -146,8 +137,10 @@ export function ExplorePage() {
     let cancelled = false;
     setIsLoading(true);
     listProducts({
-      page,
-      limit: PAGE_SIZE,
+      // Sin paginar en el servidor: el backend no sabe filtrar por texto ni por
+      // categoría, así que se trae el catálogo y se pagina aquí. Si no, buscar
+      // «arroz» solo miraba dentro de la página que tocara.
+      limit: CATALOGO_MAX,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
       minRating: popularOnly ? 4 : undefined,
@@ -167,28 +160,12 @@ export function ExplorePage() {
     return () => {
       cancelled = true;
     };
-  }, [page, minPrice, maxPrice, popularOnly, nearMe, radiusKm, notify]);
+  }, [minPrice, maxPrice, popularOnly, nearMe, radiusKm, notify]);
 
   useEffect(() => {
     setPage(1);
-  }, [minPrice, maxPrice, popularOnly, nearMe, radiusKm]);
+  }, [minPrice, maxPrice, popularOnly, nearMe, radiusKm, search, category, inStockOnly]);
 
-  // "Vistos recientemente": read once, then resolve each id against the API.
-  useEffect(() => {
-    const ids = getRecentlyViewed();
-    if (ids.length === 0) {
-      setRecentProducts([]);
-      return;
-    }
-    Promise.allSettled(ids.slice(0, 8).map((id) => getProduct(id)))
-      .then((results) => {
-        const found = results
-          .filter((r): r is PromiseFulfilledResult<Product> => r.status === 'fulfilled')
-          .map((r) => r.value);
-        setRecentProducts(found);
-      })
-      .catch(() => setRecentProducts([]));
-  }, []);
 
   // "Productos populares": real signal, backed by the backend's average-rating filter.
   useEffect(() => {
@@ -196,6 +173,51 @@ export function ExplorePage() {
       .then((data) => setPopularProducts(data.products))
       .catch(() => setPopularProducts([]));
   }, []);
+
+  // Se apunta dónde estaba el scroll mientras se navega por el catálogo. Los
+  // filtros y la búsqueda ya viajan en la URL, así que al volver atrás se
+  // recuperan solos; esto añade lo que falta: el sitio exacto de la página.
+  useEffect(() => {
+    const guardar = () => sessionStorage.setItem(SCROLL_KEY, String(window.scrollY));
+    window.addEventListener('scroll', guardar, { passive: true });
+
+    // Mientras se está en el catálogo mandamos nosotros: si no, al volver atrás
+    // el navegador restaura su propia posición —medida cuando la página aún era
+    // corta— justo después de la nuestra y la pisa. Se devuelve el control al
+    // salir, para que al abrir un producto siga apareciendo desde arriba.
+    const anterior = history.scrollRestoration;
+    history.scrollRestoration = 'manual';
+
+    return () => {
+      window.removeEventListener('scroll', guardar);
+      history.scrollRestoration = anterior;
+    };
+  }, []);
+
+  // Y se restaura cuando los productos ya están pintados: antes de eso la
+  // página no mide lo suficiente y el navegador ignoraría el salto.
+  const scrollRestaurado = useRef(false);
+  useEffect(() => {
+    if (isLoading || scrollRestaurado.current) return;
+    scrollRestaurado.current = true;
+    const y = Number(sessionStorage.getItem(SCROLL_KEY) ?? 0);
+    if (y <= 0) return;
+    // Dos fotogramas de margen: en el primero React ya ha pintado las tarjetas,
+    // pero el documento todavía no ha crecido y el navegador recortaría el
+    // salto a lo que midiera en ese instante.
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        // Tope: alto del carrusel menos el de la cabecera. Así al volver nunca
+        // se esconde el carrusel del todo —queda asomando una franja de su
+        // mismo alto bajo la cabecera— en lugar de aterrizar en un corte seco.
+        const carrusel = document.querySelector<HTMLElement>('[aria-roledescription="carrusel"]');
+        const cabecera = document.querySelector<HTMLElement>('header');
+        const tope = Math.max(0, (carrusel?.offsetHeight ?? 0) - (cabecera?.offsetHeight ?? 0));
+        window.scrollTo({ top: Math.min(y, tope), behavior: 'instant' as ScrollBehavior });
+      }),
+    );
+    return () => cancelAnimationFrame(id);
+  }, [isLoading]);
 
   const visibleProducts = useMemo(() => {
     let list = rawProducts;
@@ -210,8 +232,10 @@ export function ExplorePage() {
     }
     if (category) list = list.filter((p) => p.category === category);
     if (inStockOnly) list = list.filter((p) => p.stock);
-    if (sortOrder === 'desc') list = [...list].reverse();
-    return list;
+    // Orden por precio real. Antes se invertía la lista, que solo coincide con
+    // ordenar si el servidor ya la devolvía ordenada.
+    const precio = (p: Product) => p.priceUsd ?? p.priceCup ?? 0;
+    return [...list].sort((a, b) => (sortOrder === 'asc' ? precio(a) - precio(b) : precio(b) - precio(a)));
   }, [rawProducts, search, category, inStockOnly, sortOrder]);
 
   function locateMe() {
@@ -238,7 +262,10 @@ export function ExplorePage() {
     setPage(1);
   }
 
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  // Las páginas salen de los resultados filtrados, no del total del catálogo.
+  const totalPages = Math.max(1, Math.ceil(visibleProducts.length / PAGE_SIZE));
+  const paginaActual = Math.min(page, totalPages);
+  const productosDeLaPagina = visibleProducts.slice((paginaActual - 1) * PAGE_SIZE, paginaActual * PAGE_SIZE);
   const hasActiveFilters = Boolean(minPrice || maxPrice || popularOnly || nearMe || category || inStockOnly);
 
   function clearFilters() {
@@ -273,93 +300,39 @@ export function ExplorePage() {
     onClear: clearFilters,
   };
 
-  const mapResults = visibleProducts.filter((p) => p.userEnterprise?.latitude && p.userEnterprise?.longitude);
-
   return (
     <div>
       <Carousel slides={CAROUSEL_SLIDES} />
 
-      <div className="relative overflow-hidden border-b border-ink-200/70 bg-gradient-to-b from-primary-light/60 to-ink-100 bg-grid">
-        <div className="pointer-events-none absolute -right-24 -top-32 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-        <div className="pointer-events-none absolute -left-20 bottom-0 h-64 w-64 rounded-full bg-secondary/10 blur-3xl" />
-        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
-          <h1 className="max-w-xl text-3xl sm:text-4xl font-semibold leading-tight text-ink-900">
-            Todo lo que necesitas, para{' '}
-            <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              tu casa o tu negocio
-            </span>
-          </h1>
-          <p className="mt-3 max-w-lg text-ink-500">
-            Busca en todos los mercados y mypimes de tu ciudad desde un solo lugar: compara precios y ubicaciones sin perder tiempo recorriendo tienda por tienda.
-          </p>
-          <div className="mt-7 flex max-w-xl gap-2">
-            <div
-              className={cn(
-                'relative flex-1 origin-left transition-transform duration-200 ease-out',
-                searchFocused && 'scale-[1.02]',
-              )}
-            >
-              <Search size={17} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-ink-400" />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => setSearchFocused(false)}
-                placeholder="Busca productos, categorías o tiendas…"
-                className={cn(
-                  'h-12 w-full rounded-xl border bg-ink-50 pl-11 pr-4 text-sm outline-none transition-all duration-200',
-                  searchFocused ? 'border-primary shadow-lift ring-4 ring-primary/10' : 'border-ink-200 shadow-soft',
-                )}
-              />
-            </div>
-            <Button variant="outline" className="sm:hidden h-12" onClick={() => setFiltersOpen(true)} icon={<SlidersHorizontal size={15} />}>
-              Filtros
-            </Button>
-          </div>
-
-          <div className="mt-10 grid grid-cols-1 gap-6 border-t border-ink-200/70 pt-6 sm:grid-cols-3">
-            <AboutItem icon={<Users size={15} />} title="Quiénes somos" description="Una plataforma que reúne lo que ofrecen las mypimes y mercados de tu ciudad." />
-            <AboutItem icon={<Target size={15} />} title="Nuestro objetivo" description="Ahorrarte tiempo: que encuentres lo que buscas sin recorrer tienda por tienda." />
-            <AboutItem icon={<Search size={15} />} title="Para qué sirve" description="Para buscar, comparar y localizar productos disponibles en tu ciudad, hoy." />
-          </div>
-        </div>
-      </div>
-
-      <CategoryTiles categories={categories} isLoading={categoriesLoading} activeCategory={category} onSelect={selectCategory} />
-
-      {recentProducts !== null && recentProducts.length > 0 && (
-        <DiscoveryRow icon={<Clock3 size={16} />} title="Vistos recientemente" products={recentProducts} />
-      )}
+      {/* El h1 de la página no tiene por qué verse: era un titular decorativo
+          y lo que manda aquí es el buscador. */}
+      <h1 id="explore__title" className="explore__title sr-only">Explorar productos de tu ciudad</h1>
 
       <DiscoveryRow icon={<TrendingUp size={16} />} title="Populares en Agora" subtitle="Los mejor calificados por otros usuarios" products={popularProducts} />
 
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-8">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-sm text-ink-500">
-            {total} producto{total === 1 ? '' : 's'} publicados por vendedores en Agora
-          </p>
-          <SegmentedToggle
-            value={view}
-            onChange={setView}
-            options={[
-              { value: 'list', label: 'Lista', icon: <ListIcon size={15} /> },
-              { value: 'map', label: 'Mapa', icon: <MapIcon size={15} /> },
-            ]}
-          />
+      <div id="explore__catalog" className="explore__catalog mx-auto max-w-6xl px-4 pb-8 pt-4 sm:px-6">
+        {/* En móvil no hay panel lateral: los filtros se abren desde aquí. */}
+        <div id="explore__mobile-filters" className="explore__mobile-filters mb-4 flex justify-end lg:hidden">
+          <Button variant="outline" size="sm" onClick={() => setFiltersOpen(true)} icon={<SlidersHorizontal size={15} />}>
+            Filtros
+          </Button>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="hidden lg:block lg:w-64 shrink-0 space-y-6">
-            <div className="rounded-2xl border border-ink-200 bg-ink-50 p-4">
-              <FiltersPanel {...filtersProps} />
+        <div id="explore__layout" className="explore__layout flex flex-col gap-8 lg:h-[calc(100vh-117px)] lg:flex-row lg:items-start">
+          {/* El panel ocupa el alto de la ventana menos la cabecera, con 20px de aire
+              arriba y abajo para no pegarse a nada. Queda fijo mientras se recorre
+              el catálogo. */}
+          <aside id="explore__sidebar" className="explore__sidebar hidden lg:sticky lg:top-[81px] lg:flex lg:flex-col lg:w-64 shrink-0 gap-4">
+            <div id="explore__filters-card" className="explore__filters-card rounded-2xl border border-ink-200 bg-ink-50 p-4">
+              <FiltersPanel {...filtersProps} ambito="aside" />
             </div>
 
             {!isSeller && (
               <Link
                 to="/vender"
-                className="group flex items-center gap-3 rounded-2xl border border-ink-200 bg-ink-50 p-4 transition-colors hover:border-primary"
+                id="explore__seller-cta" className="explore__seller-cta group flex items-center gap-3 rounded-2xl border border-ink-200 bg-ink-50 p-4 transition-colors hover:border-primary"
               >
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-light text-primary">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-ink-100 text-ink-600">
                   <Store size={16} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -371,62 +344,43 @@ export function ExplorePage() {
             )}
           </aside>
 
-          <div className="flex-1 min-w-0">
-            <div key={view} className="animate-fade-in [animation-duration:300ms]">
-              {view === 'list' ? (
-                isLoading ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                    {Array.from({ length: 6 }).map((_, i) => (
-                      <ProductCardSkeleton key={i} />
-                    ))}
-                  </div>
-                ) : visibleProducts.length === 0 ? (
-                  <EmptyState
-                    icon={<PackageSearch size={22} />}
-                    title="No encontramos productos"
-                    description="Prueba ajustando los filtros o busca con otras palabras."
-                    action={hasActiveFilters ? <Button variant="outline" onClick={clearFilters}>Limpiar filtros</Button> : undefined}
-                  />
-                ) : (
-                  <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                      {visibleProducts.map((product) => (
-                        <ProductCard key={product.idProduct} product={product} />
-                      ))}
-                    </div>
-                    <div className="mt-8">
-                      <Pagination page={page} totalPages={totalPages} onChange={setPage} />
-                    </div>
-                  </>
-                )
-              ) : (
-                <div className="relative h-[70vh] min-h-[420px] overflow-hidden rounded-2xl border border-ink-200">
-                  {mapResults.length === 0 ? (
-                    <EmptyState icon={<MapIcon size={22} />} title="Ningún resultado tiene ubicación" description="Prueba con otros filtros." />
-                  ) : (
-                    <>
-                      <Suspense fallback={<div className="flex h-full items-center justify-center bg-ink-100 text-sm text-ink-400">Cargando mapa…</div>}>
-                        <ResultsMap products={mapResults} />
-                      </Suspense>
-                      <BottomSheet open dismissible={false} onClose={() => {}} peekHeight={0.32} fullHeight={0.9}>
-                        <p className="mb-3 text-center text-xs text-ink-400">Desliza hacia arriba para ver toda la lista</p>
-                        <div className="space-y-1">
-                          {mapResults.map((product) => (
-                            <MapResultRow key={product.idProduct} product={product} />
-                          ))}
-                        </div>
-                      </BottomSheet>
-                    </>
-                  )}
+          <div id="explore__results" className="explore__results flex min-w-0 flex-1 flex-col lg:h-full">
+            {isLoading ? (
+              <div id="explore__grid-loading" className="explore__grid grid min-h-0 grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:flex-1 lg:grid-rows-2">
+                {Array.from({ length: PAGE_SIZE }).map((_, i) => (
+                  <ProductCardSkeleton key={i} />
+                ))}
+              </div>
+            ) : visibleProducts.length === 0 ? (
+              <EmptyState
+                icon={<PackageSearch size={22} />}
+                title="No encontramos productos"
+                description="Prueba ajustando los filtros o busca con otras palabras."
+                action={hasActiveFilters ? <Button variant="outline" onClick={clearFilters}>Limpiar filtros</Button> : undefined}
+              />
+            ) : (
+              <div id="explore__results-body" className="explore__results-body flex min-h-0 flex-1 flex-col">
+                <div id="explore__grid" className="explore__grid grid min-h-0 grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:flex-1 lg:grid-rows-2">
+                  {productosDeLaPagina.map((product) => (
+                    <ProductCard key={product.idProduct} product={product} />
+                  ))}
                 </div>
-              )}
-            </div>
+                <div id="explore__pagination" className="explore__pagination mt-4 shrink-0">
+                  <Pagination page={paginaActual} totalPages={totalPages} onChange={setPage} />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
+      <p id="explore__count" className="explore__count mx-auto max-w-6xl px-4 pb-8 text-center text-sm text-ink-500 sm:px-6">
+        {total} producto{total === 1 ? '' : 's'} publicados por vendedores en Agora
+      </p>
+
       <HowItWorks />
-      <Membership />
+      {/* Los planes solo tienen sentido para quien todavía no paga ninguno. */}
+      {!subscription && <Membership />}
 
       {filtersOpen && (
         <BottomSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filtrar resultados" fullHeight={0.85} peekHeight={0.85}
@@ -436,8 +390,8 @@ export function ExplorePage() {
             </Button>
           }
         >
-          <div className="pb-4">
-            <FiltersPanel {...filtersProps} />
+          <div id="explore__filters-sheet" className="explore__filters-sheet pb-4">
+            <FiltersPanel {...filtersProps} ambito="sheet" />
           </div>
         </BottomSheet>
       )}
@@ -447,32 +401,4 @@ export function ExplorePage() {
   );
 }
 
-function MapResultRow({ product }: { product: Product }) {
-  const imageUrl = productImageUrl(product.image);
-  return (
-    <Link to={`/productos/${product.idProduct}`} className="flex items-center gap-3 border-t border-ink-100 py-2.5 first:border-t-0">
-      <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-ink-100">
-        {imageUrl && <img src={imageUrl} alt="" className="h-full w-full object-cover" />}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="truncate text-[13px] font-semibold text-ink-900">{product.name}</p>
-        <p className="truncate text-[11px] text-ink-500">{product.userEnterprise?.companyName}</p>
-      </div>
-      <span className="shrink-0 text-sm font-bold text-secondary">
-        {formatPrice(product.priceUsd, 'USD') ?? formatPrice(product.priceCup, 'CUP')}
-      </span>
-    </Link>
-  );
-}
 
-function AboutItem({ icon, title, description }: { icon: ReactNode; title: string; description: string }) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white">{icon}</div>
-      <div>
-        <p className="text-sm font-medium text-ink-900">{title}</p>
-        <p className="mt-0.5 text-xs leading-relaxed text-ink-500">{description}</p>
-      </div>
-    </div>
-  );
-}
