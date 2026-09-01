@@ -78,7 +78,7 @@ const SCROLL_KEY = 'agora_explorar_scroll';
 
 export function ExplorePage() {
   const { notify } = useToast();
-  const { isSeller, subscription } = useAuth();
+  const { isSeller } = useAuth();
   const { categories } = useCategories();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -379,8 +379,10 @@ export function ExplorePage() {
       </p>
 
       <HowItWorks />
-      {/* Los planes solo tienen sentido para quien todavía no paga ninguno. */}
-      {!subscription && <Membership />}
+      {/* Se enseña también a quien ya paga: si sale una promoción de un plan
+          superior, es justo a quien tiene uno activo a quien hay que avisar.
+          El bloque ya se adapta solo —marca la membresía que ya tienes. */}
+      <Membership />
 
       {filtersOpen && (
         <BottomSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} title="Filtrar resultados" fullHeight={0.85} peekHeight={0.85}

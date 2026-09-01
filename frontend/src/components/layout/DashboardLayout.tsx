@@ -3,6 +3,7 @@ import { LayoutDashboard, Package, Wrench, Building2, ArrowLeft } from 'lucide-r
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
 import { SellerPitch } from '@/components/dashboard/SellerPitch';
+import { SELLER_PLAN } from '@/lib/plans';
 
 const links = [
   { to: '/panel', label: 'Resumen', icon: LayoutDashboard, end: true },
@@ -16,7 +17,9 @@ export function DashboardLayout() {
 
   // Sin plan activo el panel solo enseñaría ceros y un «Inactivo» al final. En
   // su lugar se explica para qué sirve cada sección y cuánto cuesta activarla.
-  const sinPlan = !subscription;
+  // Se mira el plan de vendedor por nombre: con uno de comprador este panel
+  // sigue sin servir de nada.
+  const sinPlan = subscription?.name !== SELLER_PLAN.name;
 
   return (
     <div id="dashboard" className="dashboard mx-auto max-w-6xl px-4 sm:px-6 py-8">

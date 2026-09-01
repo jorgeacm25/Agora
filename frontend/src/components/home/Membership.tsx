@@ -14,7 +14,11 @@ export function Membership() {
 
   const buyerTier = getTier(BUYER_PLAN, cycle);
   const sellerTier = getTier(SELLER_PLAN, cycle);
-  const hasActivePlan = isAuthenticated && Boolean(subscription);
+  // Cuál de los dos planes tiene, por nombre: `isSeller` solo dice que hay una
+  // empresa creada, que es otra cosa (se puede tener empresa y plan comprador).
+  const planActual = isAuthenticated ? subscription?.name : undefined;
+  const tienePlanComprador = planActual === BUYER_PLAN.name;
+  const tienePlanVendedor = planActual === SELLER_PLAN.name;
 
   return (
     <section id="plans" className="plans mx-auto max-w-6xl px-4 sm:px-6 py-16">
@@ -41,7 +45,12 @@ export function Membership() {
       </div>
 
       <div id="plans__grid" className="plans__grid grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div id="plans__buyer" className="plans__buyer rounded-2xl border border-ink-200/80 bg-ink-50 p-7">
+        <div id="plans__buyer" className="plans__buyer relative rounded-2xl border border-ink-200/80 bg-ink-50 p-7">
+          {tienePlanComprador && (
+            <span id="plans__buyer-badge" className="plans__buyer-badge absolute -top-3 right-6 rounded-full bg-ink-900 px-3 py-1 text-xs font-semibold text-ink-50">
+              Tu plan actual
+            </span>
+          )}
           <div id="plans__buyer-icon" className="plans__buyer-icon mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-ink-100 text-ink-600">
             <ShoppingBag size={19} />
           </div>
@@ -63,7 +72,7 @@ export function Membership() {
               </li>
             ))}
           </ul>
-          {hasActivePlan && !isSeller ? (
+          {tienePlanComprador ? (
             <span id="plans__buyer-cta" className="plans__buyer-cta mt-7 inline-flex w-full items-center justify-center rounded-xl border border-ink-200 py-2.5 text-sm font-medium text-ink-500">
               Ya tienes esta membresía
             </span>
@@ -81,7 +90,7 @@ export function Membership() {
 
         <div id="plans__seller" className="plans__seller relative rounded-2xl border-2 border-primary bg-primary-light/40 p-7">
           <span id="plans__seller-badge" className="plans__seller-badge absolute -top-3 right-6 rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white">
-            Para negocios
+            {tienePlanVendedor ? 'Tu plan actual' : 'Para negocios'}
           </span>
           <div id="plans__seller-icon" className="plans__seller-icon mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-white">
             <Store size={19} />
