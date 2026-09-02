@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { CategoryPicker } from '@/components/dashboard/CategoryPicker';
 import { NewCategoryDialog } from '@/components/dashboard/NewCategoryDialog';
+import { SendRequestDialog } from '@/components/dashboard/SendRequestDialog';
 import { CATEGORIA_TEMPORAL, pedirCategoria } from '@/lib/solicitudes-categoria';
 import { useNotifications } from '@/context/NotificationsContext';
 import { useAuth } from '@/context/AuthContext';
@@ -33,6 +34,12 @@ export function ProductFormPage() {
   // temporal y la petición queda esperando aprobación.
   const [categoriaAPedir, setCategoriaAPedir] = useState('');
   const [categoriaPedida, setCategoriaPedida] = useState('');
+  const [porEnviar, setPorEnviar] = useState<{
+    categoria: string;
+    productoNombre: string;
+    usuario: string;
+    userId: string;
+  } | null>(null);
   const [stock, setStock] = useState(true);
   const [image, setImage] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string | null>(null);
@@ -98,12 +105,16 @@ export function ProductFormPage() {
       if (categoriaPedida && user) {
         pedirCategoria({
           userId: user.id,
+          usuario: user.username,
           categoria: categoriaPedida,
           productoId: id ?? null,
           productoNombre: name,
         });
         recargarAvisos();
-        notify(`Pedimos crear «${categoriaPedida}». Te avisamos cuando se revise.`);
+        // La solicitud la manda el negocio por WhatsApp: se queda aquí hasta
+        // que la envíe o decida hacerlo luego.
+        setPorEnviar({ categoria: categoriaPedida, productoNombre: name, usuario: user.username, userId: user.id });
+        return;
       }
       navigate('/panel/productos');
     } catch (err) {
@@ -172,6 +183,15 @@ export function ProductFormPage() {
           </Button>
         </form>
       </Card>
+
+      <SendRequestDialog
+        open={Boolean(porEnviar)}
+        datos={porEnviar ?? { categoria: '', productoNombre: '', usuario: '', userId: '' }}
+        onCerrar={() => {
+          setPorEnviar(null);
+          navigate('/panel/productos');
+        }}
+      />
 
       <NewCategoryDialog
         categoria={categoriaAPedir}

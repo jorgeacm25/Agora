@@ -28,6 +28,10 @@ export interface Aviso {
   readonly cuerpo: string;
   readonly enviadoEn: string;
   readonly leido: boolean;
+  /** WhatsApp con el mensaje ya escrito, para los avisos que piden respuesta. */
+  readonly enlace?: string;
+  /** Qué hace ese enlace, en dos palabras. */
+  readonly enlaceTexto?: string;
 }
 
 const CLAVE = 'agora_avisos';

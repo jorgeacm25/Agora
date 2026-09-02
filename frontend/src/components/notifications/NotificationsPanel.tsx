@@ -1,4 +1,4 @@
-import { BellOff, CalendarClock, Megaphone, ShieldAlert, Tags } from 'lucide-react';
+import { BellOff, CalendarClock, Megaphone, MessageCircle, ShieldAlert, Tags } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationsContext';
 import type { Aviso, TipoAviso } from '@/lib/notificaciones';
 import { cn } from '@/lib/utils';
@@ -88,6 +88,19 @@ function Fila({ aviso, onLeer }: { aviso: Aviso; onLeer: () => void }) {
           <span className="inbox__item-time mt-1 block text-[11px] text-ink-400">{haceCuanto(aviso.enviadoEn)}</span>
         </span>
       </button>
+      {/* La bandeja es de solo lectura, pero un aviso que pide responder y no
+          deja hacerlo obliga a salir a buscar el número. */}
+      {aviso.enlace && (
+        <a
+          href={aviso.enlace}
+          target="_blank"
+          rel="noreferrer"
+          id={`inbox__item-link--${aviso.id}`}
+          className="inbox__item-link mx-3 mb-2 flex items-center gap-1.5 text-xs font-medium text-primary hover:underline"
+        >
+          <MessageCircle size={12} aria-hidden="true" /> {aviso.enlaceTexto ?? 'Abrir WhatsApp'}
+        </a>
+      )}
     </li>
   );
 }
