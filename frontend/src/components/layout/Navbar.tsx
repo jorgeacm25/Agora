@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { Heart, LayoutGrid, LogOut, Store, User as UserIcon, ChevronDown, Menu, X } from 'lucide-react';
+import { Heart, LayoutGrid, LogOut, Store, User as UserIcon, ChevronDown, Menu, X , ShieldCheck } from 'lucide-react';
 import { Logo } from './Logo';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { HeaderSearch } from './HeaderSearch';
@@ -11,7 +11,7 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { cn, initials } from '@/lib/utils';
 
 export function Navbar() {
-  const { user, isAuthenticated, isSeller, tieneAcceso, logout } = useAuth();
+  const { user, isAuthenticated, isSeller, isModerator, tieneAcceso, logout } = useAuth();
   const { sinLeer } = useNotifications();
   const { favorites } = useFavorites();
   const navigate = useNavigate();
@@ -122,6 +122,16 @@ export function Navbar() {
                   <div id="navbar__menu-inbox" className="navbar__menu-inbox mb-1 border-b border-ink-100 pb-1">
                     <NotificationsPanel />
                   </div>
+                  {isModerator && (
+                    <Link
+                      to="/moderacion"
+                      onClick={() => setMenuOpen(false)}
+                      id="navbar__menu-moderation"
+                      className="navbar__menu-moderation flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-700 hover:bg-ink-50"
+                    >
+                      <ShieldCheck size={15} /> Moderación
+                    </Link>
+                  )}
                   <Link
                     to="/"
                     onClick={() => setMenuOpen(false)}

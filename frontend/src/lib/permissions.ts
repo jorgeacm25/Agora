@@ -15,6 +15,7 @@ export const Permissions = {
   RATING_VIEW: 'rating:view',
   RATING_UPDATE: 'rating:update',
   RATING_DELETE: 'rating:delete',
+  SUPER_USER_VIEW: 'super_user:view',
 } as const;
 
 export function hasPermission(permissions: string[] | undefined, permission: string): boolean {
@@ -23,4 +24,13 @@ export function hasPermission(permissions: string[] | undefined, permission: str
 
 export function isSeller(permissions: string[] | undefined): boolean {
   return hasPermission(permissions, Permissions.PRODUCT_CREATE) || hasPermission(permissions, Permissions.SERVICE_CREATE);
+}
+
+/**
+ * Quién puede moderar. El backend no tiene un permiso de moderación como tal:
+ * el que se le parece es el de super usuario, que es quien lleva la parte
+ * administrativa. Cuando exista uno propio, se cambia aquí.
+ */
+export function isModerator(permissions: string[] | undefined): boolean {
+  return hasPermission(permissions, Permissions.SUPER_USER_VIEW);
 }

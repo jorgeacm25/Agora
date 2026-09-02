@@ -8,7 +8,7 @@ import type { AuthUser, UserEnterprise } from '@/types';
 import type { Subscription } from '@/api/subscription';
 import { daAccesoDeNegocio } from '@/lib/plans';
 import { ApiError } from '@/api/client';
-import { isSeller as computeIsSeller } from '@/lib/permissions';
+import { isSeller as computeIsSeller, isModerator as computeIsModerator } from '@/lib/permissions';
 
 // Agora no es una landing: sin sesión no se ve ninguna pantalla, solo el acceso.
 // Aquí vivía un usuario de vista previa que en `npm run dev` entraba solo y
@@ -25,6 +25,8 @@ interface AuthContextValue {
   puedeAdministrarNegocio: boolean;
   isLoading: boolean;
   isSeller: boolean;
+  /** Puede revisar las categorías que piden los negocios. */
+  isModerator: boolean;
   isAuthenticated: boolean;
   login: (username: string, password: string) => Promise<AuthUser>;
   register: (username: string, password: string) => Promise<void>;
@@ -109,6 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       subscription,
       isLoading: isLoading || (Boolean(user) && !datosListos),
       isSeller: computeIsSeller(user?.permissions) || Boolean(enterprise),
+      isModerator: computeIsModerator(user?.permissions),
       // Con suscripción vigente se entra en Agora; el panel de negocio pide
       // además que ese plan sea de los que dan negocio.
       tieneAcceso: Boolean(subscription),

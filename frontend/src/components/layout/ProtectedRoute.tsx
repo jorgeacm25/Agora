@@ -66,3 +66,12 @@ export function RequireSeller() {
   }
   return <Outlet />;
 }
+
+/** La parte administrativa: solo para quien modera. */
+export function RequireModerator() {
+  const { isModerator, isLoading } = useAuth();
+
+  if (isLoading) return <PageSpinner />;
+  if (!isModerator) return <Navigate to="/" replace />;
+  return <Outlet />;
+}

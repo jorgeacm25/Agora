@@ -8,7 +8,7 @@ import { FavoritesProvider } from '@/context/FavoritesContext';
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
-import { ProtectedRoute, RequireSubscription, SoloSinSesion } from '@/components/layout/ProtectedRoute';
+import { ProtectedRoute, RequireModerator, RequireSubscription, SoloSinSesion } from '@/components/layout/ProtectedRoute';
 import { ScrollAlInicio } from '@/components/layout/ScrollAlInicio';
 
 import { LoginPage } from '@/pages/auth/LoginPage';
@@ -27,6 +27,7 @@ import { ProductFormPage } from '@/pages/dashboard/ProductFormPage';
 import { DashboardServices } from '@/pages/dashboard/DashboardServices';
 import { ServiceFormPage } from '@/pages/dashboard/ServiceFormPage';
 import { DashboardEnterprise } from '@/pages/dashboard/DashboardEnterprise';
+import { ModerationPage } from '@/pages/moderation/ModerationPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 /** Enlaces antiguos: /tiendas/:id era la ficha del negocio antes del 2026-08-31. */
@@ -90,6 +91,10 @@ export default function App() {
                     <Route path="servicios/nuevo" element={<ServiceFormPage />} />
                     <Route path="servicios/:id" element={<ServiceFormPage />} />
                     <Route path="empresa" element={<DashboardEnterprise />} />
+                </Route>
+
+                <Route element={<RequireModerator />}>
+                  <Route path="moderacion" element={<ModerationPage />} />
                 </Route>
 
                 <Route path="*" element={<NotFoundPage />} />
