@@ -23,3 +23,19 @@ export function initials(name: string): string {
     .map((part) => part[0]?.toUpperCase())
     .join('');
 }
+
+/**
+ * Deja pasar solo lo que puede ser un precio mientras se escribe.
+ *
+ * Filtra al teclear en vez de avisar al enviar, porque una letra en un precio
+ * no es una duda que resolver: es una tecla que sobra. Acepta la coma como
+ * separador —en el teclado numérico está más a mano que el punto— y la
+ * convierte, admite un solo separador y corta en dos decimales, que es lo que
+ * el backend guarda.
+ */
+export function soloPrecio(valor: string): string {
+  const limpio = valor.replace(/,/g, '.').replace(/[^\d.]/g, '');
+  const [entera, ...resto] = limpio.split('.');
+  if (resto.length === 0) return entera;
+  return `${entera}.${resto.join('').slice(0, 2)}`;
+}

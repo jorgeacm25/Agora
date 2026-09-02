@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PageSpinner } from '@/components/ui/Spinner';
 import { useAuth } from '@/context/AuthContext';
+import { soloPrecio } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 
 export function ServiceFormPage() {
@@ -83,8 +84,8 @@ export function ServiceFormPage() {
         <form onSubmit={handleSubmit} id="service-form__form" className="service-form__form space-y-4">
           <Input label="Nombre" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Mensajería express" />
           <div id="service-form__price-row" className="service-form__price-row grid grid-cols-2 gap-3">
-            <Input label="Precio (CUP)" inputMode="decimal" value={priceCup} onChange={(e) => setPriceCup(e.target.value)} placeholder="0.00" />
-            <Input label="Precio (USD)" inputMode="decimal" value={priceUsd} onChange={(e) => setPriceUsd(e.target.value)} placeholder="0.00" />
+            <Input label="Precio (CUP)" inputMode="decimal" value={priceCup} onChange={(e) => setPriceCup(soloPrecio(e.target.value))} placeholder="0.00" />
+            <Input label="Precio (USD)" inputMode="decimal" value={priceUsd} onChange={(e) => setPriceUsd(soloPrecio(e.target.value))} placeholder="0.00" />
           </div>
           <TextArea label="Descripción" required rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
           <Button type="submit" className="w-full" size="lg" loading={submitting}>

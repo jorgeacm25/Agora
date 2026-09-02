@@ -1,7 +1,7 @@
 import { ArrowDownWideNarrow, ArrowUpNarrowWide, MapPin, PackageCheck, SlidersHorizontal, TrendingUp, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 import type { CategoryCount } from '@/hooks/useCategories';
-import { cn } from '@/lib/utils';
+import { cn, soloPrecio } from '@/lib/utils';
 
 export type SortOrder = 'asc' | 'desc';
 
@@ -132,7 +132,7 @@ export function FiltersPanel({
             aria-label="Precio mínimo en CUP"
             placeholder="Mín"
             value={minPrice}
-            onChange={(e) => onMinPrice(e.target.value.replace(/\D/g, ''))}
+            onChange={(e) => onMinPrice(soloPrecio(e.target.value))}
             id={uid('filters__price-min')}
             className={campo}
           />
@@ -142,7 +142,7 @@ export function FiltersPanel({
             aria-label="Precio máximo en CUP"
             placeholder="Máx"
             value={maxPrice}
-            onChange={(e) => onMaxPrice(e.target.value.replace(/\D/g, ''))}
+            onChange={(e) => onMaxPrice(soloPrecio(e.target.value))}
             id={uid('filters__price-max')}
             className={campo}
           />

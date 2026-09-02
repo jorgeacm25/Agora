@@ -13,6 +13,7 @@ import { SendRequestDialog } from '@/components/dashboard/SendRequestDialog';
 import { CATEGORIA_TEMPORAL, pedirCategoria } from '@/lib/solicitudes-categoria';
 import { useNotifications } from '@/context/NotificationsContext';
 import { useAuth } from '@/context/AuthContext';
+import { soloPrecio } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 import { Link } from 'react-router-dom';
 
@@ -155,8 +156,8 @@ export function ProductFormPage() {
           <Input label="Nombre" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Café molido" />
 
           <div id="product-form__price-row" className="product-form__price-row grid grid-cols-2 gap-3">
-            <Input label="Precio (CUP)" inputMode="decimal" value={priceCup} onChange={(e) => setPriceCup(e.target.value)} placeholder="0.00" />
-            <Input label="Precio (USD)" inputMode="decimal" value={priceUsd} onChange={(e) => setPriceUsd(e.target.value)} placeholder="0.00" />
+            <Input label="Precio (CUP)" inputMode="decimal" value={priceCup} onChange={(e) => setPriceCup(soloPrecio(e.target.value))} placeholder="0.00" />
+            <Input label="Precio (USD)" inputMode="decimal" value={priceUsd} onChange={(e) => setPriceUsd(soloPrecio(e.target.value))} placeholder="0.00" />
           </div>
 
           <div id="product-form__meta-row" className="product-form__meta-row grid grid-cols-2 gap-3">
