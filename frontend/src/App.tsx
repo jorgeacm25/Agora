@@ -3,6 +3,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { MotionProvider } from '@/context/MotionContext';
 import { ToastProvider } from '@/context/ToastContext';
+import { NotificationsProvider } from '@/context/NotificationsContext';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { OnboardingGate } from '@/components/onboarding/OnboardingGate';
 import { AppLayout } from '@/components/layout/AppLayout';
@@ -53,6 +54,7 @@ export default function App() {
       <MotionProvider>
       <AuthProvider>
         <ToastProvider>
+          <NotificationsProvider>
           <FavoritesProvider>
           <ScrollAlInicio />
           <Routes>
@@ -103,6 +105,7 @@ export default function App() {
             </Route>
           </Routes>
           </FavoritesProvider>
+          </NotificationsProvider>
         </ToastProvider>
       </AuthProvider>
       </MotionProvider>

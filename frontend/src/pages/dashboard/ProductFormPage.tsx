@@ -7,6 +7,10 @@ import { Input, TextArea } from '@/components/ui/Field';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { PageSpinner } from '@/components/ui/Spinner';
+import { CategoryPicker } from '@/components/dashboard/CategoryPicker';
+import { NewCategoryDialog } from '@/components/dashboard/NewCategoryDialog';
+import { CATEGORIA_TEMPORAL, pedirCategoria } from '@/lib/solicitudes-categoria';
+import { useNotifications } from '@/context/NotificationsContext';
 import { useAuth } from '@/context/AuthContext';
 import { useToast } from '@/context/ToastContext';
 import { Link } from 'react-router-dom';
@@ -15,7 +19,8 @@ export function ProductFormPage() {
   const { id } = useParams<{ id: string }>();
   const isEditing = Boolean(id);
   const navigate = useNavigate();
-  const { enterprise } = useAuth();
+  const { enterprise, user } = useAuth();
+  const { recargar: recargarAvisos } = useNotifications();
   const { notify } = useToast();
 
   const [name, setName] = useState('');
@@ -24,6 +29,10 @@ export function ProductFormPage() {
   const [description, setDescription] = useState('');
   const [unit, setUnit] = useState('');
   const [category, setCategory] = useState('');
+  // Categoría que el negocio quiere estrenar: el producto se publica en la
+  // temporal y la petición queda esperando aprobación.
+  const [categoriaAPedir, setCategoriaAPedir] = useState('');
+  const [categoriaPedida, setCategoriaPedida] = useState('');
   const [stock, setStock] = useState(true);
   const [image, setImage] = useState<File | null>(null);
   const [existingImage, setExistingImage] = useState<string | null>(null);
@@ -84,6 +93,18 @@ export function ProductFormPage() {
         });
         notify('Producto publicado');
       }
+      // La solicitud se registra al guardar, no al confirmar el diálogo: si el
+      // producto no llega a publicarse, no queda una petición huérfana.
+      if (categoriaPedida && user) {
+        pedirCategoria({
+          userId: user.id,
+          categoria: categoriaPedida,
+          productoId: id ?? null,
+          productoNombre: name,
+        });
+        recargarAvisos();
+        notify(`Pedimos crear «${categoriaPedida}». Te avisamos cuando se revise.`);
+      }
       navigate('/panel/productos');
     } catch (err) {
       notify(err instanceof Error ? err.message : 'No se pudo guardar el producto', 'error');
@@ -129,7 +150,14 @@ export function ProductFormPage() {
 
           <div id="product-form__meta-row" className="product-form__meta-row grid grid-cols-2 gap-3">
             <Input label="Unidad" required value={unit} onChange={(e) => setUnit(e.target.value)} placeholder="kg, unidad, libra…" />
-            <Input label="Categoría" required value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Alimentos" />
+            <CategoryPicker
+              value={category}
+              onChange={(v) => {
+                setCategory(v);
+                if (categoriaPedida && v !== CATEGORIA_TEMPORAL) setCategoriaPedida('');
+              }}
+              onCrearNueva={setCategoriaAPedir}
+            />
           </div>
 
           <TextArea label="Descripción" required rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
@@ -144,6 +172,17 @@ export function ProductFormPage() {
           </Button>
         </form>
       </Card>
+
+      <NewCategoryDialog
+        categoria={categoriaAPedir}
+        open={Boolean(categoriaAPedir)}
+        onCancelar={() => setCategoriaAPedir('')}
+        onConfirmar={() => {
+          setCategoriaPedida(categoriaAPedir);
+          setCategory(CATEGORIA_TEMPORAL);
+          setCategoriaAPedir('');
+        }}
+      />
     </div>
   );
 }

@@ -4,12 +4,15 @@ import { Heart, LayoutGrid, LogOut, Store, User as UserIcon, ChevronDown, Menu, 
 import { Logo } from './Logo';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { HeaderSearch } from './HeaderSearch';
+import { NotificationsPanel } from '@/components/notifications/NotificationsPanel';
+import { useNotifications } from '@/context/NotificationsContext';
 import { useAuth } from '@/context/AuthContext';
 import { useFavorites } from '@/context/FavoritesContext';
 import { cn, initials } from '@/lib/utils';
 
 export function Navbar() {
   const { user, isAuthenticated, isSeller, tieneAcceso, logout } = useAuth();
+  const { sinLeer } = useNotifications();
   const { favorites } = useFavorites();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -90,19 +93,34 @@ export function Navbar() {
             <div id="navbar__user" className="navbar__user relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen((v) => !v)}
-                id="navbar__user-button" className="navbar__user-button flex items-center gap-2 rounded-full border border-ink-200 py-1 pl-1 pr-3 hover:border-ink-300 transition-colors"
+                id="navbar__user-button" className="navbar__user-button relative flex items-center gap-2 rounded-full border border-ink-200 py-1 pl-1 pr-3 hover:border-ink-300 transition-colors"
               >
                 <span id="navbar__user-initials" className="navbar__user-initials flex h-7 w-7 items-center justify-center rounded-full bg-primary text-xs font-semibold text-white">
                   {initials(user.username)}
                 </span>
                 <span id="navbar__user-name" className="navbar__user-name text-sm font-medium text-ink-800 max-w-[8rem] truncate">{user.username}</span>
                 <ChevronDown size={14} className="text-ink-400" />
+                {/* Los avisos sin leer, en la esquina del botón: es lo que
+                    hace mirar el menú de la cuenta. */}
+                {sinLeer > 0 && (
+                  <span
+                    id="navbar__user-badge"
+                    aria-label={`${sinLeer} aviso${sinLeer === 1 ? '' : 's'} sin leer`}
+                    className="navbar__user-badge absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-secondary-dark px-1 text-[10px] font-bold text-white"
+                  >
+                    {sinLeer > 9 ? '9+' : sinLeer}
+                  </span>
+                )}
               </button>
               {menuOpen && (
-                <div id="navbar__menu" className="navbar__menu absolute right-0 mt-2 w-56 animate-fade-up rounded-xl border border-ink-200 bg-ink-50 p-1.5 shadow-lift">
+                <div id="navbar__menu" className="navbar__menu absolute right-0 mt-2 w-80 animate-fade-up rounded-xl border border-ink-200 bg-ink-50 p-1.5 shadow-lift">
                   <div id="navbar__menu-header" className="navbar__menu-header px-3 py-2 border-b border-ink-100 mb-1">
                     <p id="navbar__menu-username" className="navbar__menu-username text-sm font-medium text-ink-900 truncate">{user.username}</p>
                     <p id="navbar__menu-role" className="navbar__menu-role text-xs text-ink-500">{isSeller ? 'Cuenta de vendedor' : 'Cuenta de comprador'}</p>
+                  </div>
+
+                  <div id="navbar__menu-inbox" className="navbar__menu-inbox mb-1 border-b border-ink-100 pb-1">
+                    <NotificationsPanel />
                   </div>
                   <Link
                     to="/"
